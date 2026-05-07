@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uniform Entry</title>
+
+<style>
+body { margin:0; font-family:Arial; background:#f1f5f9; }
+
+/* HEADER */
+.header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#1e293b;
+    padding:15px 30px;
+    color:white;
+}
+
+.logo { font-size:22px; font-weight:bold; }
+
+.menu { display:flex; gap:20px; }
+
+.menu button {
+    background:transparent;
+    border:none;
+    color:white;
+    padding:8px 12px;
+    cursor:pointer;
+}
+
+.menu button:hover {
+    background:#38bdf8;
+    color:black;
+}
+
+/* FORM */
+.container { padding:20px; }
+
+.form-grid {
+    display:grid;
+    grid-template-columns: repeat(2,1fr);
+    gap:15px;
+}
+
+input, select {
+    width:100%;
+    padding:8px;
+}
+
+label { font-weight:bold; }
+
+/* TABLE */
+table {
+    width:100%;
+    margin-top:20px;
+    border-collapse:collapse;
+    background:white;
+}
+
+th,td {
+    border:1px solid #ccc;
+    padding:8px;
+    text-align:center;
+}
+
+th { background:#1e293b; color:white; }
+
+button { margin:5px; padding:6px 10px; cursor:pointer; }
+
+/* MODAL */
+.modal {
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.5);
+}
+
+.modal-content {
+    background:white;
+    width:400px;
+    margin:100px auto;
+    padding:20px;
+    border-radius:10px;
+}
+
+.close {
+    float:right;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="logo">Uniform Register</div>
+
+    <div class="menu">
+        <a href="uniform.html"><button>Home</button></a>
+        <a href="#"><button>Data Entry</button></a>
+        <a href="stock.html"><button>Stock Management</button></a>
+        <a href="vendor.html"><button>Vendor Management</button></a>
+        <a href="setting.html"><button>Setting</button></a>
+        <a href="dashboard.html"><button>Exit</button></a>
+    </div>
+</div>
+
+<div class="container">
+
+<h2>Employee Uniform Entry</h2>
+
+<div class="form-grid">
+
+<div>
+<label>Company</label>
+<select id="company">
+<option>Equity Hyundai</option>
+<option>Entity Renault</option>
+</select>
+</div>
+
+<div>
+<label>Branch</label>
+<select id="branch"></select>
+</div>
+
+<div>
+<label>Department</label>
+<select id="department"></select>
+</div>
+
+<div>
+<label>Employee Name</label>
+<input type="text" id="empName">
+</div>
+
+<div>
+<label>Joining Date</label>
+<input type="date" id="joining">
+</div>
+
+<div>
+<label>Given Date</label>
+<input type="date" id="given" onchange="autoDueDate()">
+</div>
+
+<div>
+<label>Pair</label>
+<input type="text" id="pair">
+</div>
+
+<div>
+<label>Material</label>
+<select id="material"></select>
+</div>
+
+<div>
+<label>Due Date</label>
+<input type="date" id="due" readonly>
+</div>
+
+<div style="grid-column: span 2;">
+<label>Remarks</label>
+<input type="text" id="remarks">
+</div>
+
+</div>
+
+<button onclick="addData()">Submit</button>
+<button onclick="exportExcel()">Export Excel</button>
+
+<br><br>
+
+<input type="text" id="search" placeholder="Search..." onkeyup="searchData()">
+
+<table>
+<thead>
+<tr>
+<th>SR</th>
+<th>Name</th>
+<th>Company</th>
+<th>Date Of Given</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+
+</div>
+
+<!-- MODAL -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">X</span>
+        <h3>Employee Details</h3>
+        <div id="detailBox"></div>
+    </div>
+</div>
+
+<script>
+
+let data = JSON.parse(localStorage.getItem("uniformData")) || [];
+let editIndex = -1;
+
+/* LOAD BRANCH */
+function loadBranches(){
+    let branchData = JSON.parse(localStorage.getItem("branches")) || [];
+    branch.innerHTML = "<option>Select Branch</option>";
+
+    branchData.forEach(b=>{
+        branch.innerHTML += `<option value="${b}">${b}</option>`;
+    });
+}
+
+/* LOAD DEPARTMENT */
+function loadDepartments(){
+    let deptData = JSON.parse(localStorage.getItem("departments")) || [];
+    department.innerHTML = "<option>Select Department</option>";
+
+    deptData.forEach(d=>{
+        department.innerHTML += `<option value="${d}">${d}</option>`;
+    });
+}
+
+function loadMaterials(){
+    let mat = JSON.parse(localStorage.getItem("materials")) || [];
+    material.innerHTML = "<option>Select Material</option>";
+
+    mat.forEach(m=>{
+        material.innerHTML += `<option>${m}</option>`;
+    });
+}
+
+/* AUTO DUE */
+function autoDueDate(){
+    if(given.value){
+        let d = new Date(given.value);
+        d.setFullYear(d.getFullYear()+1);
+        due.value = d.toISOString().split('T')[0];
+    }
+}
+
+/* LAST GIVEN */
+function getLastGiven(name){
+    let f = data.filter(d => d.empName === name);
+    return f.length ? f[f.length-1].given : "-";
+}
+
+/* RENDER */
+function render(){
+    tbody.innerHTML="";
+
+    data.forEach((d,i)=>{
+        tbody.innerHTML += `
+        <tr>
+        <td>${i+1}</td>
+        <td>${d.empName}</td>
+        <td>${d.company}</td>
+        <td>${d.given}</td>
+        <td>
+        <button onclick="showDetails(${i})">Details</button>
+        <button onclick="editData(${i})">Edit</button>
+        <button onclick="deleteData(${i})">Delete</button>
+        </td>
+        </tr>`;
+    });
+
+    localStorage.setItem("uniformData", JSON.stringify(data));
+}
+
+/* SHOW MODAL */
+function showDetails(i){
+    let d = data[i];
+
+
+    detailBox.innerHTML = `
+    <p><b>->NAME:</b> ${d.empName}</p>
+    <p><b>COMPANY:</b> ${d.company}</p>
+    <p><b>BRANCH:</b> ${d.branch}</p>
+    <p><b>DEPARTMENT:</b> ${d.department}</p>
+    <p><b>->GIVEN DATE:</b> ${d.given}</p>
+    <p><b>PAIR:</b> ${d.pair}</p>
+    <p><b>DUE DATE:</b> ${d.due}</p>
+    <p><b>LAST GIVEN:</b> ${d.lastGiven}</p>
+    <p><b>JOINING DATE:</b> ${d.joining} </p>
+    <p><b>REMARKS:</b> ${d.remarks}</p>
+    `;
+
+
+    modal.style.display="block";
+}
+
+/* CLOSE MODAL */
+function closeModal(){
+    modal.style.display="none";
+}
+
+/* ADD */
+function addData(){
+
+    if(!empName.value || !given.value){
+        alert("Fill required fields");
+        return;
+    }
+
+    let obj = {
+    company: company.value,
+    branch: branch.value,
+    department: department.value,
+    empName: empName.value,
+    joining: joining.value,
+    given: given.value,
+    pair: pair.value,
+    material: material.value,   // 🔥 IMPORTANT
+    due: due.value,
+    remarks: remarks.value
+};
+
+
+    
+    if(editIndex==-1){
+        data.push(obj);
+    }else{
+        data[editIndex]=obj;
+        editIndex=-1;
+    }
+
+    clearForm();
+    render();
+}
+
+/* EDIT */
+function editData(i){
+    let d=data[i];
+
+    company.value=d.company;
+    branch.value=d.branch;
+    department.value=d.department;
+    empName.value=d.empName;
+    joining.value=d.joining;
+    given.value=d.given;
+    pair.value=d.pair;
+    due.value=d.due;
+    remarks.value=d.remarks;
+
+    editIndex=i;
+}
+
+/* DELETE */
+function deleteData(i){
+    if(confirm("Delete?")){
+        data.splice(i,1);
+        render();
+    }
+}
+
+/* CLEAR */
+function clearForm(){
+    empName.value="";
+    joining.value="";
+    given.value="";
+    pair.value="";
+    due.value="";
+    remarks.value="";
+}
+
+/* SEARCH */
+function searchData(){
+    let val = search.value.toLowerCase();
+    let rows = document.querySelectorAll("#tbody tr");
+
+    rows.forEach(r=>{
+        r.style.display = r.innerText.toLowerCase().includes(val) ? "" : "none";
+    });
+}
+
+/* EXPORT */
+function exportExcel(){
+    let csv="SR,Company,Branch,Department,Name,LastGiven,Given,Due,Pair,Remarks\n";
+
+    data.forEach((d,i)=>{
+        csv+=`${i+1},${d.company},${d.branch},${d.department},${d.empName},${d.lastGiven},${d.given},${d.due},${d.pair},${d.remarks}\n`;
+    });
+
+    let blob=new Blob([csv]);
+    let a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="Uniform_Excel_Sheet.csv";
+    a.click();
+}
+
+/* INIT */
+loadBranches();
+loadDepartments();
+loadMaterials();
+render();
+
+</script>
+
+</body>
+</html>
+

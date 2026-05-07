@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Quick Access</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial;
+    background:#f1f5f9;
+}
+
+/* HEADER */
+.header{
+    background:#0d6efd;
+    color:white;
+    padding:12px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    font-size:18px;
+    font-weight:bold;
+}
+
+/* CONTAINER */
+.container{
+    padding:20px;
+}
+
+/* BUTTON GRID */
+.grid{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px,1fr));
+    gap:15px;
+}
+
+/* SMALL BUTTON */
+.btn{
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:bold;
+    box-shadow:0 3px 10px rgba(0,0,0,0.1);
+    transition:0.2s;
+}
+
+.btn:hover{
+    background:#0d6efd;
+    color:white;
+    transform:scale(1.05);
+}
+
+/* ICON */
+.icon{
+    font-size:22px;
+    margin-bottom:5px;
+}
+
+/* FOOTER */
+.footer{
+    background:#0d6efd;
+    color:white;
+    text-align:center;
+    padding:10px;
+    position:fixed;
+    bottom:0;
+    width:100%;
+    font-size:13px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="logo">Prime Software</div>
+    <button onclick="go('dashboard.html')" style="padding:5px 10px; border:none; cursor:pointer;">⬅ Back</button>
+</div>
+
+<!-- BUTTON GRID -->
+<div class="container">
+    <div class="grid">
+
+        <div class="btn" onclick="go('signup.html')">
+            <div class="icon">🔐</div>
+            Reset password
+        </div>
+
+        <div class="btn" onclick="go('signup.html')">
+            <div class="icon"></div>
+            Empty
+        </div>
+
+
+
+
+    </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    © 2022 - 2026 | Made by PrimeWebTech
+</div>
+
+<script>
+function go(page){
+    window.location.href = page;
+}
+</script>
+
+</body>
+</html>

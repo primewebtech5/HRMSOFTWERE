@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Setting</title>
+
+<style>
+body { margin:0; font-family:Arial; background:#f1f5f9; }
+
+/* HEADER SAME AS STOCK */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #1e293b;
+    padding: 15px 30px;
+    color: white;
+}
+
+.logo { font-size: 22px; font-weight: bold; }
+
+.menu { display: flex; gap: 20px; }
+
+.menu button {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 6px;
+}
+
+.menu button:hover {
+    background: #38bdf8;
+    color: black;
+}
+
+.active {
+    background:#38bdf8 !important;
+    color:black !important;
+}
+
+/* CONTENT */
+.container{
+    padding:20px;
+    display:flex;
+    gap:30px;
+    flex-wrap:wrap;
+}
+
+/* BOX */
+.box{
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    width:300px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+input{
+    width:100%;
+    padding:8px;
+    margin-bottom:10px;
+}
+
+button{
+    padding:6px 10px;
+    margin:5px 0;
+    cursor:pointer;
+}
+
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+}
+
+th,td{
+    border:1px solid #ccc;
+    padding:6px;
+    text-align:center;
+}
+
+th{
+    background:#1e293b;
+    color:white;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="logo">Uniform Register</div>
+
+    <div class="menu">
+        <a href="uniform.html"><button>Home</button></a>
+        <a href="entry.html"><button>Data Entry</button></a>
+        <a href="stock.html"><button>Stock Management</button></a>
+        <a href="vendor.html"><button>Vendor Management</button></a>
+        <a href="#"><button class="active">Setting</button></a>
+        <a href="dashboard.html"><button>Exit</button></a>
+    </div>
+</div>
+
+<div class="container">
+
+<!-- BRANCH -->
+<div class="box">
+<h3>Branch Master</h3>
+
+<input type="text" id="branchName" placeholder="Enter Branch">
+<button onclick="addBranch()">Add</button>
+
+<table>
+<thead>
+<tr><th>Branch</th><th>Action</th></tr>
+</thead>
+<tbody id="branchTable"></tbody>
+</table>
+</div>
+
+<!-- DEPARTMENT -->
+<div class="box">
+<h3>Department Master</h3>
+
+<input type="text" id="deptName" placeholder="Enter Department">
+<button onclick="addDept()">Add</button>
+
+<table>
+<thead>
+<tr><th>Department</th><th>Action</th></tr>
+</thead>
+<tbody id="deptTable"></tbody>
+</table>
+</div>
+
+<!-- MATERIAL MASTER -->
+<div class="box">
+<h3>Uniform Material Master</h3>
+
+<input type="text" id="matName" placeholder="Enter Material">
+<button onclick="addMaterial()">Add</button>
+
+<table>
+<thead>
+<tr><th>Material</th><th>Action</th></tr>
+</thead>
+<tbody id="matTable"></tbody>
+</table>
+</div>
+
+</div>
+
+<script>
+
+/* ================= BRANCH ================= */
+let branches = JSON.parse(localStorage.getItem("branches")) || [];
+
+function renderBranch(){
+    branchTable.innerHTML="";
+    branches.forEach((b,i)=>{
+        branchTable.innerHTML += `
+        <tr>
+        <td>${b}</td>
+        <td><button onclick="deleteBranch(${i})">Delete</button></td>
+        </tr>`;
+    });
+    localStorage.setItem("branches", JSON.stringify(branches));
+}
+
+function addBranch(){
+    if(branchName.value=="") return;
+    branches.push(branchName.value);
+    branchName.value="";
+    renderBranch();
+}
+
+function deleteBranch(i){
+    branches.splice(i,1);
+    renderBranch();
+}
+
+/* ================= DEPARTMENT ================= */
+let departments = JSON.parse(localStorage.getItem("departments")) || [];
+
+function renderDept(){
+    deptTable.innerHTML="";
+    departments.forEach((d,i)=>{
+        deptTable.innerHTML += `
+        <tr>
+        <td>${d}</td>
+        <td><button onclick="deleteDept(${i})">Delete</button></td>
+        </tr>`;
+    });
+    localStorage.setItem("departments", JSON.stringify(departments));
+}
+
+function addDept(){
+    if(deptName.value=="") return;
+    departments.push(deptName.value);
+    deptName.value="";
+    renderDept();
+}
+
+function deleteDept(i){
+    departments.splice(i,1);
+    renderDept();
+}
+
+/* ================= MATERIAL ================= */
+let materials = JSON.parse(localStorage.getItem("materials")) || [];
+
+function renderMaterial(){
+    matTable.innerHTML="";
+    materials.forEach((m,i)=>{
+        matTable.innerHTML += `
+        <tr>
+        <td>${m}</td>
+        <td><button onclick="deleteMaterial(${i})">Delete</button></td>
+        </tr>`;
+    });
+
+    localStorage.setItem("materials", JSON.stringify(materials));
+}
+
+function addMaterial(){
+    if(matName.value=="") return;
+    materials.push(matName.value);
+    matName.value="";
+    renderMaterial();
+}
+
+function deleteMaterial(i){
+    materials.splice(i,1);
+    renderMaterial();
+}
+
+/* INIT */
+renderBranch();
+renderDept();
+renderMaterial();
+
+</script>
+
+</body>
+</html>

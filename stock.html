@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Stock Master</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body { margin:0; font-family:Arial; }
+
+.header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#1e293b;
+    padding:15px 30px;
+    color:white;
+}
+
+.logo { font-size:22px; font-weight:bold; }
+
+.menu { display:flex; gap:20px; }
+
+.menu button {
+    background:transparent;
+    border:none;
+    color:white;
+    padding:8px 12px;
+    cursor:pointer;
+}
+
+.menu button:hover { background:#38bdf8; color:black; }
+.active { background:#38bdf8 !important; color:black !important; }
+
+.container{ padding:20px; }
+
+.stock-top{
+    text-align:center;
+    background:#1e293b;
+    color:white;
+    padding:15px;
+    border-radius:10px;
+}
+
+.material-grid{
+    display:grid;
+    grid-template-columns: repeat(4,1fr);
+    gap:15px;
+    margin-top:20px;
+}
+
+.material-box{
+    background:white;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+.box{
+    background:white;
+    padding:20px;
+    margin-top:20px;
+    border-radius:10px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns: repeat(2,1fr);
+    gap:15px;
+}
+
+input,select{ padding:8px; width:100%; }
+
+.btn{
+    background:#1e293b;
+    color:white;
+    border:none;
+    padding:10px 15px;
+    border-radius:6px;
+    cursor:pointer;
+    margin-right:10px;
+}
+
+.btn:hover{ background:#38bdf8; color:black; }
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:15px;
+}
+
+th,td{
+    border:1px solid #ccc;
+    padding:8px;
+    text-align:center;
+}
+
+th{ background:#1e293b; color:white; }
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="logo">Uniform Register</div>
+    <div class="menu">
+        <a href="uniform.html"><button>Home</button></a>
+        <a href="entry.html"><button>Data Entry</button></a>
+        <a href="#"><button class="active">Stock Management</button></a>
+        <a href="vendor.html"><button>Vendor Management</button></a>
+        <a href="setting.html"><button>Setting</button></a>
+        <a href="dashboard.html"><button>Exit</button></a>
+    </div>
+</div>
+
+<div class="container">
+
+<div class="stock-top">
+    <h2>Available Stock</h2>
+    <h3 id="totalStock">0</h3>
+    <h4>Total Value: ₹ <span id="totalValue">0</span></h4>
+</div>
+
+<div class="material-grid" id="materialGrid"></div>
+
+<div class="box">
+<h3>Add Stock</h3>
+
+<div class="form-grid">
+<div>
+<label>Material</label>
+<select id="material"></select>
+</div>
+
+<div>
+<label>Price</label>
+<input type="number" id="price">
+</div>
+
+<div>
+<label>Pair</label>
+<input type="number" id="pair">
+</div>
+
+<div>
+<label>Purchase Date</label>
+<input type="date" id="pdate">
+</div>
+
+<div style="grid-column: span 2;">
+<label>Remarks</label>
+<input type="text" id="remarks">
+</div>
+</div>
+
+<br>
+<button class="btn" onclick="addStock()">Add Stock</button>
+<button class="btn" onclick="exportExcel()">Export Excel</button>
+<button class="btn" onclick="exportPDF()">Export PDF</button>
+
+</div>
+
+<div class="box">
+<h3>Stock History</h3>
+
+<input type="text" id="search" placeholder="Search..." onkeyup="searchData()" style="padding:8px;width:200px;margin-bottom:10px;">
+
+<select id="filter" onchange="filterMaterial()" style="padding:8px;margin-left:10px;">
+<option value="">All Material</option>
+</select>
+
+<table>
+<thead>
+<tr>
+<th>SR</th>
+<th>Material</th>
+<th>Price</th>
+<th>Pair</th>
+<th>Date</th>
+<th>Remarks</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table>
+
+</div>
+
+</div>
+
+<script>
+
+let stockData = JSON.parse(localStorage.getItem("stockData")) || [];
+let materials = JSON.parse(localStorage.getItem("materials")) || [];
+
+/* LOAD MATERIAL */
+function loadMaterials(){
+    material.innerHTML="";
+    materials.forEach(m=>{
+        material.innerHTML += `<option>${m}</option>`;
+    });
+}
+
+/* FILTER LOAD */
+function loadFilter(){
+    filter.innerHTML = '<option value="">All Material</option>';
+    materials.forEach(m=>{
+        filter.innerHTML += `<option value="${m}">${m}</option>`;
+    });
+}
+
+/* ADD */
+function addStock(){
+    if(!pair.value) return alert("Enter Pair");
+
+    stockData.push({
+        material: material.value,
+        price: price.value,
+        pair: parseInt(pair.value),
+        date: pdate.value,
+        remarks: remarks.value
+    });
+
+    localStorage.setItem("stockData", JSON.stringify(stockData));
+    render();
+}
+
+/* DELETE */
+function deleteRow(i){
+    if(confirm("Delete?")){
+        stockData.splice(i,1);
+        localStorage.setItem("stockData", JSON.stringify(stockData));
+        render();
+    }
+}
+
+/* SEARCH */
+function searchData(){
+    let val = search.value.toLowerCase();
+    document.querySelectorAll("#tbody tr").forEach(row=>{
+        row.style.display = row.innerText.toLowerCase().includes(val) ? "" : "none";
+    });
+}
+
+/* FILTER */
+function filterMaterial(){
+    let val = filter.value;
+    document.querySelectorAll("#tbody tr").forEach(row=>{
+        row.style.display = row.innerText.includes(val) || val=="" ? "" : "none";
+    });
+}
+
+/* EXPORT */
+function exportExcel(){
+    let csv="SR,Material,Price,Pair,Date,Remarks\n";
+    stockData.forEach((d,i)=>{
+        csv+=`${i+1},${d.material},${d.price},${d.pair},${d.date},${d.remarks}\n`;
+    });
+
+    let blob=new Blob([csv]);
+    let a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="Stock_Report.csv";
+    a.click();
+}
+
+function exportPDF(){
+    const { jsPDF } = window.jspdf;
+    let doc = new jsPDF();
+    let y = 10;
+
+    doc.text("Uniform Stock Report", 10, y);
+
+    stockData.forEach((d,i)=>{
+        y+=8;
+        doc.text(`${i+1}. ${d.material} - ${d.pair}`,10,y);
+    });
+
+    doc.save("Stock_Report.pdf");
+}
+
+
+function render(){
+
+    let uniformData = JSON.parse(localStorage.getItem("uniformData")) || [];
+
+    tbody.innerHTML="";
+
+    stockData.forEach((d,i)=>{
+        tbody.innerHTML+=`
+        <tr>
+        <td>${i+1}</td>
+        <td>${d.material}</td>
+        <td>${d.price}</td>
+        <td>${d.pair}</td>
+        <td>${d.date}</td>
+        <td>${d.remarks||""}</td>
+        <td><button onclick="deleteRow(${i})">Delete</button></td>
+        </tr>`;
+    });
+
+    let count = {};
+    materials.forEach(m=>count[m]=0);
+
+    // ✅ STOCK ADD
+    stockData.forEach(d=>{
+        count[d.material] += (parseInt(d.pair) || 0);
+    });
+
+    // ✅ STOCK MINUS (ENTRY)
+    uniformData.forEach(d=>{
+        if(count[d.material] != undefined){
+            count[d.material] -= (parseInt(d.pair) || 0);
+        }
+    });
+
+    let total = 0;
+    let totalValue = 0;
+
+    materialGrid.innerHTML="";
+
+    for(let m in count){
+
+        total += count[m];
+
+        let boxColor = count[m] <= 5 ? "#fee2e2" : "white";
+
+        materialGrid.innerHTML+=`
+        <div class="material-box" style="background:${boxColor}">
+            <div>${m}</div>
+            <div>${count[m]}</div>
+        </div>`;
+    }
+
+    // ✅ FIXED VALUE CALCULATION
+stockData.forEach(d=>{
+    let price = parseFloat(d.price) || 0;
+
+    totalValue += price;   // ❗ pair remove kari didhu
+});
+
+    document.getElementById("totalStock").innerText = total;
+    document.getElementById("totalValue").innerText = totalValue;
+
+}
+
+loadMaterials();
+loadFilter();
+render();
+
+</script>
+
+</body>
+</html>

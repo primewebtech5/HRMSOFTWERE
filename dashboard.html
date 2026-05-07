@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prime Software Dashboard</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial;
+    background:#f1f5f9;
+    display:flex;
+    flex-direction:column;
+    min-height:100vh;
+}
+
+/* HEADER */
+.header{
+    background:#0d6efd;
+    color:white;
+    padding:15px 30px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo{
+    font-size:22px;
+    font-weight:bold;
+}
+
+.menu button{
+    background:white;
+    color:#0d6efd;
+    border:none;
+    padding:8px 15px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.menu button:hover{
+    background:#dbeafe;
+}
+
+/* DASHBOARD GRID */
+.container{
+    display:grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap:20px;
+    padding:30px;
+    flex:1;
+}
+
+/* CARD BUTTON */
+.card{
+    background:white;
+    padding:30px;
+    border-radius:12px;
+    text-align:center;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+    background:#0d6efd;
+    color:white;
+}
+
+/* ICON */
+.icon{
+    font-size:40px;
+    margin-bottom:10px;
+}
+
+/* TEXT */
+.title{
+    font-size:18px;
+    font-weight:bold;
+}
+
+/* FOOTER */
+.footer{
+    background:#0d6efd;
+    color:white;
+    text-align:center;
+    padding:12px;
+    font-size:14px;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div class="logo">Prime Software</div>
+    <div class="menu">
+        <button onclick="go('login.html')">Log Out</button>
+    </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="container">
+
+<div class="card" onclick="go('employeedashboard.html')">
+    <div class="icon">🧑🏻‍💼</div>
+    <div class="title">Employee Management</div>
+</div>
+
+<div class="card" onclick="go('interview_detail.html')">
+    <div class="icon">👨🏻‍💼</div>
+    <div class="title">Candidate Management</div>
+</div>
+
+<div class="card" onclick="go('uniform.html')">
+    <div class="icon">👔</div>
+    <div class="title">Uniform Management</div>
+</div>
+
+<div class="card" onclick="go('.html')">
+    <div class="icon"></div>
+    <div class="title">Empty</div>
+</div>
+
+<div class="card" onclick="go('.html')">
+    <div class="icon"></div>
+    <div class="title">Empty</div>
+</div>
+
+<div class="card" onclick="go('settingdashboard.html')">
+    <div class="icon">⚙️</div>
+    <div class="title">Settings</div>
+</div>
+
+<div class="card" onclick="go('error.html')">
+    <div class="icon">⚠️</div>
+    <div class="title">Solving the problem</div>
+</div>
+
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+    © 2022 - 2026 | Made by PrimeWebTech
+</div>
+
+<script>
+function go(page){
+    window.location.href = page;
+}
+</script>
+
+</body>
+</html>

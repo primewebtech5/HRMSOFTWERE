@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vendor Bill Entry</title>
+
+<style>
+body { margin:0; font-family:Arial; background:#f1f5f9; }
+
+/* HEADER */
+.header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#1e293b;
+    padding:15px 30px;
+    color:white;
+}
+
+.logo { font-size:22px; font-weight:bold; }
+
+.menu { display:flex; gap:20px; }
+
+.menu button {
+    background:transparent;
+    border:none;
+    color:white;
+    padding:8px 12px;
+    cursor:pointer;
+}
+
+.menu button:hover { background:#38bdf8; color:black; }
+.active { background:#38bdf8 !important; color:black !important; }
+
+.container { padding:20px; }
+
+.form-grid{
+    display:grid;
+    grid-template-columns: repeat(2,1fr);
+    gap:15px;
+}
+
+input{
+    padding:8px;
+    width:100%;
+}
+
+.btn{
+    background:#1e293b;
+    color:white;
+    border:none;
+    padding:8px 12px;
+    cursor:pointer;
+    margin-top:10px;
+}
+
+.btn:hover{ background:#38bdf8; color:black; }
+
+.total-box{
+    background:white;
+    padding:15px;
+    margin-top:20px;
+    border-radius:10px;
+    width:250px;
+}
+
+.preview{
+    margin-top:10px;
+    max-width:120px;
+}
+
+/* TABLE */
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:20px;
+    background:white;
+}
+
+th,td{
+    border:1px solid #ccc;
+    padding:8px;
+    text-align:center;
+}
+
+th{ background:#1e293b; color:white; }
+
+/* IMAGE POPUP */
+.modal{
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.8);
+    justify-content:center;
+    align-items:center;
+}
+
+.modal img{
+    max-width:80%;
+    max-height:80%;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="logo">Uniform Register</div>
+    <div class="menu">
+   <a href="uniform.html"><button>Home</button></a>
+        <a href="entry.html"><button>Data Entry</button></a>
+        <a href="stock.html"><button>Stock Management</button></a>
+        <a href="#"><button>Vendor Management</button></a>
+        <a href="setting.html"><button>Setting</button></a>
+        <a href="dashboard.html"><button>Exit</button></a>
+    </div>
+</div>
+
+<div class="container">
+
+<h2>Vendor Bill Entry</h2>
+
+<!-- FORM -->
+<div class="form-grid">
+<input type="text" id="vendor" placeholder="Vendor Name">
+<input type="date" id="date">
+
+<input type="text" id="product" placeholder="Product Name">
+<input type="number" id="qty" placeholder="Quantity">
+
+<input type="number" id="rate" placeholder="Rate">
+</div>
+
+<br>
+<input type="file" onchange="uploadImage(event)">
+<br>
+<img id="preview" class="preview">
+
+<div class="total-box">
+<h3>Total: ₹ <span id="total">0</span></h3>
+</div>
+
+<br>
+
+<button class="btn" onclick="calculate()">Calculate</button>
+<button class="btn" onclick="saveBill()">💾 Save</button>
+<button class="btn" onclick="exportExcel()">📥 Excel</button>
+
+<!-- SEARCH -->
+<br><br>
+<input type="text" id="search" placeholder="Search..." onkeyup="searchData()" style="padding:8px;width:200px;">
+
+<!-- TABLE -->
+<h3>Saved Bills</h3>
+
+<table>
+<thead>
+<tr>
+<th>Vendor</th>
+<th>Date</th>
+<th>Product</th>
+<th>Qty</th>
+<th>Rate</th>
+<th>Total</th>
+<th>Image</th>
+<th>Action</th>
+</tr>
+</thead>
+
+<tbody id="tableData"></tbody>
+</table>
+
+</div>
+
+<!-- IMAGE MODAL -->
+<div class="modal" id="imgModal" onclick="closeModal()">
+<img id="bigImg">
+</div>
+
+<script>
+
+let imageData = "";
+let editIndex = -1;
+
+/* CALCULATE */
+function calculate(){
+    let qty = +qtyInput().value || 0;
+    let rate = +rateInput().value || 0;
+    totalSpan().innerText = qty * rate;
+}
+
+/* SHORTCUTS */
+const vendorInput = () => document.getElementById("vendor");
+const dateInput = () => document.getElementById("date");
+const productInput = () => document.getElementById("product");
+const qtyInput = () => document.getElementById("qty");
+const rateInput = () => document.getElementById("rate");
+const totalSpan = () => document.getElementById("total");
+
+/* IMAGE */
+function uploadImage(e){
+    let file = e.target.files[0];
+    let reader = new FileReader();
+
+    reader.onload = function(){
+        imageData = reader.result;
+        preview.src = imageData;
+    }
+
+    reader.readAsDataURL(file);
+}
+
+/* SAVE */
+function saveBill(){
+
+    let bill = {
+        vendor: vendorInput().value,
+        date: dateInput().value,
+        product: productInput().value,
+        qty: qtyInput().value,
+        rate: rateInput().value,
+        total: totalSpan().innerText,
+        image: imageData
+    };
+
+    let data = JSON.parse(localStorage.getItem("vendorBills")) || [];
+
+    if(editIndex == -1){
+        data.push(bill);
+    }else{
+        data[editIndex] = bill;
+        editIndex = -1;
+    }
+
+    localStorage.setItem("vendorBills", JSON.stringify(data));
+
+    clearForm();
+    loadTable();
+}
+
+/* LOAD TABLE */
+function loadTable(){
+
+    let data = JSON.parse(localStorage.getItem("vendorBills")) || [];
+
+    tableData.innerHTML="";
+
+    data.forEach((d,i)=>{
+
+        tableData.innerHTML+=`
+        <tr>
+        <td>${d.vendor}</td>
+        <td>${d.date}</td>
+        <td>${d.product}</td>
+        <td>${d.qty}</td>
+        <td>${d.rate}</td>
+        <td>${d.total}</td>
+        <td>
+            <img src="${d.image}" width="50" onclick="showImage('${d.image}')">
+        </td>
+        <td>
+            <button onclick="editData(${i})">Edit</button>
+            <button onclick="deleteData(${i})">Delete</button>
+        </td>
+        </tr>`;
+    });
+}
+
+/* DELETE */
+function deleteData(i){
+    let data = JSON.parse(localStorage.getItem("vendorBills")) || [];
+    data.splice(i,1);
+    localStorage.setItem("vendorBills", JSON.stringify(data));
+    loadTable();
+}
+
+/* EDIT */
+function editData(i){
+    let data = JSON.parse(localStorage.getItem("vendorBills")) || [];
+    let d = data[i];
+
+    vendorInput().value = d.vendor;
+    dateInput().value = d.date;
+    productInput().value = d.product;
+    qtyInput().value = d.qty;
+    rateInput().value = d.rate;
+    totalSpan().innerText = d.total;
+    preview.src = d.image;
+    imageData = d.image;
+
+    editIndex = i;
+}
+
+/* CLEAR */
+function clearForm(){
+    vendorInput().value="";
+    dateInput().value="";
+    productInput().value="";
+    qtyInput().value="";
+    rateInput().value="";
+    totalSpan().innerText="0";
+    preview.src="";
+}
+
+/* SEARCH */
+function searchData(){
+    let val = document.getElementById("search").value.toLowerCase();
+
+    document.querySelectorAll("#tableData tr").forEach(row=>{
+        row.style.display = row.innerText.toLowerCase().includes(val) ? "" : "none";
+    });
+}
+
+/* EXCEL */
+function exportExcel(){
+    let data = JSON.parse(localStorage.getItem("vendorBills")) || [];
+
+    let csv="Vendor,Date,Product,Qty,Rate,Total\n";
+
+    data.forEach(d=>{
+        csv+=`${d.vendor},${d.date},${d.product},${d.qty},${d.rate},${d.total}\n`;
+    });
+
+    let blob=new Blob([csv]);
+    let a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="Vendor_Bills.csv";
+    a.click();
+}
+
+/* IMAGE VIEW */
+function showImage(src){
+    document.getElementById("imgModal").style.display="flex";
+    document.getElementById("bigImg").src = src;
+}
+
+function closeModal(){
+    document.getElementById("imgModal").style.display="none";
+}
+
+/* INIT */
+loadTable();
+
+</script>
+
+</body>
+</html>

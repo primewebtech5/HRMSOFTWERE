@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Prime Software</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial;
+    background:#0d6efd;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+    color:white;
+}
+
+/* CENTER BOX */
+.box{
+    text-align:center;
+}
+
+/* MAIN TEXT */
+.title{
+    font-size:36px;
+    font-weight:bold;
+    background:white;
+    color:#0d6efd;
+    padding:10px 20px;
+    border-radius:10px;
+    display:inline-block;
+    animation:fadeIn 1.5s ease;
+}
+
+/* SUB TEXT */
+.subtitle{
+    margin-top:10px;
+    font-size:14px;
+    opacity:0.9;
+}
+
+/* ANIMATION */
+@keyframes fadeIn{
+    from{opacity:0; transform:scale(0.8);}
+    to{opacity:1; transform:scale(1);}
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="box">
+    <div class="title">Prime HRM Software</div>
+    <div class="subtitle">Made by PrimeWebTech</div>
+</div>
+
+<script>
+
+// 3 SECOND REDIRECT
+setTimeout(()=>{
+    window.location.href = "login.html";
+},3000);
+
+</script>
+
+</body>
+</html>

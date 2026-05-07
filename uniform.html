@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uniform Register</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: linear-gradient(135deg,#e2e8f0,#f8fafc);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+}
+
+/* HEADER */
+.header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#1e293b;
+    padding:15px 30px;
+    color:white;
+}
+
+.logo { font-size:22px; font-weight:bold; }
+
+.menu { display:flex; gap:20px; }
+
+.menu button {
+    background:transparent;
+    border:none;
+    color:white;
+    padding:8px 12px;
+    cursor:pointer;
+}
+
+.menu button:hover {
+    background:#38bdf8;
+    color:black;
+}
+
+.active {
+    background:#38bdf8 !important;
+    color:black !important;
+}
+
+/* MAIN */
+.container{
+    display:flex;
+    padding:30px;
+    gap:25px;
+    flex:1;
+}
+
+/* ALERT */
+.alert-box{
+    width:30%;
+    background:white;
+    padding:20px;
+    border-radius:12px;
+}
+
+.alert-item{
+    padding:10px;
+    margin-bottom:8px;
+    border-radius:8px;
+    background:#fee2e2;
+}
+
+.overdue{
+    background:#dc2626;
+    color:white;
+}
+
+/* RIGHT */
+.graph-box{
+    width:70%;
+    background:white;
+    padding:20px;
+    border-radius:12px;
+}
+
+/* MATERIAL GRID */
+.material-grid{
+    display:grid;
+    grid-template-columns: repeat(4,1fr);
+    gap:15px;
+    margin-top:15px;
+}
+
+.material-box{
+    background:#f1f5f9;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
+    font-weight:bold;
+}
+
+/* FOOTER */
+.footer{
+    background:#1f2937;
+    color:#cbd5f5;
+    text-align:center;
+    padding:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <div class="logo">Uniform Register</div>
+
+    <div class="menu">
+        <a href="#"><button class="active">Home</button></a>
+        <a href="entry.html"><button>Data Entry</button></a>
+        <a href="stock.html"><button>Stock Management</button></a>
+        <a href="vendor.html"><button>Vendor Management</button></a>
+        <a href="setting.html"><button>Setting</button></a>
+        <a href="dashboard.html"><button>Exit</button></a>
+    </div>
+</div>
+
+<div class="container">
+
+<!-- ALERT -->
+<div class="alert-box">
+<h3>⚠ Due Alerts</h3>
+<div id="alerts"></div>
+</div>
+
+<!-- RIGHT -->
+<div class="graph-box">
+
+<h3>📊 Summary</h3>
+<p><b>Total Given Uniform:</b> <span id="total"></span></p>
+
+<h3>💰 Material Price Summary</h3>
+<div class="material-grid" id="materialGrid"></div>
+
+<h3>💰 Total Investment: ₹ <span id="grandTotal">0</span></h3>
+
+</div>
+
+</div>
+
+<div class="footer">
+© 2026 | Made By Prime Developers
+</div>
+
+<script>
+
+let data = JSON.parse(localStorage.getItem("uniformData")) || [];
+let stockData = JSON.parse(localStorage.getItem("stockData")) || [];
+let today = new Date();
+
+/* ALERT */
+function loadAlerts(){
+    alerts.innerHTML="";
+
+    data.forEach(d=>{
+        if(!d.due) return;
+
+        let diff=(new Date(d.due)-today)/(1000*60*60*24);
+
+        if(diff<0){
+            alerts.innerHTML+=`
+            <div class="alert-item overdue">
+            ❌ ${d.empName}<br>
+            Due: ${d.due}
+            </div>`;
+        } 
+        else if(diff<=30){
+            alerts.innerHTML+=`
+            <div class="alert-item">
+            ⚠ ${d.empName}<br>
+            Due: ${d.due}
+            </div>`;
+        }
+    });
+
+    if(alerts.innerHTML==""){
+        alerts.innerHTML="<p>No alerts 🎉</p>";
+    }
+}
+
+/* FIXED VALUE CALC (MAIN FIX 🔥) */
+function loadValue(){
+
+    let materials = {};
+
+    let grandTotal = 0;
+
+    stockData.forEach(d=>{
+        let name = (d.material || "").trim();
+        let price = parseFloat(d.price) || 0;
+
+        if(!materials[name]){
+            materials[name] = 0;
+        }
+
+        materials[name] += price;
+        grandTotal += price;
+    });
+
+    materialGrid.innerHTML="";
+
+    for(let m in materials){
+        materialGrid.innerHTML += `
+        <div class="material-box">
+            <div>${m}</div>
+            <div>₹ ${materials[m]}</div>
+        </div>`;
+    }
+
+    document.getElementById("grandTotal").innerText = grandTotal;
+}
+
+/* TOTAL */
+function loadTotal(){
+    document.getElementById("total").innerText = data.length;
+}
+
+/* INIT */
+loadAlerts();
+loadValue();
+loadTotal();
+
+</script>
+
+</body>
+</html>
