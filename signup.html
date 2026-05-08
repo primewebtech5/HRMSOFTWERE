@@ -149,7 +149,24 @@ function signup(){
         password: pass
     };
 
-    localStorage.setItem("userData", JSON.stringify(data));
+fetch("https://script.google.com/macros/s/AKfycbye7Y5dbCH3M8Ep2NvDCk1P2AJ3natbDzpQ_U9oG0WZR-AX7aNxYedCTWYIsyK3Yb9i/exec", {
+
+    method: "POST",
+
+    body: JSON.stringify({
+        username: user,
+        password: pass
+    })
+
+})
+.then(res => res.json())
+.then(data => {
+
+    alert("Account Created ✅");
+
+    window.location.href = "login.html";
+
+});
 
     alert("Account Created ✅");
 
