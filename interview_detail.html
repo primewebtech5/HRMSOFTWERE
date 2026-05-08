@@ -4,39 +4,62 @@
 <meta charset="UTF-8">
 <title>Candidate Manager</title>
 
+<!-- PDF LIBRARY -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
 <style>
+
 body{
     font-family:Arial;
     background:#f5f5f5;
     margin:0;
 }
 
+/* HEADER */
 .header{
     background:#0d6efd;
     color:white;
-    padding:15px;
-    text-align:center;
-    font-size:22px;
+    padding:15px 25px;
 }
 
+.header-box{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.exit-btn{
+    background:white;
+    color:#0d6efd;
+    padding:8px 15px;
+    border:none;
+    border-radius:6px;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* NAV */
 .nav{
     display:flex;
     justify-content:center;
     gap:10px;
-    margin:10px;
+    margin:15px;
 }
 
 .nav button{
     padding:10px 20px;
 }
 
+/* PAGES */
 .page{
     display:none;
 }
+
 .active{
     display:block;
 }
 
+/* FORM */
 .form-box{
     background:white;
     padding:20px;
@@ -45,6 +68,7 @@ body{
     box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
+/* SEARCH */
 .search-box{
     margin:20px;
     text-align:center;
@@ -55,19 +79,32 @@ body{
     padding:10px;
 }
 
-input, textarea, select{
+/* INPUT */
+input,
+textarea,
+select{
     width:100%;
     padding:10px;
     margin:10px 0;
+    border:1px solid #ccc;
+    border-radius:6px;
 }
 
+/* BUTTON */
 button{
     background:#0d6efd;
     color:white;
     border:none;
     cursor:pointer;
+    padding:10px 15px;
+    border-radius:6px;
 }
 
+button:hover{
+    background:#0b5ed7;
+}
+
+/* CARD CONTAINER */
 .container{
     display:flex;
     flex-wrap:wrap;
@@ -75,6 +112,7 @@ button{
     padding:20px;
 }
 
+/* CARD */
 .card{
     background:white;
     width:260px;
@@ -83,6 +121,7 @@ button{
     box-shadow:0 0 8px rgba(0,0,0,0.1);
 }
 
+/* IMAGE */
 .card img{
     width:100%;
     height:120px;
@@ -92,6 +131,7 @@ button{
     margin-bottom:5px;
 }
 
+/* MODAL */
 .modal{
     display:none;
     position:fixed;
@@ -102,56 +142,67 @@ button{
     background:rgba(0,0,0,0.8);
     justify-content:center;
     align-items:center;
+    z-index:999;
 }
 
 .modal img{
     max-width:80%;
     max-height:80%;
+    border-radius:10px;
 }
+
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
-    <div style="display:flex; justify-content:space-between; align-items:center;">
 
-        <!-- LEFT SIDE NAME -->
+    <div class="header-box">
+
         <div style="font-size:22px; font-weight:bold;">
             Candidate Management System
         </div>
 
-        <!-- RIGHT SIDE EXIT BUTTON -->
-        <div>
-            <a href="dashboard.html">
-                <button style="
-                    background:white;
-                    color:#0d6efd;
-                    padding:6px 12px;
-                    border-radius:6px;
-                    font-weight:bold;
-                ">
-                    Exit
-                </button>
-            </a>
-        </div>
+        <a href="dashboard.html">
+            <button class="exit-btn">
+                Exit
+            </button>
+        </a>
 
     </div>
+
 </div>
 
+<!-- NAVIGATION -->
 <div class="nav">
-    <button onclick="showPage('add')">Add Candidate</button>
-    <button onclick="showPage('view')">View Candidates</button>
+
+    <button onclick="showPage('add')">
+        Add Candidate
+    </button>
+
+    <button onclick="showPage('view')">
+        View Candidates
+    </button>
+
 </div>
 
 <!-- ADD PAGE -->
 <div id="add" class="page active">
+
     <div class="form-box">
+
         <input type="text" id="sr" placeholder="SR Number">
+
         <input type="text" id="name" placeholder="Candidate Name">
+
         <input type="text" id="email" placeholder="Email">
+
         <input type="text" id="mobile" placeholder="Mobile Number">
+
         <textarea id="skills" placeholder="Remarks"></textarea>
+
         <input type="date" id="date">
 
         <select id="selected">
@@ -161,94 +212,190 @@ button{
         </select>
 
         <input type="file" id="image1" accept="image/jpeg">
+
         <input type="file" id="image2" accept="image/jpeg">
 
-        <button onclick="saveData()">Save Candidate</button>
+        <button onclick="saveData()">
+            Save Candidate
+        </button>
+
     </div>
+
 </div>
 
 <!-- VIEW PAGE -->
 <div id="view" class="page">
+
     <div class="search-box">
-        <input type="text" id="search" placeholder="Search by name..." onkeyup="searchData()">
+
+        <input
+        type="text"
+        id="search"
+        placeholder="Search by name..."
+        onkeyup="searchData()">
+
+        <br><br>
+
+        <button onclick="exportExcel()">
+            Export Excel
+        </button>
+
+        <button onclick="downloadPDF()">
+            Download PDF
+        </button>
+
     </div>
 
     <div class="container" id="list"></div>
+
 </div>
 
 <!-- IMAGE MODAL -->
 <div class="modal" id="modal" onclick="closeImage()">
+
     <img id="modalImg">
+
 </div>
 
 <script>
 
-let candidates = JSON.parse(localStorage.getItem("candidates")) || [];
+let candidates =
+JSON.parse(localStorage.getItem("candidates")) || [];
+
 let filtered = [...candidates];
 
-// PAGE SWITCH
+/* PAGE SWITCH */
 function showPage(page){
-    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-    document.getElementById(page).classList.add("active");
+
+    document
+    .querySelectorAll(".page")
+    .forEach(p => p.classList.remove("active"));
+
+    document
+    .getElementById(page)
+    .classList.add("active");
 
     if(page === "view"){
         display(filtered);
     }
 }
 
-// DISPLAY
+/* DISPLAY DATA */
 function display(data){
-    let list = document.getElementById("list");
+
+    let list =
+    document.getElementById("list");
+
     list.innerHTML = "";
 
+    if(data.length === 0){
+
+        list.innerHTML =
+        "<h2>No Candidate Found</h2>";
+
+        return;
+    }
+
     data.forEach((c,index)=>{
+
         list.innerHTML += `
+
         <div class="card">
-            <img src="${c.image1}" onclick="showImage('${c.image1}')">
-            <img src="${c.image2}" onclick="showImage('${c.image2}')">
+
+            <img
+            src="${c.image1}"
+            onclick="showImage('${c.image1}')">
+
+            <img
+            src="${c.image2}"
+            onclick="showImage('${c.image2}')">
 
             <h3>${c.name || "No Name"}</h3>
+
             <p><b>SR:</b> ${c.sr}</p>
+
             <p><b>Email:</b> ${c.email}</p>
+
             <p><b>Mobile:</b> ${c.mobile}</p>
+
             <p><b>Remarks:</b> ${c.skills}</p>
+
             <p><b>Date:</b> ${c.date}</p>
+
             <p><b>Selected:</b> ${c.selected}</p>
-            <button onclick="deleteData(${index})">Delete</button>
+
+            <button onclick="deleteData(${index})">
+                Delete
+            </button>
+
         </div>
+
         `;
     });
 }
 
-// SEARCH
+/* SEARCH */
 function searchData(){
-    let value = document.getElementById("search").value.toLowerCase();
-    filtered = candidates.filter(c => (c.name || "").toLowerCase().includes(value));
+
+    let value =
+    document
+    .getElementById("search")
+    .value
+    .toLowerCase();
+
+    filtered = candidates.filter(c =>
+        (c.name || "")
+        .toLowerCase()
+        .includes(value)
+    );
+
     display(filtered);
 }
 
-// SAVE
+/* SAVE DATA */
 function saveData(){
 
-    // ✅ FIXED VARIABLES
-    let sr = document.getElementById("sr").value;
-    let name = document.getElementById("name").value;
-    let email = document.getElementById("email").value;
-    let mobile = document.getElementById("mobile").value;
-    let skills = document.getElementById("skills").value;
-    let date = document.getElementById("date").value;
-    let selected = document.getElementById("selected").value;
+    let sr =
+    document.getElementById("sr").value;
 
-    let file1 = document.getElementById("image1").files[0];
-    let file2 = document.getElementById("image2").files[0];
+    let name =
+    document.getElementById("name").value;
+
+    let email =
+    document.getElementById("email").value;
+
+    let mobile =
+    document.getElementById("mobile").value;
+
+    let skills =
+    document.getElementById("skills").value;
+
+    let date =
+    document.getElementById("date").value;
+
+    let selected =
+    document.getElementById("selected").value;
+
+    let file1 =
+    document.getElementById("image1").files[0];
+
+    let file2 =
+    document.getElementById("image2").files[0];
 
     if(!file1 || !file2){
-        alert("2 images upload kar bhai!");
+
+        alert("2 images upload karo");
+
         return;
     }
 
-    if(file1.type !== "image/jpeg" || file2.type !== "image/jpeg"){
+    if(
+        file1.type !== "image/jpeg" ||
+        file2.type !== "image/jpeg"
+    ){
+
         alert("Only JPG allowed!");
+
         return;
     }
 
@@ -256,46 +403,188 @@ function saveData(){
     let reader2 = new FileReader();
 
     reader1.onload = function(){
+
         reader2.onload = function(){
 
             let data = {
-                sr, name, email, mobile, skills, date, selected,
+
+                sr,
+                name,
+                email,
+                mobile,
+                skills,
+                date,
+                selected,
+
                 image1: reader1.result,
                 image2: reader2.result
             };
 
             candidates.push(data);
-            localStorage.setItem("candidates", JSON.stringify(candidates));
+
+            localStorage.setItem(
+                "candidates",
+                JSON.stringify(candidates)
+            );
 
             filtered = [...candidates];
 
-            alert("Saved ✅");
+            alert("Saved Successfully ✅");
 
-            document.querySelectorAll("input, textarea, select").forEach(e=>e.value="");
+            clearForm();
         }
+
         reader2.readAsDataURL(file2);
     }
 
     reader1.readAsDataURL(file1);
 }
 
-// DELETE
+/* CLEAR FORM */
+function clearForm(){
+
+    document
+    .querySelectorAll("input, textarea, select")
+    .forEach(e => e.value = "");
+}
+
+/* DELETE */
 function deleteData(index){
-    candidates.splice(index,1);
-    localStorage.setItem("candidates", JSON.stringify(candidates));
-    filtered = [...candidates];
-    display(filtered);
+
+    if(confirm("Delete Candidate?")){
+
+        candidates.splice(index,1);
+
+        localStorage.setItem(
+            "candidates",
+            JSON.stringify(candidates)
+        );
+
+        filtered = [...candidates];
+
+        display(filtered);
+    }
 }
 
-// IMAGE VIEW
+/* IMAGE VIEW */
 function showImage(src){
-    document.getElementById("modal").style.display = "flex";
-    document.getElementById("modalImg").src = src;
+
+    document
+    .getElementById("modal")
+    .style.display = "flex";
+
+    document
+    .getElementById("modalImg")
+    .src = src;
 }
 
+/* CLOSE IMAGE */
 function closeImage(){
-    document.getElementById("modal").style.display = "none";
+
+    document
+    .getElementById("modal")
+    .style.display = "none";
 }
+
+/* EXPORT EXCEL */
+function exportExcel(){
+
+    let csv =
+"SR,Name,Email,Mobile,Remarks,Date,Selected\n";
+
+    candidates.forEach(c => {
+
+        csv +=
+`${c.sr},${c.name},${c.email},${c.mobile},${c.skills},${c.date},${c.selected}\n`;
+
+    });
+
+    let blob = new Blob(
+        [csv],
+        { type:'text/csv;charset=utf-8;' }
+    );
+
+    let link =
+    document.createElement("a");
+
+    link.href =
+    URL.createObjectURL(blob);
+
+    link.download =
+    "Candidate_Report.csv";
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    document.body.removeChild(link);
+}
+/* DOWNLOAD PDF */
+async function downloadPDF(){
+
+    const { jsPDF } = window.jspdf;
+
+    let doc = new jsPDF();
+
+    let y = 20;
+
+    /* TITLE */
+    doc.setFontSize(18);
+
+    doc.text(
+        "Candidate Report",
+        65,
+        10
+    );
+
+    candidates.forEach((c,i)=>{
+
+        /* BOX */
+        doc.rect(10, y-5, 180, 28);
+
+        doc.setFontSize(12);
+
+        doc.text(
+            `SR: ${c.sr}`,
+            15,
+            y
+        );
+
+        doc.text(
+            `Name: ${c.name}`,
+            15,
+            y+7
+        );
+
+        doc.text(
+            `Mobile: ${c.mobile}`,
+            100,
+            y+7
+        );
+
+        doc.text(
+            `Selected: ${c.selected}`,
+            15,
+            y+14
+        );
+
+        y += 38;
+
+        /* NEW PAGE */
+        if(y > 260){
+
+            doc.addPage();
+
+            y = 20;
+        }
+
+    });
+
+    doc.save("Candidate_Report.pdf");
+}
+
+/* INITIAL LOAD */
+display(filtered);
 
 </script>
 
