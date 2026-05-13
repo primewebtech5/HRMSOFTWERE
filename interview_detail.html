@@ -211,9 +211,9 @@ button:hover{
             <option value="No">No</option>
         </select>
 
-        <input type="file" id="image1" accept="image/jpeg">
+        <input type="file" id="image1" accept="image/*">
 
-        <input type="file" id="image2" accept="image/jpeg">
+        <input type="file" id="image2" accept="image/*">
 
         <button onclick="saveData()">
             Save Candidate
@@ -259,12 +259,24 @@ button:hover{
 
 <script>
 
-let candidates =
-JSON.parse(localStorage.getItem("candidates")) || [];
+/* =========================
+   GOOGLE SHEET WEB APP URL
+========================= */
 
-let filtered = [...candidates];
+const API_URL =
+"https://script.google.com/macros/s/AKfycbyVryWmLsn91_JI5DraZGuXU-pTSljPTDVh8pEadULKGF-jfIv_ztGEfuSx6nxNGiA/exec";
 
-/* PAGE SWITCH */
+/* =========================
+   GLOBAL VARIABLES
+========================= */
+
+let candidates = [];
+let filtered = [];
+
+/* =========================
+   PAGE SWITCH
+========================= */
+
 function showPage(page){
 
     document
@@ -276,11 +288,70 @@ function showPage(page){
     .classList.add("active");
 
     if(page === "view"){
-        display(filtered);
+        loadCandidates();
     }
 }
 
-/* DISPLAY DATA */
+/* =========================
+   LOAD DATA FROM GOOGLE SHEET
+========================= */
+
+async function loadCandidates(){
+
+try{
+
+    let response =
+    await fetch(API_URL);
+
+    let sheetData =
+    await response.json();
+
+    let localData =
+    JSON.parse(
+    localStorage.getItem("candidates")
+    ) || [];
+
+    candidates = sheetData.map(sheetCandidate => {
+
+        let localCandidate =
+        localData.find(local =>
+
+            local.sr === sheetCandidate.sr
+
+        );
+
+        return {
+
+            ...sheetCandidate,
+
+            image1:
+            localCandidate ?
+            localCandidate.image1 : "",
+
+            image2:
+            localCandidate ?
+            localCandidate.image2 : ""
+
+        };
+
+    });
+
+    filtered = [...candidates];
+
+    display(filtered);
+
+}catch(error){
+
+    console.log(error);
+
+    alert("Data Load Error");
+}
+
+}
+/* =========================
+   DISPLAY DATA
+========================= */
+
 function display(data){
 
     let list =
@@ -310,7 +381,7 @@ function display(data){
             src="${c.image2}"
             onclick="showImage('${c.image2}')">
 
-            <h3>${c.name || "No Name"}</h3>
+            <h3>${c.name}</h3>
 
             <p><b>SR:</b> ${c.sr}</p>
 
@@ -324,17 +395,16 @@ function display(data){
 
             <p><b>Selected:</b> ${c.selected}</p>
 
-            <button onclick="deleteData(${index})">
-                Delete
-            </button>
-
         </div>
 
         `;
     });
 }
 
-/* SEARCH */
+/* =========================
+   SEARCH
+========================= */
+
 function searchData(){
 
     let value =
@@ -344,103 +414,174 @@ function searchData(){
     .toLowerCase();
 
     filtered = candidates.filter(c =>
+
         (c.name || "")
         .toLowerCase()
         .includes(value)
+
     );
 
     display(filtered);
 }
 
-/* SAVE DATA */
+/* =========================
+   SAVE DATA TO GOOGLE SHEET
+========================= */
+
 function saveData(){
 
-    let sr =
-    document.getElementById("sr").value;
+let sr =
+document.getElementById("sr").value;
 
-    let name =
-    document.getElementById("name").value;
+let name =
+document.getElementById("name").value;
 
-    let email =
-    document.getElementById("email").value;
+let email =
+document.getElementById("email").value;
 
-    let mobile =
-    document.getElementById("mobile").value;
+let mobile =
+document.getElementById("mobile").value;
 
-    let skills =
-    document.getElementById("skills").value;
+let skills =
+document.getElementById("skills").value;
 
-    let date =
-    document.getElementById("date").value;
+let date =
+document.getElementById("date").value;
 
-    let selected =
-    document.getElementById("selected").value;
+let selected =
+document.getElementById("selected").value;
 
-    let file1 =
-    document.getElementById("image1").files[0];
+let file1 =
+document.getElementById("image1").files[0];
 
-    let file2 =
-    document.getElementById("image2").files[0];
+let file2 =
+document.getElementById("image2").files[0];
 
-    if(!file1 || !file2){
+/* VALIDATION */
 
-        alert("2 images upload karo");
+if(
+sr == "" ||
+name == "" ||
+email == "" ||
+mobile == ""
+){
 
-        return;
-    }
-
-    if(
-        file1.type !== "image/jpeg" ||
-        file2.type !== "image/jpeg"
-    ){
-
-        alert("Only JPG allowed!");
-
-        return;
-    }
-
-    let reader1 = new FileReader();
-    let reader2 = new FileReader();
-
-    reader1.onload = function(){
-
-        reader2.onload = function(){
-
-            let data = {
-
-                sr,
-                name,
-                email,
-                mobile,
-                skills,
-                date,
-                selected,
-
-                image1: reader1.result,
-                image2: reader2.result
-            };
-
-            candidates.push(data);
-
-            localStorage.setItem(
-                "candidates",
-                JSON.stringify(candidates)
-            );
-
-            filtered = [...candidates];
-
-            alert("Saved Successfully ✅");
-
-            clearForm();
-        }
-
-        reader2.readAsDataURL(file2);
-    }
-
-    reader1.readAsDataURL(file1);
+    alert("Please Fill All Fields");
+    return;
 }
 
-/* CLEAR FORM */
+if(!file1 || !file2){
+
+    alert("2 Images Upload Karo");
+    return;
+}
+
+/* FILE READER */
+
+let reader1 =
+new FileReader();
+
+let reader2 =
+new FileReader();
+
+reader1.onload = function(){
+
+reader2.onload = async function(){
+
+    /* FULL CANDIDATE */
+
+    let candidate = {
+
+        sr: sr,
+        name: name,
+        email: email,
+        mobile: mobile,
+        skills: skills,
+        date: date,
+        selected: selected,
+
+        image1: reader1.result,
+        image2: reader2.result
+    };
+
+    /* =========================
+       LOCAL STORAGE IMAGE SAVE
+    ========================= */
+
+    let localData =
+    JSON.parse(
+    localStorage.getItem("candidates")
+    ) || [];
+
+    /* DUPLICATE REMOVE */
+
+    localData =
+    localData.filter(c =>
+
+        c.sr !== sr
+    );
+
+    localData.push(candidate);
+
+    localStorage.setItem(
+
+        "candidates",
+
+        JSON.stringify(localData)
+
+    );
+
+    /* =========================
+       GOOGLE SHEET SAVE
+    ========================= */
+
+    let sheetData = {
+
+        sr: sr,
+        name: name,
+        email: email,
+        mobile: mobile,
+        skills: skills,
+        date: date,
+        selected: selected
+    };
+
+    try{
+
+        await fetch(API_URL,{
+
+            method:"POST",
+
+            body:JSON.stringify(sheetData)
+
+        });
+
+        alert("Saved Successfully ✅");
+
+        clearForm();
+
+        loadCandidates();
+
+    }catch(error){
+
+        console.log(error);
+
+        alert("Save Error ❌");
+    }
+
+}
+
+reader2.readAsDataURL(file2);
+
+}
+
+reader1.readAsDataURL(file1);
+
+}
+/* =========================
+   CLEAR FORM
+========================= */
+
 function clearForm(){
 
     document
@@ -448,25 +589,10 @@ function clearForm(){
     .forEach(e => e.value = "");
 }
 
-/* DELETE */
-function deleteData(index){
+/* =========================
+   IMAGE VIEW
+========================= */
 
-    if(confirm("Delete Candidate?")){
-
-        candidates.splice(index,1);
-
-        localStorage.setItem(
-            "candidates",
-            JSON.stringify(candidates)
-        );
-
-        filtered = [...candidates];
-
-        display(filtered);
-    }
-}
-
-/* IMAGE VIEW */
 function showImage(src){
 
     document
@@ -478,7 +604,10 @@ function showImage(src){
     .src = src;
 }
 
-/* CLOSE IMAGE */
+/* =========================
+   CLOSE IMAGE
+========================= */
+
 function closeImage(){
 
     document
@@ -486,7 +615,10 @@ function closeImage(){
     .style.display = "none";
 }
 
-/* EXPORT EXCEL */
+/* =========================
+   EXPORT EXCEL
+========================= */
+
 function exportExcel(){
 
     let csv =
@@ -519,7 +651,11 @@ function exportExcel(){
 
     document.body.removeChild(link);
 }
-/* DOWNLOAD PDF */
+
+/* =========================
+   DOWNLOAD PDF
+========================= */
+
 async function downloadPDF(){
 
     const { jsPDF } = window.jspdf;
@@ -528,7 +664,6 @@ async function downloadPDF(){
 
     let y = 20;
 
-    /* TITLE */
     doc.setFontSize(18);
 
     doc.text(
@@ -539,7 +674,6 @@ async function downloadPDF(){
 
     candidates.forEach((c,i)=>{
 
-        /* BOX */
         doc.rect(10, y-5, 180, 28);
 
         doc.setFontSize(12);
@@ -570,7 +704,6 @@ async function downloadPDF(){
 
         y += 38;
 
-        /* NEW PAGE */
         if(y > 260){
 
             doc.addPage();
@@ -583,8 +716,11 @@ async function downloadPDF(){
     doc.save("Candidate_Report.pdf");
 }
 
-/* INITIAL LOAD */
-display(filtered);
+/* =========================
+   INITIAL LOAD
+========================= */
+
+loadCandidates();
 
 </script>
 
