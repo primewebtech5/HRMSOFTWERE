@@ -204,35 +204,58 @@ button { margin:5px; padding:6px 10px; cursor:pointer; }
 
 <script>
 
+const API_URL = "https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDcqb70esqPB52-RVwzT5AbBunwQxct1AbiSjmvz0nllFkM/exec";
+
+
 let data = JSON.parse(localStorage.getItem("uniformData")) || [];
 let editIndex = -1;
 
 /* LOAD BRANCH */
-function loadBranches(){
-    let branchData = JSON.parse(localStorage.getItem("branches")) || [];
-    branch.innerHTML = "<option>Select Branch</option>";
+async function loadBranches(){
 
-    branchData.forEach(b=>{
-        branch.innerHTML += `<option value="${b}">${b}</option>`;
+    let res = await fetch(API_URL + "?sheet=Branch_Master");
+
+    let data = await res.json();
+
+    branch.innerHTML="<option>Select Branch</option>";
+
+    data.slice(1).forEach(b=>{
+
+        branch.innerHTML += `
+        <option>${b[0]}</option>`;
+
     });
 }
 
 /* LOAD DEPARTMENT */
-function loadDepartments(){
-    let deptData = JSON.parse(localStorage.getItem("departments")) || [];
-    department.innerHTML = "<option>Select Department</option>";
+async function loadDepartments(){
 
-    deptData.forEach(d=>{
-        department.innerHTML += `<option value="${d}">${d}</option>`;
+    let res = await fetch(API_URL + "?sheet=Department_Master");
+
+    let data = await res.json();
+
+    department.innerHTML="<option>Select Department</option>";
+
+    data.slice(1).forEach(d=>{
+
+        department.innerHTML += `
+        <option>${d[0]}</option>`;
+
     });
 }
+async function loadMaterials(){
 
-function loadMaterials(){
-    let mat = JSON.parse(localStorage.getItem("materials")) || [];
-    material.innerHTML = "<option>Select Material</option>";
+    let res = await fetch(API_URL + "?sheet=Material_Master");
 
-    mat.forEach(m=>{
-        material.innerHTML += `<option>${m}</option>`;
+    let data = await res.json();
+
+    material.innerHTML="<option>Select Material</option>";
+
+    data.slice(1).forEach(m=>{
+
+        material.innerHTML += `
+        <option>${m[0]}</option>`;
+
     });
 }
 
@@ -252,25 +275,50 @@ function getLastGiven(name){
 }
 
 /* RENDER */
-function render(){
-    tbody.innerHTML="";
+async function render(){
 
-    data.forEach((d,i)=>{
+    let res = await fetch(API_URL + "?sheet=Employee_Entry");
+
+    let sheetData = await res.json();
+
+    tbody.innerHTML = "";
+
+    data = [];
+
+    sheetData.slice(1).forEach((row,i)=>{
+
+        let obj = {
+    company: row[0],
+    branch: row[1],
+    department: row[2],
+    empName: row[3],
+    joining: row[4],
+    given: row[5],
+    pair: row[6],
+    material: row[7],
+    due: row[8],
+    remarks: row[9],
+    rowNumber: i + 2
+};
+
+        data.push(obj);
+
         tbody.innerHTML += `
         <tr>
-        <td>${i+1}</td>
-        <td>${d.empName}</td>
-        <td>${d.company}</td>
-        <td>${d.given}</td>
-        <td>
-        <button onclick="showDetails(${i})">Details</button>
-        <button onclick="editData(${i})">Edit</button>
-        <button onclick="deleteData(${i})">Delete</button>
-        </td>
+            <td>${i+1}</td>
+            <td>${obj.empName}</td>
+            <td>${obj.company}</td>
+            <td>${obj.given}</td>
+          <td>
+    <button onclick="showDetails(${i})">Details</button>
+
+    <button onclick="editData(${i})">Update</button>
+
+    <button onclick="deleteData(${i})">Delete</button>
+</td>
         </tr>`;
     });
 
-    localStorage.setItem("uniformData", JSON.stringify(data));
 }
 
 /* SHOW MODAL */
@@ -283,16 +331,33 @@ function showDetails(i){
     <p><b>COMPANY:</b> ${d.company}</p>
     <p><b>BRANCH:</b> ${d.branch}</p>
     <p><b>DEPARTMENT:</b> ${d.department}</p>
-    <p><b>->GIVEN DATE:</b> ${d.given}</p>
+    <p><b>->GIVEN DATE:</b> ${formatDate(d.given)}</p>
+
+
     <p><b>PAIR:</b> ${d.pair}</p>
-    <p><b>DUE DATE:</b> ${d.due}</p>
+    <p><b>DUE DATE:</b> ${formatDate(d.due)}</p>
+
     <p><b>LAST GIVEN:</b> ${d.lastGiven}</p>
-    <p><b>JOINING DATE:</b> ${d.joining} </p>
+    <p><b>JOINING DATE:</b> ${formatDate(d.joining)}</p>
     <p><b>REMARKS:</b> ${d.remarks}</p>
     `;
 
 
     modal.style.display="block";
+}
+function formatDate(dateStr){
+
+    if(!dateStr) return "";
+
+    let d = new Date(dateStr);
+
+    let year = d.getFullYear();
+
+    let month = String(d.getMonth()+1).padStart(2,'0');
+
+    let day = String(d.getDate()).padStart(2,'0');
+
+    return `${year}-${month}-${day}`;
 }
 
 /* CLOSE MODAL */
@@ -301,62 +366,105 @@ function closeModal(){
 }
 
 /* ADD */
-function addData(){
-
-    if(!empName.value || !given.value){
-        alert("Fill required fields");
-        return;
-    }
+async function addData(){
 
     let obj = {
-    company: company.value,
-    branch: branch.value,
-    department: department.value,
-    empName: empName.value,
-    joining: joining.value,
-    given: given.value,
-    pair: pair.value,
-    material: material.value,   // 🔥 IMPORTANT
-    due: due.value,
-    remarks: remarks.value
-};
+        sheet:"Employee_Entry",
+        company: company.value,
+        branch: branch.value,
+        department: department.value,
+        empName: empName.value,
+        joining: joining.value,
+        given: given.value,
+        pair: pair.value,
+        material: material.value,
+        due: due.value,
+        remarks: remarks.value
+    };
 
+    // UPDATE
+    if(editIndex != -1){
 
-    
-    if(editIndex==-1){
-        data.push(obj);
-    }else{
-        data[editIndex]=obj;
-        editIndex=-1;
+        obj.action = "update";
+
+        obj.row = data[editIndex].rowNumber;
+
     }
 
+    await fetch(API_URL,{
+        method:"POST",
+        body:JSON.stringify(obj)
+    });
+
+    alert(editIndex == -1 ? "Saved Successfully" : "Updated Successfully");
+
+    editIndex = -1;
+
     clearForm();
+
     render();
 }
-
 /* EDIT */
+
 function editData(i){
-    let d=data[i];
 
-    company.value=d.company;
-    branch.value=d.branch;
-    department.value=d.department;
-    empName.value=d.empName;
-    joining.value=d.joining;
-    given.value=d.given;
-    pair.value=d.pair;
-    due.value=d.due;
-    remarks.value=d.remarks;
+    let d = data[i];
 
-    editIndex=i;
+    company.value = d.company;
+
+    branch.value = d.branch;
+
+    department.value = d.department;
+
+    empName.value = d.empName;
+
+    joining.value = formatDate(d.joining);
+
+    given.value = formatDate(d.given);
+
+    pair.value = d.pair;
+
+    material.value = d.material;
+
+    due.value = formatDate(d.due);
+
+    remarks.value = d.remarks;
+
+    editIndex = i;
+
 }
 
 /* DELETE */
+
 function deleteData(i){
-    if(confirm("Delete?")){
+
+    if(confirm("Delete Data?")){
+
         data.splice(i,1);
-        render();
+
+        tbody.innerHTML = "";
+
+        data.forEach((d,index)=>{
+
+            tbody.innerHTML += `
+            <tr>
+                <td>${index+1}</td>
+                <td>${d.empName}</td>
+                <td>${d.company}</td>
+                <td>${formatDate(d.given)}</td>
+
+                <td>
+                    <button onclick="showDetails(${index})">Details</button>
+
+                    <button onclick="editData(${index})">Update</button>
+
+                    <button onclick="deleteData(${index})">Delete</button>
+                </td>
+            </tr>`;
+        });
+
     }
+
 }
 
 /* CLEAR */
@@ -404,4 +512,3 @@ render();
 
 </body>
 </html>
-
