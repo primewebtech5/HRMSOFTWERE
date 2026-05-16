@@ -6,75 +6,123 @@
 <title>Vendor Bill Entry</title>
 
 <style>
-body { margin:0; font-family:Arial; background:#f1f5f9; }
+
+body{
+    margin:0;
+    font-family:Arial;
+    background:#f1f5f9;
+}
 
 /* HEADER */
-.header {
+.header{
     display:flex;
     justify-content:space-between;
     align-items:center;
     background:#1e293b;
-    padding:15px 30px;
+    padding:15px 20px;
     color:white;
+    flex-wrap:wrap;
+    gap:10px;
 }
 
-.logo { font-size:22px; font-weight:bold; }
+.logo{
+    font-size:20px;
+    font-weight:bold;
+}
 
-.menu { display:flex; gap:20px; }
+.menu{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
 
-.menu button {
+.menu button{
     background:transparent;
     border:none;
     color:white;
-    padding:8px 12px;
+    padding:8px 10px;
     cursor:pointer;
 }
 
-.menu button:hover { background:#38bdf8; color:black; }
-.active { background:#38bdf8 !important; color:black !important; }
+.menu button:hover{
+    background:#38bdf8;
+    color:black;
+}
 
-.container { padding:20px; }
+/* CONTAINER */
+.container{
+    padding:15px;
+}
 
+/* FORM GRID */
 .form-grid{
     display:grid;
-    grid-template-columns: repeat(2,1fr);
+    grid-template-columns:repeat(2,1fr);
     gap:15px;
 }
 
-input{
-    padding:8px;
-    width:100%;
+@media (max-width:768px){
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .menu{
+        width:100%;
+    }
 }
 
+/* INPUT */
+input{
+    width:100%;
+    padding:10px;
+    box-sizing:border-box;
+}
+
+/* BUTTON */
 .btn{
     background:#1e293b;
     color:white;
     border:none;
-    padding:8px 12px;
+    padding:10px 12px;
     cursor:pointer;
-    margin-top:10px;
+    margin:5px 0;
+    border-radius:6px;
 }
 
-.btn:hover{ background:#38bdf8; color:black; }
+.btn:hover{
+    background:#38bdf8;
+    color:black;
+}
 
+/* TOTAL BOX */
 .total-box{
     background:white;
     padding:15px;
-    margin-top:20px;
+    margin-top:15px;
     border-radius:10px;
-    width:250px;
+    width:100%;
+    max-width:250px;
 }
 
+/* IMAGE */
 .preview{
     margin-top:10px;
     max-width:120px;
+    border-radius:6px;
+}
+
+/* TABLE WRAPPER */
+.table-wrapper{
+    width:100%;
+    overflow-x:auto;
+    margin-top:20px;
 }
 
 /* TABLE */
 table{
     width:100%;
+    min-width:800px;
     border-collapse:collapse;
-    margin-top:20px;
     background:white;
 }
 
@@ -82,11 +130,15 @@ th,td{
     border:1px solid #ccc;
     padding:8px;
     text-align:center;
+    font-size:14px;
 }
 
-th{ background:#1e293b; color:white; }
+th{
+    background:#1e293b;
+    color:white;
+}
 
-/* IMAGE POPUP */
+/* MODAL */
 .modal{
     display:none;
     position:fixed;
@@ -100,8 +152,20 @@ th{ background:#1e293b; color:white; }
 }
 
 .modal img{
-    max-width:80%;
-    max-height:80%;
+    max-width:90%;
+    max-height:90%;
+}
+
+/* MOBILE */
+@media (max-width:500px){
+    .header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .btn{
+        width:100%;
+    }
 }
 
 </style>
@@ -110,13 +174,13 @@ th{ background:#1e293b; color:white; }
 <body>
 
 <div class="header">
-    <div class="logo">Uniform Register</div>
+    <div class="logo">Vendor Register</div>
+
     <div class="menu">
-   <a href="uniform.html"><button>Home</button></a>
+        <a href="uniform.html"><button>Home</button></a>
         <a href="entry.html"><button>Data Entry</button></a>
-        <a href="stock.html"><button>Stock Management</button></a>
-        <a href="#"><button>Vendor Management</button></a>
-        <a href="setting.html"><button>Setting</button></a>
+        <a href="stock.html"><button>Stock</button></a>
+        <a href="#"><button>Vendor</button></a>
         <a href="dashboard.html"><button>Exit</button></a>
     </div>
 </div>
@@ -125,8 +189,8 @@ th{ background:#1e293b; color:white; }
 
 <h2>Vendor Bill Entry</h2>
 
-<!-- FORM -->
 <div class="form-grid">
+
 <input type="text" id="vendor" placeholder="Vendor Name">
 <input type="date" id="date">
 
@@ -134,9 +198,11 @@ th{ background:#1e293b; color:white; }
 <input type="number" id="qty" placeholder="Quantity">
 
 <input type="number" id="rate" placeholder="Rate">
+
 </div>
 
 <br>
+
 <input type="file" onchange="uploadImage(event)">
 <br>
 <img id="preview" class="preview">
@@ -145,18 +211,15 @@ th{ background:#1e293b; color:white; }
 <h3>Total: ₹ <span id="total">0</span></h3>
 </div>
 
-<br>
-
 <button class="btn" onclick="calculate()">Calculate</button>
-<button class="btn" onclick="saveBill()">💾 Save</button>
-<button class="btn" onclick="exportExcel()">📥 Excel</button>
+<button class="btn" onclick="saveBill()">Save</button>
+<button class="btn" onclick="exportExcel()">Excel</button>
 
-<!-- SEARCH -->
 <br><br>
-<input type="text" id="search" placeholder="Search..." onkeyup="searchData()" style="padding:8px;width:200px;">
 
-<!-- TABLE -->
-<h3>Saved Bills</h3>
+<input type="text" id="search" placeholder="Search..." onkeyup="searchData()">
+
+<div class="table-wrapper">
 
 <table>
 <thead>
@@ -173,11 +236,14 @@ th{ background:#1e293b; color:white; }
 </thead>
 
 <tbody id="tableData"></tbody>
+
 </table>
 
 </div>
 
-<!-- IMAGE MODAL -->
+</div>
+
+<!-- MODAL -->
 <div class="modal" id="imgModal" onclick="closeModal()">
 <img id="bigImg">
 </div>
@@ -189,343 +255,134 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwlk8Zfu0j3KvhB5eKF1dkb
 let imageData = "";
 let editRow = null;
 
-/* SHORTCUTS */
-
-const vendorInput = () => document.getElementById("vendor");
-const dateInput = () => document.getElementById("date");
-const productInput = () => document.getElementById("product");
-const qtyInput = () => document.getElementById("qty");
-const rateInput = () => document.getElementById("rate");
-const totalSpan = () => document.getElementById("total");
-
 /* CALCULATE */
-
 function calculate(){
-
-    let qty = Number(qtyInput().value || 0);
-
-    let rate = Number(rateInput().value || 0);
-
-    totalSpan().innerText = qty * rate;
+    let qty = Number(qty.value || 0);
+    let rate = Number(rate.value || 0);
+    total.innerText = qty * rate;
 }
 
 /* IMAGE */
-
 function uploadImage(e){
-
     let file = e.target.files[0];
-
     let reader = new FileReader();
 
     reader.onload = function(){
-
         imageData = reader.result;
-
         preview.src = imageData;
     }
 
-    if(file){
-
-        reader.readAsDataURL(file);
-    }
+    if(file) reader.readAsDataURL(file);
 }
 
 /* SAVE */
-
 async function saveBill(){
 
     let obj = {
-
         sheet:"Vendor_Bills",
-
-        vendor: vendorInput().value,
-
-        date: dateInput().value,
-
-        product: productInput().value,
-
-        qty: qtyInput().value,
-
-        rate: rateInput().value,
-
-        total: totalSpan().innerText,
-
-        image: imageData
+        vendor:vendor.value,
+        date:date.value,
+        product:product.value,
+        qty:qty.value,
+        rate:rate.value,
+        total:total.innerText,
+        image:imageData
     };
 
-    // UPDATE
-
     if(editRow){
-
-        obj.action = "update";
-
-        obj.row = editRow;
+        obj.action="update";
+        obj.row=editRow;
     }
 
     await fetch(API_URL,{
-
         method:"POST",
-
         body:JSON.stringify(obj)
     });
 
-    alert(editRow ? "Updated Successfully" : "Saved Successfully");
-
+    alert("Saved");
     clearForm();
-
     loadTable();
 }
 
-/* LOAD TABLE */
-
+/* LOAD */
 async function loadTable(){
 
     let res = await fetch(API_URL + "?sheet=Vendor_Bills");
-
     let data = await res.json();
 
-    tableData.innerHTML = "";
-
-    if(data.length <= 1){
-
-        tableData.innerHTML = `
-        <tr>
-            <td colspan="8">No Data Found</td>
-        </tr>`;
-        return;
-    }
+    tableData.innerHTML="";
 
     data.slice(1).forEach((d,i)=>{
 
-        let vendor = d[0] || "";
-        let date = d[1] || "";
-        let product = d[2] || "";
-        let qty = d[3] || "";
-        let rate = d[4] || "";
-        let total = d[5] || "";
-        let image = d[6] || "";
-
         tableData.innerHTML += `
-
         <tr>
-
-            <td>${vendor}</td>
-
-            <td>${date}</td>
-
-            <td>${product}</td>
-
-            <td>${qty}</td>
-
-            <td>${rate}</td>
-
-            <td>${total}</td>
-
+            <td>${d[0]}</td>
+            <td>${d[1]}</td>
+            <td>${d[2]}</td>
+            <td>${d[3]}</td>
+            <td>${d[4]}</td>
+            <td>${d[5]}</td>
             <td>
-
-                ${
-                    image
-                    ?
-                    `<img src="${image}" width="50"
-                    style="cursor:pointer"
-                    onclick="showImage('${image}')">`
-                    :
-                    `No Image`
-                }
-
+                ${d[6] ? `<img src="${d[6]}" width="50" onclick="showImage('${d[6]}')">` : "No"}
             </td>
-
             <td>
-
-                <button onclick='editData(
-                    ${i+2},
-                    ${JSON.stringify(vendor)},
-                    ${JSON.stringify(date)},
-                    ${JSON.stringify(product)},
-                    ${JSON.stringify(qty)},
-                    ${JSON.stringify(rate)},
-                    ${JSON.stringify(total)},
-                    ${JSON.stringify(image)}
-                )'>
-
-                Update
-
-                </button>
-
-                <button onclick="deleteData(${i+2})">
-
-                Delete
-
-                </button>
-
+                <button onclick="deleteData(${i+2})">Del</button>
             </td>
-
-        </tr>
-        `;
+        </tr>`;
     });
 }
 
-/* EDIT */
-
-function editData(
-row,
-vendor,
-date,
-product,
-qty,
-rate,
-total,
-image
-){
-
-    vendorInput().value = vendor;
-
-    dateInput().value = date;
-
-    productInput().value = product;
-
-    qtyInput().value = qty;
-
-    rateInput().value = rate;
-
-    totalSpan().innerText = total;
-
-    preview.src = image;
-
-    imageData = image;
-
-    editRow = row;
-}
-
 /* DELETE */
-
 async function deleteData(row){
-
-    if(confirm("Delete Bill?")){
-
+    if(confirm("Delete?")){
         await fetch(API_URL,{
-
             method:"POST",
-
             body:JSON.stringify({
-
                 sheet:"Vendor_Bills",
-
                 action:"delete",
-
                 row:row
             })
         });
-
         loadTable();
     }
 }
 
 /* SEARCH */
-
 function searchData(){
+    let val = search.value.toLowerCase();
 
-    let val = document
-    .getElementById("search")
-    .value
-    .toLowerCase();
-
-    document
-    .querySelectorAll("#tableData tr")
-    .forEach(row=>{
-
-        row.style.display =
-        row.innerText
-        .toLowerCase()
-        .includes(val)
-
-        ? ""
-
-        : "none";
+    document.querySelectorAll("#tableData tr").forEach(r=>{
+        r.style.display = r.innerText.toLowerCase().includes(val)?"":"none";
     });
 }
 
 /* CLEAR */
-
 function clearForm(){
-
-    vendorInput().value = "";
-
-    dateInput().value = "";
-
-    productInput().value = "";
-
-    qtyInput().value = "";
-
-    rateInput().value = "";
-
-    totalSpan().innerText = "0";
-
-    preview.src = "";
-
-    imageData = "";
-
-    editRow = null;
+    vendor.value="";
+    date.value="";
+    product.value="";
+    qty.value="";
+    rate.value="";
+    total.innerText="0";
+    preview.src="";
+    imageData="";
+    editRow=null;
 }
 
-/* EXCEL */
-
-async function exportExcel(){
-
-    let res = await fetch(API_URL + "?sheet=Vendor_Bills");
-
-    let data = await res.json();
-
-    let csv =
-    "Vendor,Date,Product,Qty,Rate,Total\n";
-
-    data.slice(1).forEach(d=>{
-
-        csv += `
-${d[0]},
-${d[1]},
-${d[2]},
-${d[3]},
-${d[4]},
-${d[5]}
-\n`;
-    });
-
-    let blob = new Blob([csv]);
-
-    let a = document.createElement("a");
-
-    a.href = URL.createObjectURL(blob);
-
-    a.download = "Vendor_Bills.csv";
-
-    a.click();
-}
-
-/* IMAGE VIEW */
-
+/* IMAGE */
 function showImage(src){
-
-    document
-    .getElementById("imgModal")
-    .style.display = "flex";
-
-    document
-    .getElementById("bigImg")
-    .src = src;
+    imgModal.style.display="flex";
+    bigImg.src=src;
 }
 
 function closeModal(){
-
-    document
-    .getElementById("imgModal")
-    .style.display = "none";
+    imgModal.style.display="none";
 }
 
 /* INIT */
-
 loadTable();
 
 </script>
+
 </body>
 </html>
