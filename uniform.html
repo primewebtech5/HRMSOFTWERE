@@ -1,56 +1,59 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Uniform Register</title>
+<title>Uniform Dashboard</title>
 
 <style>
-body {
-    margin: 0;
-    font-family: Arial;
-    background: linear-gradient(135deg,#e2e8f0,#f8fafc);
+
+body{
+    margin:0;
+    font-family:Arial;
+    background:linear-gradient(135deg,#e2e8f0,#f8fafc);
     min-height:100vh;
     display:flex;
     flex-direction:column;
 }
 
 /* HEADER */
-.header {
+.header{
     display:flex;
     justify-content:space-between;
     align-items:center;
     background:#1e293b;
-    padding:15px 30px;
+    padding:15px 20px;
     color:white;
+    flex-wrap:wrap;
+    gap:10px;
 }
 
-.logo {
-    font-size:22px;
+.logo{
+    font-size:20px;
     font-weight:bold;
 }
 
-.menu {
+.menu{
     display:flex;
-    gap:20px;
+    flex-wrap:wrap;
+    gap:10px;
 }
 
-.menu button {
+.menu button{
     background:transparent;
     border:none;
     color:white;
-    padding:8px 12px;
-    cursor:pointer;
+    padding:8px 10px;
     border-radius:6px;
+    cursor:pointer;
 }
 
-.menu button:hover {
+.menu button:hover{
     background:#38bdf8;
     color:black;
 }
 
-.active {
+.active{
     background:#38bdf8 !important;
     color:black !important;
 }
@@ -58,8 +61,8 @@ body {
 /* MAIN */
 .container{
     display:flex;
-    padding:30px;
-    gap:25px;
+    gap:20px;
+    padding:20px;
     flex:1;
 }
 
@@ -67,9 +70,11 @@ body {
 .alert-box{
     width:30%;
     background:white;
-    padding:20px;
+    padding:15px;
     border-radius:12px;
     box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    max-height:80vh;
+    overflow:auto;
 }
 
 .alert-item{
@@ -88,15 +93,30 @@ body {
 .graph-box{
     width:70%;
     background:white;
-    padding:20px;
+    padding:15px;
     border-radius:12px;
     box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+/* SUMMARY */
+.summary-box{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+}
+
+.summary-card{
+    background:#f1f5f9;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
+    font-weight:bold;
 }
 
 /* MATERIAL GRID */
 .material-grid{
     display:grid;
-    grid-template-columns: repeat(4,1fr);
+    grid-template-columns:repeat(4,1fr);
     gap:15px;
     margin-top:15px;
 }
@@ -112,27 +132,13 @@ body {
 /* FOOTER */
 .footer{
     background:#1f2937;
-    color:#cbd5f5;
+    color:#cbd5e1;
     text-align:center;
     padding:10px;
 }
 
-.summary-box{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:15px;
-    margin-bottom:20px;
-}
-
-.summary-card{
-    background:#f1f5f9;
-    padding:15px;
-    border-radius:10px;
-    text-align:center;
-    font-weight:bold;
-}
-
-@media(max-width:900px){
+/* RESPONSIVE */
+@media (max-width:900px){
 
     .container{
         flex-direction:column;
@@ -143,28 +149,44 @@ body {
         width:100%;
     }
 
-    .material-grid{
-        grid-template-columns:repeat(2,1fr);
-    }
-
     .summary-box{
         grid-template-columns:1fr;
     }
+
+    .material-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
 }
+
+@media (max-width:500px){
+
+    .header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .menu{
+        width:100%;
+    }
+
+    .material-grid{
+        grid-template-columns:1fr;
+    }
+}
+
 </style>
 </head>
 
 <body>
 
 <div class="header">
-    <div class="logo">Uniform Register</div>
+    <div class="logo">Uniform Dashboard</div>
 
     <div class="menu">
         <a href="#"><button class="active">Home</button></a>
-        <a href="entry.html"><button>Data Entry</button></a>
-        <a href="stock.html"><button>Stock Management</button></a>
-        <a href="vendor.html"><button>Vendor Management</button></a>
-        <a href="setting.html"><button>Setting</button></a>
+        <a href="entry.html"><button>Entry</button></a>
+        <a href="stock.html"><button>Stock</button></a>
+        <a href="vendor.html"><button>Vendor</button></a>
         <a href="dashboard.html"><button>Exit</button></a>
     </div>
 </div>
@@ -186,7 +208,7 @@ body {
 
 <div class="summary-card">
 <h2 id="totalUniform">0</h2>
-<p>Total Given Uniform</p>
+<p>Total Uniform Given</p>
 </div>
 
 <div class="summary-card">
@@ -201,7 +223,8 @@ body {
 
 </div>
 
-<h3>📦 Current Material Stock</h3>
+<h3 style="margin-top:20px;">📦 Material Stock</h3>
+
 <div class="material-grid" id="materialGrid"></div>
 
 </div>
@@ -209,7 +232,7 @@ body {
 </div>
 
 <div class="footer">
-© 2026 | Made By Prime Developers
+© 2026 Uniform System | Made by Prime
 </div>
 
 <script>
@@ -218,190 +241,109 @@ const API_URL = "https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDc
 
 let today = new Date();
 
-/* ================= FORMAT DATE ================= */
-
-function formatDate(dateStr){
-
-    if(!dateStr) return "";
-
-    let d = new Date(dateStr);
-
-    let year = d.getFullYear();
-
-    let month = String(d.getMonth()+1).padStart(2,'0');
-
-    let day = String(d.getDate()).padStart(2,'0');
-
-    return `${year}-${month}-${day}`;
+/* FORMAT */
+function formatDate(d){
+    if(!d) return "";
+    let x = new Date(d);
+    return x.toISOString().split("T")[0];
 }
 
-/* ================= LOAD DASHBOARD ================= */
-
+/* LOAD DASHBOARD */
 async function loadDashboard(){
 
-    // EMPLOYEE ENTRY
-    let entryRes = await fetch(API_URL + "?sheet=Employee_Entry");
+    let entry = await fetch(API_URL + "?sheet=Employee_Entry").then(r=>r.json());
+    let stock = await fetch(API_URL + "?sheet=Stock_Entry").then(r=>r.json());
+    let mat = await fetch(API_URL + "?sheet=Material_Master").then(r=>r.json());
 
-    let entryData = await entryRes.json();
-
-    // STOCK ENTRY
-    let stockRes = await fetch(API_URL + "?sheet=Stock_Entry");
-
-    let stockData = await stockRes.json();
-
-    // MATERIAL MASTER
-    let matRes = await fetch(API_URL + "?sheet=Material_Master");
-
-    let matData = await matRes.json();
-
-    loadAlerts(entryData);
-
-    loadSummary(entryData, stockData, matData);
+    loadAlerts(entry);
+    loadSummary(entry, stock, mat);
 }
 
-/* ================= DUE ALERTS ================= */
-
-function loadAlerts(entryData){
+/* ALERTS */
+function loadAlerts(entry){
 
     alerts.innerHTML = "";
 
     let found = false;
 
-    entryData.slice(1).forEach(d=>{
+    entry.slice(1).forEach(d=>{
 
-        let empName = d[3];
+        let name = d[3];
+        let due = d[8];
 
-        let dueDate = d[8];
+        if(!due) return;
 
-        if(!dueDate) return;
+        let diff = (new Date(due) - today)/(1000*60*60*24);
 
-        let due = new Date(dueDate);
-
-        let diff = (due - today) / (1000*60*60*24);
-
-        // OVERDUE
         if(diff < 0){
-
             found = true;
-
             alerts.innerHTML += `
             <div class="alert-item overdue">
-            ❌ <b>${empName}</b><br>
-            Due Date: ${formatDate(dueDate)}
+            ❌ ${name}<br>${formatDate(due)}
             </div>`;
         }
-
-        // NEXT 30 DAYS
         else if(diff <= 30){
-
             found = true;
-
             alerts.innerHTML += `
             <div class="alert-item">
-            ⚠ <b>${empName}</b><br>
-            Due Date: ${formatDate(dueDate)}
+            ⚠ ${name}<br>${formatDate(due)}
             </div>`;
         }
-
     });
 
     if(!found){
-
-        alerts.innerHTML = `
-        <div class="alert-item">
-        No Due Alerts 🎉
-        </div>`;
+        alerts.innerHTML = `<div class="alert-item">No Alerts 🎉</div>`;
     }
 }
 
-/* ================= SUMMARY ================= */
+/* SUMMARY */
+function loadSummary(entry, stock, mat){
 
-function loadSummary(entryData, stockData, matData){
+    document.getElementById("totalUniform").innerText = entry.length - 1;
 
-    // TOTAL GIVEN UNIFORM
-    document.getElementById("totalUniform").innerText = entryData.length - 1;
+    let m = {};
 
-    // MATERIAL LIST
-    let materials = {};
-
-    matData.slice(1).forEach(m=>{
-
-        materials[m[0]] = 0;
-
+    mat.slice(1).forEach(x=>{
+        m[x[0]] = 0;
     });
 
-    // STOCK ADD
-    stockData.slice(1).forEach(d=>{
-
-        let material = d[0];
-
-        let pair = Number(d[2] || 0);
-
-        if(materials[material] != undefined){
-
-            materials[material] += pair;
-
-        }
-
+    stock.slice(1).forEach(x=>{
+        let matName = x[0];
+        let qty = Number(x[2]||0);
+        if(m[matName] != undefined) m[matName] += qty;
     });
 
-    // STOCK MINUS FROM EMPLOYEE ENTRY
-    entryData.slice(1).forEach(d=>{
-
-        let material = d[7];
-
-        let pair = Number(d[6] || 0);
-
-        if(materials[material] != undefined){
-
-            materials[material] -= pair;
-
-        }
-
+    entry.slice(1).forEach(x=>{
+        let matName = x[7];
+        let qty = Number(x[6]||0);
+        if(m[matName] != undefined) m[matName] -= qty;
     });
 
-    // MATERIAL GRID
     materialGrid.innerHTML = "";
 
     let totalStock = 0;
 
-    for(let m in materials){
+    for(let k in m){
 
-        totalStock += materials[m];
-
-        let bgColor = materials[m] <= 5
-        ? "#fee2e2"
-        : "#f1f5f9";
+        totalStock += m[k];
 
         materialGrid.innerHTML += `
-        <div class="material-box" style="background:${bgColor}">
-
-            <div>${m}</div>
-
-            <h2>${materials[m]}</h2>
-
+        <div class="material-box">
+            ${k}
+            <h2>${m[k]}</h2>
         </div>`;
     }
 
     document.getElementById("totalStock").innerText = totalStock;
 
-    // TOTAL INVESTMENT
-    let grandTotal = 0;
+    let total = 0;
 
-    stockData.slice(1).forEach(d=>{
-
-        let price = Number(d[1] || 0);
-
-        let pair = Number(d[2] || 0);
-
-        grandTotal += (price * pair);
-
+    stock.slice(1).forEach(x=>{
+        total += Number(x[1]||0) * Number(x[2]||0);
     });
 
-    document.getElementById("grandTotal").innerText = grandTotal;
+    document.getElementById("grandTotal").innerText = total;
 }
-
-/* ================= INIT ================= */
 
 loadDashboard();
 
