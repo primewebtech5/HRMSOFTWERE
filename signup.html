@@ -2,101 +2,224 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
 <title>Secure Signup</title>
 
 <style>
 
-body{
-    font-family:Arial;
-    background:linear-gradient(135deg,#0d6efd,#1e293b);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    height:100vh;
+*{
     margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+
+    font-family:Arial;
+
+    background:linear-gradient(
+    135deg,
+    #0d6efd,
+    #1e293b
+    );
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    min-height:100vh;
+
+    padding:20px;
 }
 
 /* BOX */
+
 .box{
+
     background:white;
+
     padding:35px;
-    border-radius:15px;
-    width:320px;
-    box-shadow:0 10px 30px rgba(0,0,0,0.3);
+
+    border-radius:18px;
+
+    width:100%;
+
+    max-width:360px;
+
+    box-shadow:
+    0 10px 30px rgba(0,0,0,0.3);
+
     text-align:center;
+
+    animation:fade 0.5s ease;
 }
 
+/* TITLE */
+
 h2{
+
     margin-bottom:20px;
+
     color:#0d6efd;
+
+    font-size:30px;
 }
 
 /* INPUT */
+
 input{
+
     width:100%;
-    padding:12px;
+
+    padding:14px;
+
     margin:10px 0;
-    border-radius:8px;
+
+    border-radius:10px;
+
     border:1px solid #ccc;
+
     outline:none;
+
     transition:0.3s;
+
+    font-size:15px;
 }
 
 input:focus{
+
     border-color:#0d6efd;
-    box-shadow:0 0 5px #0d6efd;
+
+    box-shadow:
+    0 0 6px #0d6efd;
 }
 
 /* BUTTON */
+
 button{
+
     width:100%;
-    padding:12px;
+
+    padding:14px;
+
     background:#0d6efd;
+
     color:white;
+
     border:none;
-    border-radius:8px;
+
+    border-radius:10px;
+
     cursor:pointer;
+
     font-size:16px;
-    margin-top:10px;
+
+    margin-top:12px;
+
+    transition:0.3s;
 }
 
 button:hover{
-    background:#0b5ed7;
-}
 
-/* EXIT BUTTON */
-.exit{
-    position:fixed;
-    top:15px;
-    right:15px;
-    background:#ef4444;
-    padding:8px 12px;
-    border-radius:6px;
-    color:white;
-    text-decoration:none;
-    font-weight:bold;
+    background:#0b5ed7;
+
+    transform:scale(1.02);
 }
 
 /* LINK */
+
 .link{
-    margin-top:15px;
+
+    margin-top:18px;
 }
 
 .link a{
+
     text-decoration:none;
+
     color:#0d6efd;
+
     font-weight:bold;
+
+    font-size:15px;
 }
 
 .link a:hover{
+
     text-decoration:underline;
 }
 
-/* ERROR TEXT */
+/* ERROR */
+
 .error{
+
     color:red;
-    font-size:12px;
+
+    font-size:13px;
+
     text-align:left;
+
+    margin-top:5px;
+}
+
+/* MOBILE */
+
+@media(max-width:500px){
+
+    .box{
+
+        padding:25px 20px;
+
+        border-radius:15px;
+    }
+
+    h2{
+
+        font-size:25px;
+    }
+
+    input{
+
+        padding:12px;
+
+        font-size:14px;
+    }
+
+    button{
+
+        padding:12px;
+
+        font-size:15px;
+    }
+
+    .link a{
+
+        font-size:14px;
+    }
+}
+
+/* ANIMATION */
+
+@keyframes fade{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(20px);
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+    }
 }
 
 </style>
@@ -104,93 +227,191 @@ button:hover{
 
 <body oncontextmenu="return false">
 
-
 <div class="box">
+
 <h2>🔐 Create Account</h2>
 
-<input type="text" id="username" placeholder="Username" autocomplete="off">
-<input type="password" id="password" placeholder="Password" autocomplete="new-password">
+<input
+type="text"
+id="username"
+placeholder="Username"
+autocomplete="off">
+
+<input
+type="password"
+id="password"
+placeholder="Password"
+autocomplete="new-password">
 
 <div class="error" id="error"></div>
 
-<button onclick="signup()">Signup</button>
+<button onclick="signup()">
+Signup
+</button>
 
 <div class="link">
-<a href="login.html">Already have account? Login</a>
+
+<a href="login.html">
+
+Already have account? Login
+
+</a>
+
 </div>
 
 </div>
 
 <script>
 
-/* SIGNUP */
-function signup(){
+/* GOOGLE SHEET API */
 
-    let user = document.getElementById("username").value.trim();
-    let pass = document.getElementById("password").value.trim();
-    let error = document.getElementById("error");
+const API_URL =
+"https://script.google.com/macros/s/AKfycbye7Y5dbCH3M8Ep2NvDCk1P2AJ3natbDzpQ_U9oG0WZR-AX7aNxYedCTWYIsyK3Yb9i/exec";
+
+/* SIGNUP FUNCTION */
+
+async function signup(){
+
+    let user =
+    document
+    .getElementById("username")
+    .value
+    .trim();
+
+    let pass =
+    document
+    .getElementById("password")
+    .value
+    .trim();
+
+    let error =
+    document
+    .getElementById("error");
 
     error.innerText = "";
 
-    // VALIDATION
+    /* VALIDATION */
+
     if(user.length < 3){
-        error.innerText = "Username must be at least 3 characters";
+
+        error.innerText =
+        "Username must be at least 3 characters";
+
         return;
     }
 
     if(pass.length < 6){
-        error.innerText = "Password must be at least 6 characters";
+
+        error.innerText =
+        "Password must be at least 6 characters";
+
         return;
     }
 
-    // SAVE
-    let data = {
-        username: user,
-        password: pass
-    };
+    try{
 
-fetch("https://script.google.com/macros/s/AKfycbye7Y5dbCH3M8Ep2NvDCk1P2AJ3natbDzpQ_U9oG0WZR-AX7aNxYedCTWYIsyK3Yb9i/exec", {
+        await fetch(API_URL,{
 
-    method: "POST",
+            method:"POST",
 
-    body: JSON.stringify({
-        username: user,
-        password: pass
-    })
+            body:JSON.stringify({
 
-})
-.then(res => res.json())
-.then(data => {
+                username:user,
 
-    alert("Account Created ✅");
+                password:pass
+            })
+        });
 
-    window.location.href = "login.html";
+        alert("Account Created ✅");
 
+        window.location.href =
+        "login.html";
+
+    }catch(err){
+
+        console.log(err);
+
+        error.innerText =
+        "Server Error ❌";
+    }
+}
+
+/* ENTER KEY SIGNUP */
+
+document
+.getElementById("password")
+.addEventListener(
+"keypress",
+function(e){
+
+    if(e.key === "Enter"){
+
+        signup();
+    }
 });
 
-    alert("Account Created ✅");
+/* 🚫 BLOCK COPY */
 
-    window.location.href = "login.html";
-}
+document.addEventListener(
+"copy",
+e => e.preventDefault()
+);
 
-/* 🚫 BLOCK COPY / PASTE */
-document.addEventListener("copy", e => e.preventDefault());
-document.addEventListener("paste", e => e.preventDefault());
-document.addEventListener("cut", e => e.preventDefault());
+/* 🚫 BLOCK PASTE */
+
+document.addEventListener(
+"paste",
+e => e.preventDefault()
+);
+
+/* 🚫 BLOCK CUT */
+
+document.addEventListener(
+"cut",
+e => e.preventDefault()
+);
 
 /* 🚫 BLOCK RIGHT CLICK */
-document.addEventListener("contextmenu", e => e.preventDefault());
 
-/* 🚫 BLOCK DEVTOOLS (BASIC) */
+document.addEventListener(
+"contextmenu",
+e => e.preventDefault()
+);
+
+/* 🚫 BLOCK DEVTOOLS */
+
 document.onkeydown = function(e){
-    if(e.keyCode == 123) return false;
-    if(e.ctrlKey && e.shiftKey && e.keyCode == 73) return false;
-    if(e.ctrlKey && e.shiftKey && e.keyCode == 74) return false;
-    if(e.ctrlKey && e.keyCode == 85) return false;
+
+    if(e.keyCode == 123)
+    return false;
+
+    if(
+        e.ctrlKey &&
+        e.shiftKey &&
+        e.keyCode == 73
+    )
+    return false;
+
+    if(
+        e.ctrlKey &&
+        e.shiftKey &&
+        e.keyCode == 74
+    )
+    return false;
+
+    if(
+        e.ctrlKey &&
+        e.keyCode == 85
+    )
+    return false;
 }
 
-/* 🚫 DRAG BLOCK */
-document.addEventListener("dragstart", e => e.preventDefault());
+/* 🚫 BLOCK DRAG */
+
+document.addEventListener(
+"dragstart",
+e => e.preventDefault()
+);
 
 </script>
 
