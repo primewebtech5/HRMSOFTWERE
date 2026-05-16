@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -25,9 +26,15 @@ body {
     color:white;
 }
 
-.logo { font-size:22px; font-weight:bold; }
+.logo {
+    font-size:22px;
+    font-weight:bold;
+}
 
-.menu { display:flex; gap:20px; }
+.menu {
+    display:flex;
+    gap:20px;
+}
 
 .menu button {
     background:transparent;
@@ -35,6 +42,7 @@ body {
     color:white;
     padding:8px 12px;
     cursor:pointer;
+    border-radius:6px;
 }
 
 .menu button:hover {
@@ -61,11 +69,12 @@ body {
     background:white;
     padding:20px;
     border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
 
 .alert-item{
     padding:10px;
-    margin-bottom:8px;
+    margin-bottom:10px;
     border-radius:8px;
     background:#fee2e2;
 }
@@ -81,6 +90,7 @@ body {
     background:white;
     padding:20px;
     border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
 
 /* MATERIAL GRID */
@@ -105,6 +115,41 @@ body {
     color:#cbd5f5;
     text-align:center;
     padding:10px;
+}
+
+.summary-box{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.summary-card{
+    background:#f1f5f9;
+    padding:15px;
+    border-radius:10px;
+    text-align:center;
+    font-weight:bold;
+}
+
+@media(max-width:900px){
+
+    .container{
+        flex-direction:column;
+    }
+
+    .alert-box,
+    .graph-box{
+        width:100%;
+    }
+
+    .material-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .summary-box{
+        grid-template-columns:1fr;
+    }
 }
 </style>
 </head>
@@ -136,12 +181,28 @@ body {
 <div class="graph-box">
 
 <h3>📊 Summary</h3>
-<p><b>Total Given Uniform:</b> <span id="total"></span></p>
 
-<h3>💰 Material Price Summary</h3>
+<div class="summary-box">
+
+<div class="summary-card">
+<h2 id="totalUniform">0</h2>
+<p>Total Given Uniform</p>
+</div>
+
+<div class="summary-card">
+<h2 id="totalStock">0</h2>
+<p>Available Stock</p>
+</div>
+
+<div class="summary-card">
+<h2>₹ <span id="grandTotal">0</span></h2>
+<p>Total Investment</p>
+</div>
+
+</div>
+
+<h3>📦 Current Material Stock</h3>
 <div class="material-grid" id="materialGrid"></div>
-
-<h3>💰 Total Investment: ₹ <span id="grandTotal">0</span></h3>
 
 </div>
 
@@ -153,81 +214,196 @@ body {
 
 <script>
 
-let data = JSON.parse(localStorage.getItem("uniformData")) || [];
-let stockData = JSON.parse(localStorage.getItem("stockData")) || [];
+const API_URL = "https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDcqb70esqPB52-RVwzT5AbBunwQxct1AbiSjmvz0nllFkM/exec";
+
 let today = new Date();
 
-/* ALERT */
-function loadAlerts(){
-    alerts.innerHTML="";
+/* ================= FORMAT DATE ================= */
 
-    data.forEach(d=>{
-        if(!d.due) return;
+function formatDate(dateStr){
 
-        let diff=(new Date(d.due)-today)/(1000*60*60*24);
+    if(!dateStr) return "";
 
-        if(diff<0){
-            alerts.innerHTML+=`
+    let d = new Date(dateStr);
+
+    let year = d.getFullYear();
+
+    let month = String(d.getMonth()+1).padStart(2,'0');
+
+    let day = String(d.getDate()).padStart(2,'0');
+
+    return `${year}-${month}-${day}`;
+}
+
+/* ================= LOAD DASHBOARD ================= */
+
+async function loadDashboard(){
+
+    // EMPLOYEE ENTRY
+    let entryRes = await fetch(API_URL + "?sheet=Employee_Entry");
+
+    let entryData = await entryRes.json();
+
+    // STOCK ENTRY
+    let stockRes = await fetch(API_URL + "?sheet=Stock_Entry");
+
+    let stockData = await stockRes.json();
+
+    // MATERIAL MASTER
+    let matRes = await fetch(API_URL + "?sheet=Material_Master");
+
+    let matData = await matRes.json();
+
+    loadAlerts(entryData);
+
+    loadSummary(entryData, stockData, matData);
+}
+
+/* ================= DUE ALERTS ================= */
+
+function loadAlerts(entryData){
+
+    alerts.innerHTML = "";
+
+    let found = false;
+
+    entryData.slice(1).forEach(d=>{
+
+        let empName = d[3];
+
+        let dueDate = d[8];
+
+        if(!dueDate) return;
+
+        let due = new Date(dueDate);
+
+        let diff = (due - today) / (1000*60*60*24);
+
+        // OVERDUE
+        if(diff < 0){
+
+            found = true;
+
+            alerts.innerHTML += `
             <div class="alert-item overdue">
-            ❌ ${d.empName}<br>
-            Due: ${d.due}
-            </div>`;
-        } 
-        else if(diff<=30){
-            alerts.innerHTML+=`
-            <div class="alert-item">
-            ⚠ ${d.empName}<br>
-            Due: ${d.due}
+            ❌ <b>${empName}</b><br>
+            Due Date: ${formatDate(dueDate)}
             </div>`;
         }
+
+        // NEXT 30 DAYS
+        else if(diff <= 30){
+
+            found = true;
+
+            alerts.innerHTML += `
+            <div class="alert-item">
+            ⚠ <b>${empName}</b><br>
+            Due Date: ${formatDate(dueDate)}
+            </div>`;
+        }
+
     });
 
-    if(alerts.innerHTML==""){
-        alerts.innerHTML="<p>No alerts 🎉</p>";
+    if(!found){
+
+        alerts.innerHTML = `
+        <div class="alert-item">
+        No Due Alerts 🎉
+        </div>`;
     }
 }
 
-/* FIXED VALUE CALC (MAIN FIX 🔥) */
-function loadValue(){
+/* ================= SUMMARY ================= */
 
+function loadSummary(entryData, stockData, matData){
+
+    // TOTAL GIVEN UNIFORM
+    document.getElementById("totalUniform").innerText = entryData.length - 1;
+
+    // MATERIAL LIST
     let materials = {};
 
-    let grandTotal = 0;
+    matData.slice(1).forEach(m=>{
 
-    stockData.forEach(d=>{
-        let name = (d.material || "").trim();
-        let price = parseFloat(d.price) || 0;
+        materials[m[0]] = 0;
 
-        if(!materials[name]){
-            materials[name] = 0;
-        }
-
-        materials[name] += price;
-        grandTotal += price;
     });
 
-    materialGrid.innerHTML="";
+    // STOCK ADD
+    stockData.slice(1).forEach(d=>{
+
+        let material = d[0];
+
+        let pair = Number(d[2] || 0);
+
+        if(materials[material] != undefined){
+
+            materials[material] += pair;
+
+        }
+
+    });
+
+    // STOCK MINUS FROM EMPLOYEE ENTRY
+    entryData.slice(1).forEach(d=>{
+
+        let material = d[7];
+
+        let pair = Number(d[6] || 0);
+
+        if(materials[material] != undefined){
+
+            materials[material] -= pair;
+
+        }
+
+    });
+
+    // MATERIAL GRID
+    materialGrid.innerHTML = "";
+
+    let totalStock = 0;
 
     for(let m in materials){
+
+        totalStock += materials[m];
+
+        let bgColor = materials[m] <= 5
+        ? "#fee2e2"
+        : "#f1f5f9";
+
         materialGrid.innerHTML += `
-        <div class="material-box">
+        <div class="material-box" style="background:${bgColor}">
+
             <div>${m}</div>
-            <div>₹ ${materials[m]}</div>
+
+            <h2>${materials[m]}</h2>
+
         </div>`;
     }
+
+    document.getElementById("totalStock").innerText = totalStock;
+
+    // TOTAL INVESTMENT
+    let grandTotal = 0;
+
+    stockData.slice(1).forEach(d=>{
+
+        let price = Number(d[1] || 0);
+
+        let pair = Number(d[2] || 0);
+
+        grandTotal += (price * pair);
+
+    });
 
     document.getElementById("grandTotal").innerText = grandTotal;
 }
 
-/* TOTAL */
-function loadTotal(){
-    document.getElementById("total").innerText = data.length;
-}
+/* ================= INIT ================= */
 
-/* INIT */
-loadAlerts();
-loadValue();
-loadTotal();
+loadDashboard();
 
 </script>
 
