@@ -194,165 +194,396 @@ th{ background:#1e293b; color:white; }
 
 <script>
 
-let stockData = JSON.parse(localStorage.getItem("stockData")) || [];
-let materials = JSON.parse(localStorage.getItem("materials")) || [];
+const API_URL = "https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDcqb70esqPB52-RVwzT5AbBunwQxct1AbiSjmvz0nllFkM/exec";
 
-/* LOAD MATERIAL */
-function loadMaterials(){
-    material.innerHTML="";
-    materials.forEach(m=>{
-        material.innerHTML += `<option>${m}</option>`;
+let stockData = [];
+let materials = [];
+let editIndex = -1;
+
+/* ================= FORMAT DATE ================= */
+
+function formatDate(dateStr){
+
+    if(!dateStr) return "";
+
+    let d = new Date(dateStr);
+
+    let year = d.getFullYear();
+
+    let month = String(d.getMonth()+1).padStart(2,'0');
+
+    let day = String(d.getDate()).padStart(2,'0');
+
+    return `${year}-${month}-${day}`;
+}
+
+/* ================= LOAD MATERIAL ================= */
+
+async function loadMaterials(){
+
+    let res = await fetch(API_URL + "?sheet=Material_Master");
+
+    let data = await res.json();
+
+    material.innerHTML = "";
+
+    materials = [];
+
+    data.slice(1).forEach(m=>{
+
+        materials.push(m[0]);
+
+        material.innerHTML += `
+        <option>${m[0]}</option>`;
+
     });
 }
 
-/* FILTER LOAD */
+/* ================= FILTER ================= */
+
 function loadFilter(){
-    filter.innerHTML = '<option value="">All Material</option>';
+
+    filter.innerHTML = `<option value="">All Material</option>`;
+
     materials.forEach(m=>{
-        filter.innerHTML += `<option value="${m}">${m}</option>`;
+
+        filter.innerHTML += `
+        <option value="${m}">${m}</option>`;
+
     });
 }
 
-/* ADD */
-function addStock(){
-    if(!pair.value) return alert("Enter Pair");
+/* ================= ADD / UPDATE STOCK ================= */
 
-    stockData.push({
+async function addStock(){
+
+    if(!pair.value){
+
+        alert("Enter Pair");
+
+        return;
+    }
+
+    let obj = {
+
+        sheet:"Stock_Entry",
+
         material: material.value,
+
         price: price.value,
-        pair: parseInt(pair.value),
+
+        pair: pair.value,
+
         date: pdate.value,
+
         remarks: remarks.value
+
+    };
+
+    // UPDATE
+    if(editIndex != -1){
+
+        obj.action = "update";
+
+        obj.row = stockData[editIndex].rowNumber;
+    }
+
+    await fetch(API_URL,{
+        method:"POST",
+        body:JSON.stringify(obj)
     });
 
-    localStorage.setItem("stockData", JSON.stringify(stockData));
+    alert(editIndex == -1
+    ? "Stock Added Successfully"
+    : "Stock Updated Successfully");
+
+    // RESET
+    editIndex = -1;
+
+    price.value = "";
+    pair.value = "";
+    pdate.value = "";
+    remarks.value = "";
+
     render();
 }
 
-/* DELETE */
-function deleteRow(i){
-    if(confirm("Delete?")){
-        stockData.splice(i,1);
-        localStorage.setItem("stockData", JSON.stringify(stockData));
+/* ================= EDIT ================= */
+
+function editRow(i){
+
+    let d = stockData[i];
+
+    material.value = d.material;
+
+    price.value = d.price;
+
+    pair.value = d.pair;
+
+    pdate.value = formatDate(d.date);
+
+    remarks.value = d.remarks;
+
+    editIndex = i;
+}
+
+/* ================= DELETE ================= */
+
+async function deleteRow(i){
+
+    if(confirm("Delete Data?")){
+
+        await fetch(API_URL,{
+            method:"POST",
+            body:JSON.stringify({
+
+                action:"delete",
+
+                sheet:"Stock_Entry",
+
+                row: stockData[i].rowNumber
+
+            })
+        });
+
+        alert("Deleted Successfully");
+
         render();
     }
 }
 
-/* SEARCH */
+/* ================= SEARCH ================= */
+
 function searchData(){
+
     let val = search.value.toLowerCase();
+
     document.querySelectorAll("#tbody tr").forEach(row=>{
-        row.style.display = row.innerText.toLowerCase().includes(val) ? "" : "none";
+
+        row.style.display =
+        row.innerText.toLowerCase().includes(val)
+        ? ""
+        : "none";
+
     });
 }
 
-/* FILTER */
+/* ================= FILTER MATERIAL ================= */
+
 function filterMaterial(){
+
     let val = filter.value;
+
     document.querySelectorAll("#tbody tr").forEach(row=>{
-        row.style.display = row.innerText.includes(val) || val=="" ? "" : "none";
+
+        row.style.display =
+        row.innerText.includes(val) || val==""
+        ? ""
+        : "none";
+
     });
 }
 
-/* EXPORT */
+/* ================= EXPORT EXCEL ================= */
+
 function exportExcel(){
-    let csv="SR,Material,Price,Pair,Date,Remarks\n";
+
+    let csv = "SR,Material,Price,Pair,Date,Remarks\n";
+
     stockData.forEach((d,i)=>{
-        csv+=`${i+1},${d.material},${d.price},${d.pair},${d.date},${d.remarks}\n`;
+
+        csv += `${i+1},${d.material},${d.price},${d.pair},${formatDate(d.date)},${d.remarks}\n`;
+
     });
 
-    let blob=new Blob([csv]);
-    let a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="Stock_Report.csv";
+    let blob = new Blob([csv]);
+
+    let a = document.createElement("a");
+
+    a.href = URL.createObjectURL(blob);
+
+    a.download = "Stock_Report.csv";
+
     a.click();
 }
 
+/* ================= EXPORT PDF ================= */
+
 function exportPDF(){
+
     const { jsPDF } = window.jspdf;
+
     let doc = new jsPDF();
+
     let y = 10;
 
-    doc.text("Uniform Stock Report", 10, y);
+    doc.text("Uniform Stock Report",10,y);
 
     stockData.forEach((d,i)=>{
-        y+=8;
-        doc.text(`${i+1}. ${d.material} - ${d.pair}`,10,y);
+
+        y += 10;
+
+        doc.text(
+            `${i+1}. ${d.material} | Pair: ${d.pair}`,
+            10,
+            y
+        );
+
     });
 
     doc.save("Stock_Report.pdf");
 }
 
+/* ================= RENDER ================= */
 
-function render(){
+async function render(){
 
-    let uniformData = JSON.parse(localStorage.getItem("uniformData")) || [];
+    // STOCK DATA
+    let stockRes = await fetch(API_URL + "?sheet=Stock_Entry");
 
-    tbody.innerHTML="";
+    let stockSheet = await stockRes.json();
 
-    stockData.forEach((d,i)=>{
-        tbody.innerHTML+=`
+    // ENTRY DATA
+    let entryRes = await fetch(API_URL + "?sheet=Employee_Entry");
+
+    let uniformData = await entryRes.json();
+
+    tbody.innerHTML = "";
+
+    stockData = [];
+
+    // TABLE DATA
+    stockSheet.slice(1).forEach((row,i)=>{
+
+        let obj = {
+
+            material: row[0],
+
+            price: row[1],
+
+            pair: row[2],
+
+            date: row[3],
+
+            remarks: row[4],
+
+            rowNumber: i + 2
+
+        };
+
+        stockData.push(obj);
+
+        tbody.innerHTML += `
         <tr>
-        <td>${i+1}</td>
-        <td>${d.material}</td>
-        <td>${d.price}</td>
-        <td>${d.pair}</td>
-        <td>${d.date}</td>
-        <td>${d.remarks||""}</td>
-        <td><button onclick="deleteRow(${i})">Delete</button></td>
+
+            <td>${i+1}</td>
+
+            <td>${obj.material}</td>
+
+            <td>${obj.price}</td>
+
+            <td>${obj.pair}</td>
+
+            <td>${formatDate(obj.date)}</td>
+
+            <td>${obj.remarks || ""}</td>
+
+            <td>
+
+                <button onclick="editRow(${i})">
+                Update
+                </button>
+
+                <button onclick="deleteRow(${i})">
+                Delete
+                </button>
+
+            </td>
+
         </tr>`;
     });
 
+    // STOCK COUNT
     let count = {};
-    materials.forEach(m=>count[m]=0);
 
-    // ✅ STOCK ADD
+    materials.forEach(m=>{
+
+        count[m] = 0;
+
+    });
+
+    // ADD STOCK
     stockData.forEach(d=>{
-        count[d.material] += (parseInt(d.pair) || 0);
+
+        count[d.material] += Number(d.pair || 0);
+
     });
 
-    // ✅ STOCK MINUS (ENTRY)
-    uniformData.forEach(d=>{
-        if(count[d.material] != undefined){
-            count[d.material] -= (parseInt(d.pair) || 0);
+    // MINUS ENTRY
+    uniformData.slice(1).forEach(d=>{
+
+        let mat = d[7];
+
+        let pair = Number(d[6] || 0);
+
+        if(count[mat] != undefined){
+
+            count[mat] -= pair;
         }
+
     });
 
+    // TOTAL
     let total = 0;
-    let totalValue = 0;
 
-    materialGrid.innerHTML="";
+    let totalAmount = 0;
+
+    materialGrid.innerHTML = "";
 
     for(let m in count){
 
         total += count[m];
 
-        let boxColor = count[m] <= 5 ? "#fee2e2" : "white";
+        let boxColor =
+        count[m] <= 5
+        ? "#fee2e2"
+        : "white";
 
-        materialGrid.innerHTML+=`
-        <div class="material-box" style="background:${boxColor}">
+        materialGrid.innerHTML += `
+        <div class="material-box"
+        style="background:${boxColor}">
+
             <div>${m}</div>
+
             <div>${count[m]}</div>
+
         </div>`;
     }
 
-    // ✅ FIXED VALUE CALCULATION
-stockData.forEach(d=>{
-    let price = parseFloat(d.price) || 0;
+    // TOTAL VALUE
+    stockData.forEach(d=>{
 
-    totalValue += price;   // ❗ pair remove kari didhu
-});
+        totalAmount += Number(d.price || 0);
+
+    });
 
     document.getElementById("totalStock").innerText = total;
-    document.getElementById("totalValue").innerText = totalValue;
 
+    document.getElementById("totalValue").innerText = totalAmount;
+
+    loadFilter();
 }
 
-loadMaterials();
-loadFilter();
-render();
+/* ================= INIT ================= */
+
+loadMaterials().then(()=>{
+
+    render();
+
+});
 
 </script>
 
+</script>
 </body>
 </html>
