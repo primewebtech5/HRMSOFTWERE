@@ -5,37 +5,62 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Stock Master</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
-body { margin:0; font-family:Arial; }
 
-.header {
+body{
+    margin:0;
+    font-family:Arial;
+    background:#f1f5f9;
+}
+
+/* HEADER */
+.header{
     display:flex;
     justify-content:space-between;
     align-items:center;
     background:#1e293b;
-    padding:15px 30px;
+    padding:15px 20px;
     color:white;
+    flex-wrap:wrap;
+    gap:10px;
 }
 
-.logo { font-size:22px; font-weight:bold; }
+.logo{
+    font-size:20px;
+    font-weight:bold;
+}
 
-.menu { display:flex; gap:20px; }
+.menu{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+}
 
-.menu button {
+.menu button{
     background:transparent;
     border:none;
     color:white;
-    padding:8px 12px;
+    padding:8px 10px;
     cursor:pointer;
+    border-radius:6px;
 }
 
-.menu button:hover { background:#38bdf8; color:black; }
-.active { background:#38bdf8 !important; color:black !important; }
+.menu button:hover{
+    background:#38bdf8;
+    color:black;
+}
 
-.container{ padding:20px; }
+.active{
+    background:#38bdf8 !important;
+    color:black !important;
+}
 
+/* CONTAINER */
+.container{
+    padding:15px;
+}
+
+/* TOP CARD */
 .stock-top{
     text-align:center;
     background:#1e293b;
@@ -44,11 +69,12 @@ body { margin:0; font-family:Arial; }
     border-radius:10px;
 }
 
+/* MATERIAL GRID */
 .material-grid{
     display:grid;
-    grid-template-columns: repeat(4,1fr);
+    grid-template-columns:repeat(4,1fr);
     gap:15px;
-    margin-top:20px;
+    margin-top:15px;
 }
 
 .material-box{
@@ -59,46 +85,96 @@ body { margin:0; font-family:Arial; }
     box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
 
+/* BOX */
 .box{
     background:white;
-    padding:20px;
+    padding:15px;
     margin-top:20px;
     border-radius:10px;
 }
 
+/* FORM */
 .form-grid{
     display:grid;
-    grid-template-columns: repeat(2,1fr);
+    grid-template-columns:repeat(2,1fr);
     gap:15px;
 }
 
-input,select{ padding:8px; width:100%; }
+input,select{
+    width:100%;
+    padding:10px;
+    box-sizing:border-box;
+}
 
+/* BUTTON */
 .btn{
     background:#1e293b;
     color:white;
     border:none;
-    padding:10px 15px;
+    padding:10px 12px;
     border-radius:6px;
     cursor:pointer;
-    margin-right:10px;
+    margin:5px 0;
 }
 
-.btn:hover{ background:#38bdf8; color:black; }
+.btn:hover{
+    background:#38bdf8;
+    color:black;
+}
 
+/* TABLE WRAPPER */
+.table-wrapper{
+    width:100%;
+    overflow-x:auto;
+    margin-top:15px;
+}
+
+/* TABLE */
 table{
     width:100%;
+    min-width:800px;
     border-collapse:collapse;
-    margin-top:15px;
 }
 
 th,td{
     border:1px solid #ccc;
     padding:8px;
     text-align:center;
+    font-size:14px;
 }
 
-th{ background:#1e293b; color:white; }
+th{
+    background:#1e293b;
+    color:white;
+}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+
+    .material-grid{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:500px){
+
+    .header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .material-grid{
+        grid-template-columns:1fr;
+    }
+
+    .btn{
+        width:100%;
+    }
+}
 
 </style>
 </head>
@@ -106,72 +182,56 @@ th{ background:#1e293b; color:white; }
 <body>
 
 <div class="header">
-    <div class="logo">Uniform Register</div>
+    <div class="logo">Uniform Stock</div>
+
     <div class="menu">
         <a href="uniform.html"><button>Home</button></a>
-        <a href="entry.html"><button>Data Entry</button></a>
-        <a href="#"><button class="active">Stock Management</button></a>
-        <a href="vendor.html"><button>Vendor Management</button></a>
-        <a href="setting.html"><button>Setting</button></a>
+        <a href="entry.html"><button>Entry</button></a>
+        <a href="#"><button class="active">Stock</button></a>
+        <a href="vendor.html"><button>Vendor</button></a>
         <a href="dashboard.html"><button>Exit</button></a>
     </div>
 </div>
 
 <div class="container">
 
+<!-- TOP -->
 <div class="stock-top">
     <h2>Available Stock</h2>
     <h3 id="totalStock">0</h3>
     <h4>Total Value: ₹ <span id="totalValue">0</span></h4>
 </div>
 
+<!-- MATERIAL GRID -->
 <div class="material-grid" id="materialGrid"></div>
 
+<!-- FORM -->
 <div class="box">
 <h3>Add Stock</h3>
 
 <div class="form-grid">
-<div>
-<label>Material</label>
+
 <select id="material"></select>
-</div>
-
-<div>
-<label>Price</label>
-<input type="number" id="price">
-</div>
-
-<div>
-<label>Pair</label>
-<input type="number" id="pair">
-</div>
-
-<div>
-<label>Purchase Date</label>
+<input type="number" id="price" placeholder="Price">
+<input type="number" id="pair" placeholder="Pair">
 <input type="date" id="pdate">
-</div>
-
-<div style="grid-column: span 2;">
-<label>Remarks</label>
-<input type="text" id="remarks">
-</div>
-</div>
-
-<br>
-<button class="btn" onclick="addStock()">Add Stock</button>
-<button class="btn" onclick="exportExcel()">Export Excel</button>
-<button class="btn" onclick="exportPDF()">Export PDF</button>
+<input type="text" id="remarks" placeholder="Remarks">
 
 </div>
 
+<button class="btn" onclick="addStock()">Add</button>
+<button class="btn" onclick="exportExcel()">Excel</button>
+<button class="btn" onclick="exportPDF()">PDF</button>
+
+</div>
+
+<!-- TABLE -->
 <div class="box">
 <h3>Stock History</h3>
 
-<input type="text" id="search" placeholder="Search..." onkeyup="searchData()" style="padding:8px;width:200px;margin-bottom:10px;">
+<input type="text" id="search" placeholder="Search..." onkeyup="searchData()">
 
-<select id="filter" onchange="filterMaterial()" style="padding:8px;margin-left:10px;">
-<option value="">All Material</option>
-</select>
+<div class="table-wrapper">
 
 <table>
 <thead>
@@ -185,8 +245,12 @@ th{ background:#1e293b; color:white; }
 <th>Action</th>
 </tr>
 </thead>
+
 <tbody id="tbody"></tbody>
+
 </table>
+
+</div>
 
 </div>
 
@@ -198,392 +262,129 @@ const API_URL = "https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDc
 
 let stockData = [];
 let materials = [];
-let editIndex = -1;
 
-/* ================= FORMAT DATE ================= */
-
-function formatDate(dateStr){
-
-    if(!dateStr) return "";
-
-    let d = new Date(dateStr);
-
-    let year = d.getFullYear();
-
-    let month = String(d.getMonth()+1).padStart(2,'0');
-
-    let day = String(d.getDate()).padStart(2,'0');
-
-    return `${year}-${month}-${day}`;
-}
-
-/* ================= LOAD MATERIAL ================= */
-
+/* LOAD MATERIAL */
 async function loadMaterials(){
 
-    let res = await fetch(API_URL + "?sheet=Material_Master");
-
+    let res = await fetch(API_URL+"?sheet=Material_Master");
     let data = await res.json();
 
     material.innerHTML = "";
 
-    materials = [];
-
     data.slice(1).forEach(m=>{
-
         materials.push(m[0]);
-
-        material.innerHTML += `
-        <option>${m[0]}</option>`;
-
+        material.innerHTML += `<option>${m[0]}</option>`;
     });
 }
 
-/* ================= FILTER ================= */
-
-function loadFilter(){
-
-    filter.innerHTML = `<option value="">All Material</option>`;
-
-    materials.forEach(m=>{
-
-        filter.innerHTML += `
-        <option value="${m}">${m}</option>`;
-
-    });
-}
-
-/* ================= ADD / UPDATE STOCK ================= */
-
+/* ADD STOCK */
 async function addStock(){
 
-    if(!pair.value){
-
-        alert("Enter Pair");
-
-        return;
-    }
-
     let obj = {
-
         sheet:"Stock_Entry",
-
-        material: material.value,
-
-        price: price.value,
-
-        pair: pair.value,
-
-        date: pdate.value,
-
-        remarks: remarks.value
-
+        material:material.value,
+        price:price.value,
+        pair:pair.value,
+        date:pdate.value,
+        remarks:remarks.value
     };
-
-    // UPDATE
-    if(editIndex != -1){
-
-        obj.action = "update";
-
-        obj.row = stockData[editIndex].rowNumber;
-    }
 
     await fetch(API_URL,{
         method:"POST",
         body:JSON.stringify(obj)
     });
 
-    alert(editIndex == -1
-    ? "Stock Added Successfully"
-    : "Stock Updated Successfully");
-
-    // RESET
-    editIndex = -1;
-
-    price.value = "";
-    pair.value = "";
-    pdate.value = "";
-    remarks.value = "";
-
+    alert("Saved");
     render();
 }
 
-/* ================= EDIT ================= */
-
-function editRow(i){
-
-    let d = stockData[i];
-
-    material.value = d.material;
-
-    price.value = d.price;
-
-    pair.value = d.pair;
-
-    pdate.value = formatDate(d.date);
-
-    remarks.value = d.remarks;
-
-    editIndex = i;
-}
-
-/* ================= DELETE ================= */
-
-async function deleteRow(i){
-
-    if(confirm("Delete Data?")){
-
-        await fetch(API_URL,{
-            method:"POST",
-            body:JSON.stringify({
-
-                action:"delete",
-
-                sheet:"Stock_Entry",
-
-                row: stockData[i].rowNumber
-
-            })
-        });
-
-        alert("Deleted Successfully");
-
-        render();
-    }
-}
-
-/* ================= SEARCH ================= */
-
-function searchData(){
-
-    let val = search.value.toLowerCase();
-
-    document.querySelectorAll("#tbody tr").forEach(row=>{
-
-        row.style.display =
-        row.innerText.toLowerCase().includes(val)
-        ? ""
-        : "none";
-
-    });
-}
-
-/* ================= FILTER MATERIAL ================= */
-
-function filterMaterial(){
-
-    let val = filter.value;
-
-    document.querySelectorAll("#tbody tr").forEach(row=>{
-
-        row.style.display =
-        row.innerText.includes(val) || val==""
-        ? ""
-        : "none";
-
-    });
-}
-
-/* ================= EXPORT EXCEL ================= */
-
-function exportExcel(){
-
-    let csv = "SR,Material,Price,Pair,Date,Remarks\n";
-
-    stockData.forEach((d,i)=>{
-
-        csv += `${i+1},${d.material},${d.price},${d.pair},${formatDate(d.date)},${d.remarks}\n`;
-
-    });
-
-    let blob = new Blob([csv]);
-
-    let a = document.createElement("a");
-
-    a.href = URL.createObjectURL(blob);
-
-    a.download = "Stock_Report.csv";
-
-    a.click();
-}
-
-/* ================= EXPORT PDF ================= */
-
-function exportPDF(){
-
-    const { jsPDF } = window.jspdf;
-
-    let doc = new jsPDF();
-
-    let y = 10;
-
-    doc.text("Uniform Stock Report",10,y);
-
-    stockData.forEach((d,i)=>{
-
-        y += 10;
-
-        doc.text(
-            `${i+1}. ${d.material} | Pair: ${d.pair}`,
-            10,
-            y
-        );
-
-    });
-
-    doc.save("Stock_Report.pdf");
-}
-
-/* ================= RENDER ================= */
-
+/* RENDER */
 async function render(){
 
-    // STOCK DATA
-    let stockRes = await fetch(API_URL + "?sheet=Stock_Entry");
-
-    let stockSheet = await stockRes.json();
-
-    // ENTRY DATA
-    let entryRes = await fetch(API_URL + "?sheet=Employee_Entry");
-
-    let uniformData = await entryRes.json();
-
-    tbody.innerHTML = "";
+    let stock = await fetch(API_URL+"?sheet=Stock_Entry").then(r=>r.json());
+    let entry = await fetch(API_URL+"?sheet=Employee_Entry").then(r=>r.json());
 
     stockData = [];
+    tbody.innerHTML = "";
 
-    // TABLE DATA
-    stockSheet.slice(1).forEach((row,i)=>{
+    stock.slice(1).forEach((d,i)=>{
 
         let obj = {
-
-            material: row[0],
-
-            price: row[1],
-
-            pair: row[2],
-
-            date: row[3],
-
-            remarks: row[4],
-
-            rowNumber: i + 2
-
+            material:d[0],
+            price:d[1],
+            pair:d[2],
+            date:d[3],
+            remarks:d[4],
+            row:i+2
         };
 
         stockData.push(obj);
 
         tbody.innerHTML += `
         <tr>
-
             <td>${i+1}</td>
-
             <td>${obj.material}</td>
-
             <td>${obj.price}</td>
-
             <td>${obj.pair}</td>
-
-            <td>${formatDate(obj.date)}</td>
-
-            <td>${obj.remarks || ""}</td>
-
+            <td>${obj.date}</td>
+            <td>${obj.remarks}</td>
             <td>
-
-                <button onclick="editRow(${i})">
-                Update
-                </button>
-
-                <button onclick="deleteRow(${i})">
-                Delete
-                </button>
-
+                <button onclick="deleteRow(${i})">Del</button>
             </td>
-
         </tr>`;
     });
 
-    // STOCK COUNT
     let count = {};
+    materials.forEach(m=>count[m]=0);
 
-    materials.forEach(m=>{
-
-        count[m] = 0;
-
-    });
-
-    // ADD STOCK
     stockData.forEach(d=>{
-
-        count[d.material] += Number(d.pair || 0);
-
+        count[d.material]+=Number(d.pair||0);
     });
 
-    // MINUS ENTRY
-    uniformData.slice(1).forEach(d=>{
-
-        let mat = d[7];
-
-        let pair = Number(d[6] || 0);
-
-        if(count[mat] != undefined){
-
-            count[mat] -= pair;
-        }
-
+    entry.slice(1).forEach(d=>{
+        let mat=d[7];
+        let p=Number(d[6]||0);
+        if(count[mat]!=undefined) count[mat]-=p;
     });
 
-    // TOTAL
-    let total = 0;
+    materialGrid.innerHTML="";
 
-    let totalAmount = 0;
-
-    materialGrid.innerHTML = "";
+    let total=0;
 
     for(let m in count){
 
-        total += count[m];
+        total+=count[m];
 
-        let boxColor =
-        count[m] <= 5
-        ? "#fee2e2"
-        : "white";
-
-        materialGrid.innerHTML += `
-        <div class="material-box"
-        style="background:${boxColor}">
-
-            <div>${m}</div>
-
-            <div>${count[m]}</div>
-
+        materialGrid.innerHTML+=`
+        <div class="material-box">
+            ${m}
+            <h2>${count[m]}</h2>
         </div>`;
     }
 
-    // TOTAL VALUE
+    totalStock.innerText=total;
+
+    let value=0;
+
     stockData.forEach(d=>{
-
-        totalAmount += Number(d.price || 0);
-
+        value+=Number(d.price||0);
     });
 
-    document.getElementById("totalStock").innerText = total;
-
-    document.getElementById("totalValue").innerText = totalAmount;
-
-    loadFilter();
+    totalValue.innerText=value;
 }
 
-/* ================= INIT ================= */
+/* SEARCH */
+function searchData(){
+    let val=search.value.toLowerCase();
+    document.querySelectorAll("#tbody tr").forEach(r=>{
+        r.style.display=r.innerText.toLowerCase().includes(val)?"":"none";
+    });
+}
 
-loadMaterials().then(()=>{
-
-    render();
-
-});
+/* INIT */
+loadMaterials().then(render);
 
 </script>
 
-</script>
 </body>
 </html>
