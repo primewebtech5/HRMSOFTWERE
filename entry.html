@@ -6,7 +6,12 @@
 <title>Uniform Entry</title>
 
 <style>
-body { margin:0; font-family:Arial; background:#f1f5f9; }
+
+body {
+    margin:0;
+    font-family:Arial;
+    background:#f1f5f9;
+}
 
 /* HEADER */
 .header {
@@ -14,19 +19,25 @@ body { margin:0; font-family:Arial; background:#f1f5f9; }
     justify-content:space-between;
     align-items:center;
     background:#1e293b;
-    padding:15px 30px;
+    padding:15px 20px;
     color:white;
+    flex-wrap:wrap;
+    gap:10px;
 }
 
-.logo { font-size:22px; font-weight:bold; }
+.logo { font-size:20px; font-weight:bold; }
 
-.menu { display:flex; gap:20px; }
+.menu {
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
 
 .menu button {
     background:transparent;
     border:none;
     color:white;
-    padding:8px 12px;
+    padding:8px 10px;
     cursor:pointer;
 }
 
@@ -35,39 +46,71 @@ body { margin:0; font-family:Arial; background:#f1f5f9; }
     color:black;
 }
 
-/* FORM */
-.container { padding:20px; }
+/* CONTAINER */
+.container {
+    padding:15px;
+}
 
+/* FORM */
 .form-grid {
     display:grid;
-    grid-template-columns: repeat(2,1fr);
+    grid-template-columns:repeat(2,1fr);
     gap:15px;
 }
 
+@media (max-width:768px){
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .menu{
+        width:100%;
+        justify-content:flex-start;
+    }
+}
+
+/* INPUT */
 input, select {
     width:100%;
-    padding:8px;
+    padding:10px;
+    box-sizing:border-box;
 }
 
 label { font-weight:bold; }
 
+/* BUTTON */
+button {
+    margin:5px;
+    padding:8px 12px;
+    cursor:pointer;
+}
+
+/* TABLE WRAPPER */
+.table-wrapper{
+    width:100%;
+    overflow-x:auto;
+    margin-top:20px;
+}
+
 /* TABLE */
 table {
     width:100%;
-    margin-top:20px;
+    min-width:700px;
     border-collapse:collapse;
     background:white;
 }
 
-th,td {
+th, td {
     border:1px solid #ccc;
     padding:8px;
     text-align:center;
+    font-size:14px;
 }
 
-th { background:#1e293b; color:white; }
-
-button { margin:5px; padding:6px 10px; cursor:pointer; }
+th {
+    background:#1e293b;
+    color:white;
+}
 
 /* MODAL */
 .modal {
@@ -75,13 +118,14 @@ button { margin:5px; padding:6px 10px; cursor:pointer; }
     position:fixed;
     top:0; left:0;
     width:100%; height:100%;
-    background:rgba(0,0,0,0.5);
+    background:rgba(0,0,0,0.6);
 }
 
 .modal-content {
     background:white;
-    width:400px;
-    margin:100px auto;
+    width:90%;
+    max-width:400px;
+    margin:80px auto;
     padding:20px;
     border-radius:10px;
 }
@@ -90,6 +134,18 @@ button { margin:5px; padding:6px 10px; cursor:pointer; }
     float:right;
     cursor:pointer;
     font-weight:bold;
+}
+
+/* MOBILE IMPROVEMENTS */
+@media (max-width:500px){
+    .header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    button{
+        width:100%;
+    }
 }
 
 </style>
@@ -103,9 +159,8 @@ button { margin:5px; padding:6px 10px; cursor:pointer; }
     <div class="menu">
         <a href="uniform.html"><button>Home</button></a>
         <a href="#"><button>Data Entry</button></a>
-        <a href="stock.html"><button>Stock Management</button></a>
-        <a href="vendor.html"><button>Vendor Management</button></a>
-        <a href="setting.html"><button>Setting</button></a>
+        <a href="stock.html"><button>Stock</button></a>
+        <a href="vendor.html"><button>Vendor</button></a>
         <a href="dashboard.html"><button>Exit</button></a>
     </div>
 </div>
@@ -164,7 +219,7 @@ button { margin:5px; padding:6px 10px; cursor:pointer; }
 <input type="date" id="due" readonly>
 </div>
 
-<div style="grid-column: span 2;">
+<div style="grid-column:span 2;">
 <label>Remarks</label>
 <input type="text" id="remarks">
 </div>
@@ -178,18 +233,20 @@ button { margin:5px; padding:6px 10px; cursor:pointer; }
 
 <input type="text" id="search" placeholder="Search..." onkeyup="searchData()">
 
+<div class="table-wrapper">
 <table>
 <thead>
 <tr>
 <th>SR</th>
 <th>Name</th>
 <th>Company</th>
-<th>Date Of Given</th>
+<th>Date</th>
 <th>Action</th>
 </tr>
 </thead>
 <tbody id="tbody"></tbody>
 </table>
+</div>
 
 </div>
 
@@ -206,60 +263,22 @@ button { margin:5px; padding:6px 10px; cursor:pointer; }
 
 const API_URL = "https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDcqb70esqPB52-RVwzT5AbBunwQxct1AbiSjmvz0nllFkM/exec";
 
-
-let data = JSON.parse(localStorage.getItem("uniformData")) || [];
+let data = [];
 let editIndex = -1;
 
-/* LOAD BRANCH */
-async function loadBranches(){
+/* LOAD */
+async function loadMaster(sheet, elementId){
+    let res = await fetch(API_URL + "?sheet=" + sheet);
+    let d = await res.json();
 
-    let res = await fetch(API_URL + "?sheet=Branch_Master");
+    let el = document.getElementById(elementId);
+    el.innerHTML = `<option>Select</option>`;
 
-    let data = await res.json();
-
-    branch.innerHTML="<option>Select Branch</option>";
-
-    data.slice(1).forEach(b=>{
-
-        branch.innerHTML += `
-        <option>${b[0]}</option>`;
-
+    d.slice(1).forEach(i=>{
+        el.innerHTML += `<option>${i[0]}</option>`;
     });
 }
 
-/* LOAD DEPARTMENT */
-async function loadDepartments(){
-
-    let res = await fetch(API_URL + "?sheet=Department_Master");
-
-    let data = await res.json();
-
-    department.innerHTML="<option>Select Department</option>";
-
-    data.slice(1).forEach(d=>{
-
-        department.innerHTML += `
-        <option>${d[0]}</option>`;
-
-    });
-}
-async function loadMaterials(){
-
-    let res = await fetch(API_URL + "?sheet=Material_Master");
-
-    let data = await res.json();
-
-    material.innerHTML="<option>Select Material</option>";
-
-    data.slice(1).forEach(m=>{
-
-        material.innerHTML += `
-        <option>${m[0]}</option>`;
-
-    });
-}
-
-/* AUTO DUE */
 function autoDueDate(){
     if(given.value){
         let d = new Date(given.value);
@@ -268,38 +287,27 @@ function autoDueDate(){
     }
 }
 
-/* LAST GIVEN */
-function getLastGiven(name){
-    let f = data.filter(d => d.empName === name);
-    return f.length ? f[f.length-1].given : "-";
-}
-
-/* RENDER */
 async function render(){
-
     let res = await fetch(API_URL + "?sheet=Employee_Entry");
-
     let sheetData = await res.json();
 
+    data = [];
     tbody.innerHTML = "";
 
-    data = [];
-
     sheetData.slice(1).forEach((row,i)=>{
-
         let obj = {
-    company: row[0],
-    branch: row[1],
-    department: row[2],
-    empName: row[3],
-    joining: row[4],
-    given: row[5],
-    pair: row[6],
-    material: row[7],
-    due: row[8],
-    remarks: row[9],
-    rowNumber: i + 2
-};
+            company:row[0],
+            branch:row[1],
+            department:row[2],
+            empName:row[3],
+            joining:row[4],
+            given:row[5],
+            pair:row[6],
+            material:row[7],
+            due:row[8],
+            remarks:row[9],
+            rowNumber:i+2
+        };
 
         data.push(obj);
 
@@ -309,203 +317,82 @@ async function render(){
             <td>${obj.empName}</td>
             <td>${obj.company}</td>
             <td>${obj.given}</td>
-          <td>
-    <button onclick="showDetails(${i})">Details</button>
-
-    <button onclick="editData(${i})">Update</button>
-
-    <button onclick="deleteData(${i})">Delete</button>
-</td>
+            <td>
+                <button onclick="showDetails(${i})">View</button>
+                <button onclick="editData(${i})">Edit</button>
+                <button onclick="deleteData(${i})">Del</button>
+            </td>
         </tr>`;
     });
-
 }
 
-/* SHOW MODAL */
 function showDetails(i){
     let d = data[i];
 
-
     detailBox.innerHTML = `
-    <p><b>->NAME:</b> ${d.empName}</p>
-    <p><b>COMPANY:</b> ${d.company}</p>
-    <p><b>BRANCH:</b> ${d.branch}</p>
-    <p><b>DEPARTMENT:</b> ${d.department}</p>
-    <p><b>->GIVEN DATE:</b> ${formatDate(d.given)}</p>
-
-
-    <p><b>PAIR:</b> ${d.pair}</p>
-    <p><b>DUE DATE:</b> ${formatDate(d.due)}</p>
-
-    <p><b>LAST GIVEN:</b> ${d.lastGiven}</p>
-    <p><b>JOINING DATE:</b> ${formatDate(d.joining)}</p>
-    <p><b>REMARKS:</b> ${d.remarks}</p>
+    <p><b>Name:</b> ${d.empName}</p>
+    <p><b>Company:</b> ${d.company}</p>
+    <p><b>Branch:</b> ${d.branch}</p>
+    <p><b>Given:</b> ${d.given}</p>
+    <p><b>Due:</b> ${d.due}</p>
+    <p><b>Remarks:</b> ${d.remarks}</p>
     `;
-
 
     modal.style.display="block";
 }
-function formatDate(dateStr){
 
-    if(!dateStr) return "";
-
-    let d = new Date(dateStr);
-
-    let year = d.getFullYear();
-
-    let month = String(d.getMonth()+1).padStart(2,'0');
-
-    let day = String(d.getDate()).padStart(2,'0');
-
-    return `${year}-${month}-${day}`;
-}
-
-/* CLOSE MODAL */
 function closeModal(){
     modal.style.display="none";
 }
 
-/* ADD */
 async function addData(){
 
     let obj = {
         sheet:"Employee_Entry",
-        company: company.value,
-        branch: branch.value,
-        department: department.value,
-        empName: empName.value,
-        joining: joining.value,
-        given: given.value,
-        pair: pair.value,
-        material: material.value,
-        due: due.value,
-        remarks: remarks.value
+        company:company.value,
+        branch:branch.value,
+        department:department.value,
+        empName:empName.value,
+        joining:joining.value,
+        given:given.value,
+        pair:pair.value,
+        material:material.value,
+        due:due.value,
+        remarks:remarks.value
     };
-
-    // UPDATE
-    if(editIndex != -1){
-
-        obj.action = "update";
-
-        obj.row = data[editIndex].rowNumber;
-
-    }
 
     await fetch(API_URL,{
         method:"POST",
         body:JSON.stringify(obj)
     });
 
-    alert(editIndex == -1 ? "Saved Successfully" : "Updated Successfully");
-
-    editIndex = -1;
-
-    clearForm();
-
+    alert("Saved");
     render();
 }
-/* EDIT */
 
-function editData(i){
-
-    let d = data[i];
-
-    company.value = d.company;
-
-    branch.value = d.branch;
-
-    department.value = d.department;
-
-    empName.value = d.empName;
-
-    joining.value = formatDate(d.joining);
-
-    given.value = formatDate(d.given);
-
-    pair.value = d.pair;
-
-    material.value = d.material;
-
-    due.value = formatDate(d.due);
-
-    remarks.value = d.remarks;
-
-    editIndex = i;
-
-}
-
-/* DELETE */
-
-function deleteData(i){
-
-    if(confirm("Delete Data?")){
-
-        data.splice(i,1);
-
-        tbody.innerHTML = "";
-
-        data.forEach((d,index)=>{
-
-            tbody.innerHTML += `
-            <tr>
-                <td>${index+1}</td>
-                <td>${d.empName}</td>
-                <td>${d.company}</td>
-                <td>${formatDate(d.given)}</td>
-
-                <td>
-                    <button onclick="showDetails(${index})">Details</button>
-
-                    <button onclick="editData(${index})">Update</button>
-
-                    <button onclick="deleteData(${index})">Delete</button>
-                </td>
-            </tr>`;
-        });
-
-    }
-
-}
-
-/* CLEAR */
-function clearForm(){
-    empName.value="";
-    joining.value="";
-    given.value="";
-    pair.value="";
-    due.value="";
-    remarks.value="";
-}
-
-/* SEARCH */
 function searchData(){
     let val = search.value.toLowerCase();
-    let rows = document.querySelectorAll("#tbody tr");
-
-    rows.forEach(r=>{
-        r.style.display = r.innerText.toLowerCase().includes(val) ? "" : "none";
+    document.querySelectorAll("#tbody tr").forEach(r=>{
+        r.style.display = r.innerText.toLowerCase().includes(val)?"":"none";
     });
 }
 
-/* EXPORT */
 function exportExcel(){
-    let csv="SR,Company,Branch,Department,Name,LastGiven,Given,Due,Pair,Remarks\n";
-
+    let csv="SR,Name,Company,Date\n";
     data.forEach((d,i)=>{
-        csv+=`${i+1},${d.company},${d.branch},${d.department},${d.empName},${d.lastGiven},${d.given},${d.due},${d.pair},${d.remarks}\n`;
+        csv+=`${i+1},${d.empName},${d.company},${d.given}\n`;
     });
 
     let blob=new Blob([csv]);
     let a=document.createElement("a");
     a.href=URL.createObjectURL(blob);
-    a.download="Uniform_Excel_Sheet.csv";
+    a.download="uniform.csv";
     a.click();
 }
 
-/* INIT */
-loadBranches();
-loadDepartments();
-loadMaterials();
+loadMaster("Branch_Master","branch");
+loadMaster("Department_Master","department");
+loadMaster("Material_Master","material");
 render();
 
 </script>
