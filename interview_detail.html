@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Candidate Manager</title>
 
-<!-- PDF LIBRARY -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
 <style>
@@ -19,13 +19,15 @@ body{
 .header{
     background:#0d6efd;
     color:white;
-    padding:15px 25px;
+    padding:15px 20px;
 }
 
 .header-box{
     display:flex;
     justify-content:space-between;
     align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
 }
 
 .exit-btn{
@@ -44,50 +46,36 @@ body{
     justify-content:center;
     gap:10px;
     margin:15px;
+    flex-wrap:wrap;
 }
 
 .nav button{
     padding:10px 20px;
+    flex:1;
+    min-width:140px;
 }
 
-/* PAGES */
-.page{
-    display:none;
-}
-
-.active{
-    display:block;
-}
+/* PAGE */
+.page{ display:none; }
+.active{ display:block; }
 
 /* FORM */
 .form-box{
     background:white;
     padding:20px;
-    margin:20px;
+    margin:15px;
     border-radius:10px;
     box-shadow:0 0 10px rgba(0,0,0,0.1);
 }
 
-/* SEARCH */
-.search-box{
-    margin:20px;
-    text-align:center;
-}
-
-.search-box input{
-    width:50%;
-    padding:10px;
-}
-
 /* INPUT */
-input,
-textarea,
-select{
+input, textarea, select{
     width:100%;
     padding:10px;
-    margin:10px 0;
+    margin:8px 0;
     border:1px solid #ccc;
     border-radius:6px;
+    box-sizing:border-box;
 }
 
 /* BUTTON */
@@ -100,16 +88,27 @@ button{
     border-radius:6px;
 }
 
-button:hover{
-    background:#0b5ed7;
+button:hover{ background:#0b5ed7; }
+
+/* SEARCH */
+.search-box{
+    margin:15px;
+    text-align:center;
 }
 
-/* CARD CONTAINER */
+.search-box input{
+    width:60%;
+    max-width:500px;
+    min-width:200px;
+}
+
+/* CONTAINER */
 .container{
     display:flex;
     flex-wrap:wrap;
     gap:15px;
-    padding:20px;
+    padding:15px;
+    justify-content:center;
 }
 
 /* CARD */
@@ -119,12 +118,14 @@ button:hover{
     padding:15px;
     border-radius:10px;
     box-shadow:0 0 8px rgba(0,0,0,0.1);
+    flex:1 1 260px;
+    max-width:320px;
 }
 
 /* IMAGE */
 .card img{
     width:100%;
-    height:120px;
+    height:140px;
     object-fit:cover;
     border-radius:10px;
     cursor:pointer;
@@ -146,9 +147,31 @@ button:hover{
 }
 
 .modal img{
-    max-width:80%;
-    max-height:80%;
+    max-width:90%;
+    max-height:90%;
     border-radius:10px;
+}
+
+/* RESPONSIVE */
+@media (max-width:768px){
+
+    .header-box{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .search-box input{
+        width:95%;
+    }
+
+    .nav button{
+        width:100%;
+    }
+
+    .card{
+        width:100%;
+        max-width:100%;
+    }
 }
 
 </style>
@@ -156,569 +179,233 @@ button:hover{
 
 <body>
 
-<!-- HEADER -->
 <div class="header">
-
     <div class="header-box">
-
-        <div style="font-size:22px; font-weight:bold;">
+        <div style="font-size:20px;font-weight:bold;">
             Candidate Management System
         </div>
 
         <a href="dashboard.html">
-            <button class="exit-btn">
-                Exit
-            </button>
+            <button class="exit-btn">Exit</button>
         </a>
-
     </div>
-
 </div>
 
-<!-- NAVIGATION -->
 <div class="nav">
-
-    <button onclick="showPage('add')">
-        Add Candidate
-    </button>
-
-    <button onclick="showPage('view')">
-        View Candidates
-    </button>
-
+    <button onclick="showPage('add')">Add Candidate</button>
+    <button onclick="showPage('view')">View Candidates</button>
 </div>
 
-<!-- ADD PAGE -->
+<!-- ADD -->
 <div id="add" class="page active">
+<div class="form-box">
 
-    <div class="form-box">
+<input type="text" id="sr" placeholder="SR Number">
+<input type="text" id="name" placeholder="Candidate Name">
+<input type="text" id="email" placeholder="Email">
+<input type="text" id="mobile" placeholder="Mobile Number">
+<textarea id="skills" placeholder="Remarks"></textarea>
+<input type="date" id="date">
 
-        <input type="text" id="sr" placeholder="SR Number">
+<select id="selected">
+<option value="">Selected?</option>
+<option value="Yes">Yes</option>
+<option value="No">No</option>
+</select>
 
-        <input type="text" id="name" placeholder="Candidate Name">
+<input type="file" id="image1" accept="image/*">
+<input type="file" id="image2" accept="image/*">
 
-        <input type="text" id="email" placeholder="Email">
-
-        <input type="text" id="mobile" placeholder="Mobile Number">
-
-        <textarea id="skills" placeholder="Remarks"></textarea>
-
-        <input type="date" id="date">
-
-        <select id="selected">
-            <option value="">Selected?</option>
-            <option value="Yes">Yes</option>
-            <option value="No">No</option>
-        </select>
-
-        <input type="file" id="image1" accept="image/*">
-
-        <input type="file" id="image2" accept="image/*">
-
-        <button onclick="saveData()">
-            Save Candidate
-        </button>
-
-    </div>
+<button onclick="saveData()">Save Candidate</button>
 
 </div>
+</div>
 
-<!-- VIEW PAGE -->
+<!-- VIEW -->
 <div id="view" class="page">
 
-    <div class="search-box">
-
-        <input
-        type="text"
-        id="search"
-        placeholder="Search by name..."
-        onkeyup="searchData()">
-
-        <br><br>
-
-        <button onclick="exportExcel()">
-            Export Excel
-        </button>
-
-        <button onclick="downloadPDF()">
-            Download PDF
-        </button>
-
-    </div>
-
-    <div class="container" id="list"></div>
-
+<div class="search-box">
+<input type="text" id="search" placeholder="Search..." onkeyup="searchData()">
+<br><br>
+<button onclick="exportExcel()">Export Excel</button>
+<button onclick="downloadPDF()">Download PDF</button>
 </div>
 
-<!-- IMAGE MODAL -->
+<div class="container" id="list"></div>
+</div>
+
+<!-- MODAL -->
 <div class="modal" id="modal" onclick="closeImage()">
-
-    <img id="modalImg">
-
+<img id="modalImg">
 </div>
 
 <script>
 
-/* =========================
-   GOOGLE SHEET WEB APP URL
-========================= */
-
-const API_URL =
-"https://script.google.com/macros/s/AKfycbyVryWmLsn91_JI5DraZGuXU-pTSljPTDVh8pEadULKGF-jfIv_ztGEfuSx6nxNGiA/exec";
-
-/* =========================
-   GLOBAL VARIABLES
-========================= */
+const API_URL = "https://script.google.com/macros/s/AKfycbyVryWmLsn91_JI5DraZGuXU-pTSljPTDVh8pEadULKGF-jfIv_ztGEfuSx6nxNGiA/exec";
 
 let candidates = [];
 let filtered = [];
 
-/* =========================
-   PAGE SWITCH
-========================= */
-
 function showPage(page){
-
-    document
-    .querySelectorAll(".page")
-    .forEach(p => p.classList.remove("active"));
-
-    document
-    .getElementById(page)
-    .classList.add("active");
-
-    if(page === "view"){
-        loadCandidates();
-    }
+    document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+    document.getElementById(page).classList.add("active");
+    if(page==="view") loadCandidates();
 }
-
-/* =========================
-   LOAD DATA FROM GOOGLE SHEET
-========================= */
 
 async function loadCandidates(){
-
 try{
+    let res = await fetch(API_URL);
+    let sheetData = await res.json();
 
-    let response =
-    await fetch(API_URL);
+    let localData = JSON.parse(localStorage.getItem("candidates")) || [];
 
-    let sheetData =
-    await response.json();
-
-    let localData =
-    JSON.parse(
-    localStorage.getItem("candidates")
-    ) || [];
-
-    candidates = sheetData.map(sheetCandidate => {
-
-        let localCandidate =
-        localData.find(local =>
-
-            local.sr === sheetCandidate.sr
-
-        );
-
+    candidates = sheetData.map(s=>{
+        let local = localData.find(l=>l.sr===s.sr);
         return {
-
-            ...sheetCandidate,
-
-            image1:
-            localCandidate ?
-            localCandidate.image1 : "",
-
-            image2:
-            localCandidate ?
-            localCandidate.image2 : ""
-
+            ...s,
+            image1: local?local.image1:"",
+            image2: local?local.image2:""
         };
-
     });
 
-    filtered = [...candidates];
-
+    filtered=[...candidates];
     display(filtered);
 
-}catch(error){
-
-    console.log(error);
-
+}catch(e){
     alert("Data Load Error");
 }
-
 }
-/* =========================
-   DISPLAY DATA
-========================= */
 
 function display(data){
+let list=document.getElementById("list");
+list.innerHTML="";
 
-    let list =
-    document.getElementById("list");
-
-    list.innerHTML = "";
-
-    if(data.length === 0){
-
-        list.innerHTML =
-        "<h2>No Candidate Found</h2>";
-
-        return;
-    }
-
-    data.forEach((c,index)=>{
-
-        list.innerHTML += `
-
-        <div class="card">
-
-            <img
-            src="${c.image1}"
-            onclick="showImage('${c.image1}')">
-
-            <img
-            src="${c.image2}"
-            onclick="showImage('${c.image2}')">
-
-            <h3>${c.name}</h3>
-
-            <p><b>SR:</b> ${c.sr}</p>
-
-            <p><b>Email:</b> ${c.email}</p>
-
-            <p><b>Mobile:</b> ${c.mobile}</p>
-
-            <p><b>Remarks:</b> ${c.skills}</p>
-
-            <p><b>Date:</b> ${c.date}</p>
-
-            <p><b>Selected:</b> ${c.selected}</p>
-
-        </div>
-
-        `;
-    });
+if(data.length===0){
+list.innerHTML="<h3>No Candidate Found</h3>";
+return;
 }
 
-/* =========================
-   SEARCH
-========================= */
+data.forEach(c=>{
+list.innerHTML+=`
+<div class="card">
+<img src="${c.image1}" onclick="showImage('${c.image1}')">
+<img src="${c.image2}" onclick="showImage('${c.image2}')">
+<h3>${c.name}</h3>
+<p><b>SR:</b> ${c.sr}</p>
+<p><b>Email:</b> ${c.email}</p>
+<p><b>Mobile:</b> ${c.mobile}</p>
+<p><b>Remarks:</b> ${c.skills}</p>
+<p><b>Date:</b> ${c.date}</p>
+<p><b>Selected:</b> ${c.selected}</p>
+</div>`;
+});
+}
 
 function searchData(){
-
-    let value =
-    document
-    .getElementById("search")
-    .value
-    .toLowerCase();
-
-    filtered = candidates.filter(c =>
-
-        (c.name || "")
-        .toLowerCase()
-        .includes(value)
-
-    );
-
-    display(filtered);
+let val=document.getElementById("search").value.toLowerCase();
+filtered=candidates.filter(c=>(c.name||"").toLowerCase().includes(val));
+display(filtered);
 }
-
-/* =========================
-   SAVE DATA TO GOOGLE SHEET
-========================= */
 
 function saveData(){
 
-let sr =
-document.getElementById("sr").value;
+let sr=document.getElementById("sr").value;
+let name=document.getElementById("name").value;
+let email=document.getElementById("email").value;
+let mobile=document.getElementById("mobile").value;
+let skills=document.getElementById("skills").value;
+let date=document.getElementById("date").value;
+let selected=document.getElementById("selected").value;
 
-let name =
-document.getElementById("name").value;
+let f1=document.getElementById("image1").files[0];
+let f2=document.getElementById("image2").files[0];
 
-let email =
-document.getElementById("email").value;
-
-let mobile =
-document.getElementById("mobile").value;
-
-let skills =
-document.getElementById("skills").value;
-
-let date =
-document.getElementById("date").value;
-
-let selected =
-document.getElementById("selected").value;
-
-let file1 =
-document.getElementById("image1").files[0];
-
-let file2 =
-document.getElementById("image2").files[0];
-
-/* VALIDATION */
-
-if(
-sr == "" ||
-name == "" ||
-email == "" ||
-mobile == ""
-){
-
-    alert("Please Fill All Fields");
-    return;
+if(!sr||!name||!email||!mobile){
+alert("Fill all fields");
+return;
 }
 
-if(!file1 || !file2){
-
-    alert("2 Images Upload Karo");
-    return;
+if(!f1||!f2){
+alert("2 images required");
+return;
 }
 
-/* FILE READER */
+let r1=new FileReader();
+let r2=new FileReader();
 
-let reader1 =
-new FileReader();
+r1.onload=function(){
+r2.onload=async function(){
 
-let reader2 =
-new FileReader();
+let candidate={
+sr,name,email,mobile,skills,date,selected,
+image1:r1.result,
+image2:r2.result
+};
 
-reader1.onload = function(){
+let local=JSON.parse(localStorage.getItem("candidates"))||[];
+local=local.filter(c=>c.sr!==sr);
+local.push(candidate);
+localStorage.setItem("candidates",JSON.stringify(local));
 
-reader2.onload = async function(){
+await fetch(API_URL,{
+method:"POST",
+body:JSON.stringify(candidate)
+});
 
-    /* FULL CANDIDATE */
+alert("Saved");
+clearForm();
+loadCandidates();
+};
 
-    let candidate = {
+r2.readAsDataURL(f2);
+};
 
-        sr: sr,
-        name: name,
-        email: email,
-        mobile: mobile,
-        skills: skills,
-        date: date,
-        selected: selected,
-
-        image1: reader1.result,
-        image2: reader2.result
-    };
-
-    /* =========================
-       LOCAL STORAGE IMAGE SAVE
-    ========================= */
-
-    let localData =
-    JSON.parse(
-    localStorage.getItem("candidates")
-    ) || [];
-
-    /* DUPLICATE REMOVE */
-
-    localData =
-    localData.filter(c =>
-
-        c.sr !== sr
-    );
-
-    localData.push(candidate);
-
-    localStorage.setItem(
-
-        "candidates",
-
-        JSON.stringify(localData)
-
-    );
-
-    /* =========================
-       GOOGLE SHEET SAVE
-    ========================= */
-
-    let sheetData = {
-
-        sr: sr,
-        name: name,
-        email: email,
-        mobile: mobile,
-        skills: skills,
-        date: date,
-        selected: selected
-    };
-
-    try{
-
-        await fetch(API_URL,{
-
-            method:"POST",
-
-            body:JSON.stringify(sheetData)
-
-        });
-
-        alert("Saved Successfully ✅");
-
-        clearForm();
-
-        loadCandidates();
-
-    }catch(error){
-
-        console.log(error);
-
-        alert("Save Error ❌");
-    }
-
+r1.readAsDataURL(f1);
 }
-
-reader2.readAsDataURL(file2);
-
-}
-
-reader1.readAsDataURL(file1);
-
-}
-/* =========================
-   CLEAR FORM
-========================= */
 
 function clearForm(){
-
-    document
-    .querySelectorAll("input, textarea, select")
-    .forEach(e => e.value = "");
+document.querySelectorAll("input,textarea,select").forEach(e=>e.value="");
 }
-
-/* =========================
-   IMAGE VIEW
-========================= */
 
 function showImage(src){
-
-    document
-    .getElementById("modal")
-    .style.display = "flex";
-
-    document
-    .getElementById("modalImg")
-    .src = src;
+document.getElementById("modal").style.display="flex";
+document.getElementById("modalImg").src=src;
 }
-
-/* =========================
-   CLOSE IMAGE
-========================= */
 
 function closeImage(){
-
-    document
-    .getElementById("modal")
-    .style.display = "none";
+document.getElementById("modal").style.display="none";
 }
-
-/* =========================
-   EXPORT EXCEL
-========================= */
 
 function exportExcel(){
+let csv="SR,Name,Email,Mobile,Remarks,Date,Selected\n";
+candidates.forEach(c=>{
+csv+=`${c.sr},${c.name},${c.email},${c.mobile},${c.skills},${c.date},${c.selected}\n`;
+});
 
-    let csv =
-"SR,Name,Email,Mobile,Remarks,Date,Selected\n";
-
-    candidates.forEach(c => {
-
-        csv +=
-`${c.sr},${c.name},${c.email},${c.mobile},${c.skills},${c.date},${c.selected}\n`;
-
-    });
-
-    let blob = new Blob(
-        [csv],
-        { type:'text/csv;charset=utf-8;' }
-    );
-
-    let link =
-    document.createElement("a");
-
-    link.href =
-    URL.createObjectURL(blob);
-
-    link.download =
-    "Candidate_Report.csv";
-
-    document.body.appendChild(link);
-
-    link.click();
-
-    document.body.removeChild(link);
+let blob=new Blob([csv],{type:"text/csv"});
+let a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="candidates.csv";
+a.click();
 }
-
-/* =========================
-   DOWNLOAD PDF
-========================= */
 
 async function downloadPDF(){
+const {jsPDF}=window.jspdf;
+let doc=new jsPDF();
+let y=20;
 
-    const { jsPDF } = window.jspdf;
+doc.text("Candidate Report",60,10);
 
-    let doc = new jsPDF();
+candidates.forEach(c=>{
+doc.text(`SR:${c.sr}`,10,y);
+doc.text(`Name:${c.name}`,10,y+6);
+doc.text(`Mobile:${c.mobile}`,100,y+6);
+y+=20;
+if(y>270){doc.addPage();y=20;}
+});
 
-    let y = 20;
-
-    doc.setFontSize(18);
-
-    doc.text(
-        "Candidate Report",
-        65,
-        10
-    );
-
-    candidates.forEach((c,i)=>{
-
-        doc.rect(10, y-5, 180, 28);
-
-        doc.setFontSize(12);
-
-        doc.text(
-            `SR: ${c.sr}`,
-            15,
-            y
-        );
-
-        doc.text(
-            `Name: ${c.name}`,
-            15,
-            y+7
-        );
-
-        doc.text(
-            `Mobile: ${c.mobile}`,
-            100,
-            y+7
-        );
-
-        doc.text(
-            `Selected: ${c.selected}`,
-            15,
-            y+14
-        );
-
-        y += 38;
-
-        if(y > 260){
-
-            doc.addPage();
-
-            y = 20;
-        }
-
-    });
-
-    doc.save("Candidate_Report.pdf");
+doc.save("report.pdf");
 }
-
-/* =========================
-   INITIAL LOAD
-========================= */
 
 loadCandidates();
 
