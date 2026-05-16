@@ -184,17 +184,13 @@ th{ background:#1e293b; color:white; }
 
 <script>
 
-let imageData = "";
-let editIndex = -1;
+const API_URL = "https://script.google.com/macros/s/AKfycbwlk8Zfu0j3KvhB5eKF1dkbOPfQWaS4qr7aV_VG4qQaIUXWvovPOXo1A7IajMYDUgz8Vg/exec";
 
-/* CALCULATE */
-function calculate(){
-    let qty = +qtyInput().value || 0;
-    let rate = +rateInput().value || 0;
-    totalSpan().innerText = qty * rate;
-}
+let imageData = "";
+let editRow = null;
 
 /* SHORTCUTS */
+
 const vendorInput = () => document.getElementById("vendor");
 const dateInput = () => document.getElementById("date");
 const productInput = () => document.getElementById("product");
@@ -202,151 +198,334 @@ const qtyInput = () => document.getElementById("qty");
 const rateInput = () => document.getElementById("rate");
 const totalSpan = () => document.getElementById("total");
 
+/* CALCULATE */
+
+function calculate(){
+
+    let qty = Number(qtyInput().value || 0);
+
+    let rate = Number(rateInput().value || 0);
+
+    totalSpan().innerText = qty * rate;
+}
+
 /* IMAGE */
+
 function uploadImage(e){
+
     let file = e.target.files[0];
+
     let reader = new FileReader();
 
     reader.onload = function(){
+
         imageData = reader.result;
+
         preview.src = imageData;
     }
 
-    reader.readAsDataURL(file);
+    if(file){
+
+        reader.readAsDataURL(file);
+    }
 }
 
 /* SAVE */
-function saveBill(){
 
-    let bill = {
+async function saveBill(){
+
+    let obj = {
+
+        sheet:"Vendor_Bills",
+
         vendor: vendorInput().value,
+
         date: dateInput().value,
+
         product: productInput().value,
+
         qty: qtyInput().value,
+
         rate: rateInput().value,
+
         total: totalSpan().innerText,
+
         image: imageData
     };
 
-    let data = JSON.parse(localStorage.getItem("vendorBills")) || [];
+    // UPDATE
 
-    if(editIndex == -1){
-        data.push(bill);
-    }else{
-        data[editIndex] = bill;
-        editIndex = -1;
+    if(editRow){
+
+        obj.action = "update";
+
+        obj.row = editRow;
     }
 
-    localStorage.setItem("vendorBills", JSON.stringify(data));
+    await fetch(API_URL,{
+
+        method:"POST",
+
+        body:JSON.stringify(obj)
+    });
+
+    alert(editRow ? "Updated Successfully" : "Saved Successfully");
 
     clearForm();
+
     loadTable();
 }
 
 /* LOAD TABLE */
-function loadTable(){
 
-    let data = JSON.parse(localStorage.getItem("vendorBills")) || [];
+async function loadTable(){
 
-    tableData.innerHTML="";
+    let res = await fetch(API_URL + "?sheet=Vendor_Bills");
 
-    data.forEach((d,i)=>{
+    let data = await res.json();
 
-        tableData.innerHTML+=`
+    tableData.innerHTML = "";
+
+    if(data.length <= 1){
+
+        tableData.innerHTML = `
         <tr>
-        <td>${d.vendor}</td>
-        <td>${d.date}</td>
-        <td>${d.product}</td>
-        <td>${d.qty}</td>
-        <td>${d.rate}</td>
-        <td>${d.total}</td>
-        <td>
-            <img src="${d.image}" width="50" onclick="showImage('${d.image}')">
-        </td>
-        <td>
-            <button onclick="editData(${i})">Edit</button>
-            <button onclick="deleteData(${i})">Delete</button>
-        </td>
+            <td colspan="8">No Data Found</td>
         </tr>`;
-    });
-}
+        return;
+    }
 
-/* DELETE */
-function deleteData(i){
-    let data = JSON.parse(localStorage.getItem("vendorBills")) || [];
-    data.splice(i,1);
-    localStorage.setItem("vendorBills", JSON.stringify(data));
-    loadTable();
+    data.slice(1).forEach((d,i)=>{
+
+        let vendor = d[0] || "";
+        let date = d[1] || "";
+        let product = d[2] || "";
+        let qty = d[3] || "";
+        let rate = d[4] || "";
+        let total = d[5] || "";
+        let image = d[6] || "";
+
+        tableData.innerHTML += `
+
+        <tr>
+
+            <td>${vendor}</td>
+
+            <td>${date}</td>
+
+            <td>${product}</td>
+
+            <td>${qty}</td>
+
+            <td>${rate}</td>
+
+            <td>${total}</td>
+
+            <td>
+
+                ${
+                    image
+                    ?
+                    `<img src="${image}" width="50"
+                    style="cursor:pointer"
+                    onclick="showImage('${image}')">`
+                    :
+                    `No Image`
+                }
+
+            </td>
+
+            <td>
+
+                <button onclick='editData(
+                    ${i+2},
+                    ${JSON.stringify(vendor)},
+                    ${JSON.stringify(date)},
+                    ${JSON.stringify(product)},
+                    ${JSON.stringify(qty)},
+                    ${JSON.stringify(rate)},
+                    ${JSON.stringify(total)},
+                    ${JSON.stringify(image)}
+                )'>
+
+                Update
+
+                </button>
+
+                <button onclick="deleteData(${i+2})">
+
+                Delete
+
+                </button>
+
+            </td>
+
+        </tr>
+        `;
+    });
 }
 
 /* EDIT */
-function editData(i){
-    let data = JSON.parse(localStorage.getItem("vendorBills")) || [];
-    let d = data[i];
 
-    vendorInput().value = d.vendor;
-    dateInput().value = d.date;
-    productInput().value = d.product;
-    qtyInput().value = d.qty;
-    rateInput().value = d.rate;
-    totalSpan().innerText = d.total;
-    preview.src = d.image;
-    imageData = d.image;
+function editData(
+row,
+vendor,
+date,
+product,
+qty,
+rate,
+total,
+image
+){
 
-    editIndex = i;
+    vendorInput().value = vendor;
+
+    dateInput().value = date;
+
+    productInput().value = product;
+
+    qtyInput().value = qty;
+
+    rateInput().value = rate;
+
+    totalSpan().innerText = total;
+
+    preview.src = image;
+
+    imageData = image;
+
+    editRow = row;
 }
 
-/* CLEAR */
-function clearForm(){
-    vendorInput().value="";
-    dateInput().value="";
-    productInput().value="";
-    qtyInput().value="";
-    rateInput().value="";
-    totalSpan().innerText="0";
-    preview.src="";
+/* DELETE */
+
+async function deleteData(row){
+
+    if(confirm("Delete Bill?")){
+
+        await fetch(API_URL,{
+
+            method:"POST",
+
+            body:JSON.stringify({
+
+                sheet:"Vendor_Bills",
+
+                action:"delete",
+
+                row:row
+            })
+        });
+
+        loadTable();
+    }
 }
 
 /* SEARCH */
-function searchData(){
-    let val = document.getElementById("search").value.toLowerCase();
 
-    document.querySelectorAll("#tableData tr").forEach(row=>{
-        row.style.display = row.innerText.toLowerCase().includes(val) ? "" : "none";
+function searchData(){
+
+    let val = document
+    .getElementById("search")
+    .value
+    .toLowerCase();
+
+    document
+    .querySelectorAll("#tableData tr")
+    .forEach(row=>{
+
+        row.style.display =
+        row.innerText
+        .toLowerCase()
+        .includes(val)
+
+        ? ""
+
+        : "none";
     });
 }
 
+/* CLEAR */
+
+function clearForm(){
+
+    vendorInput().value = "";
+
+    dateInput().value = "";
+
+    productInput().value = "";
+
+    qtyInput().value = "";
+
+    rateInput().value = "";
+
+    totalSpan().innerText = "0";
+
+    preview.src = "";
+
+    imageData = "";
+
+    editRow = null;
+}
+
 /* EXCEL */
-function exportExcel(){
-    let data = JSON.parse(localStorage.getItem("vendorBills")) || [];
 
-    let csv="Vendor,Date,Product,Qty,Rate,Total\n";
+async function exportExcel(){
 
-    data.forEach(d=>{
-        csv+=`${d.vendor},${d.date},${d.product},${d.qty},${d.rate},${d.total}\n`;
+    let res = await fetch(API_URL + "?sheet=Vendor_Bills");
+
+    let data = await res.json();
+
+    let csv =
+    "Vendor,Date,Product,Qty,Rate,Total\n";
+
+    data.slice(1).forEach(d=>{
+
+        csv += `
+${d[0]},
+${d[1]},
+${d[2]},
+${d[3]},
+${d[4]},
+${d[5]}
+\n`;
     });
 
-    let blob=new Blob([csv]);
-    let a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="Vendor_Bills.csv";
+    let blob = new Blob([csv]);
+
+    let a = document.createElement("a");
+
+    a.href = URL.createObjectURL(blob);
+
+    a.download = "Vendor_Bills.csv";
+
     a.click();
 }
 
 /* IMAGE VIEW */
+
 function showImage(src){
-    document.getElementById("imgModal").style.display="flex";
-    document.getElementById("bigImg").src = src;
+
+    document
+    .getElementById("imgModal")
+    .style.display = "flex";
+
+    document
+    .getElementById("bigImg")
+    .src = src;
 }
 
 function closeModal(){
-    document.getElementById("imgModal").style.display="none";
+
+    document
+    .getElementById("imgModal")
+    .style.display = "none";
 }
 
 /* INIT */
+
 loadTable();
 
 </script>
-
 </body>
 </html>
