@@ -3,31 +3,44 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Vendor Bill Entry</title>
+
+<title>Prime Vendor Management</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 
-body{
+*{
     margin:0;
-    font-family:Arial;
-    background:#f1f5f9;
+    padding:0;
+    box-sizing:border-box;
 }
 
-/* HEADER */
+body{
+    font-family:'Poppins',sans-serif;
+    background:#eef4ff;
+    color:#1e293b;
+    min-height:100vh;
+}
+
+/* ================= HEADER ================= */
+
 .header{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    background:#1e293b;
-    padding:15px 20px;
+    background:linear-gradient(135deg,#0f172a,#1d4ed8,#38bdf8);
+    padding:18px 25px;
     color:white;
     flex-wrap:wrap;
-    gap:10px;
+    gap:15px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.15);
 }
 
 .logo{
-    font-size:20px;
-    font-weight:bold;
+    font-size:24px;
+    font-weight:700;
 }
 
 .menu{
@@ -37,108 +50,247 @@ body{
 }
 
 .menu button{
-    background:transparent;
+    background:rgba(255,255,255,0.12);
     border:none;
     color:white;
-    padding:8px 10px;
+    padding:10px 15px;
+    border-radius:10px;
     cursor:pointer;
+    font-weight:600;
+    transition:0.3s;
 }
 
 .menu button:hover{
-    background:#38bdf8;
-    color:black;
+    background:white;
+    color:#0f172a;
+    transform:translateY(-2px);
 }
 
-/* CONTAINER */
+.active{
+    background:white !important;
+    color:#0f172a !important;
+}
+
+/* ================= CONTAINER ================= */
+
 .container{
-    padding:15px;
+    padding:25px;
 }
 
-/* FORM GRID */
+/* ================= TITLE ================= */
+
+.page-title{
+    margin-bottom:20px;
+}
+
+.page-title h2{
+    font-size:30px;
+    color:#0f172a;
+}
+
+.page-title p{
+    color:#64748b;
+    margin-top:5px;
+}
+
+/* ================= FORM BOX ================= */
+
+.form-box{
+    background:white;
+    padding:25px;
+    border-radius:22px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+/* ================= FORM GRID ================= */
+
 .form-grid{
     display:grid;
     grid-template-columns:repeat(2,1fr);
-    gap:15px;
+    gap:20px;
 }
 
-@media (max-width:768px){
-    .form-grid{
-        grid-template-columns:1fr;
-    }
-
-    .menu{
-        width:100%;
-    }
+.input-group{
+    display:flex;
+    flex-direction:column;
 }
 
-/* INPUT */
+.input-group label{
+    margin-bottom:8px;
+    font-size:14px;
+    font-weight:600;
+    color:#334155;
+}
+
 input{
     width:100%;
-    padding:10px;
-    box-sizing:border-box;
+    padding:13px;
+    border-radius:12px;
+    border:1px solid #cbd5e1;
+    background:#f8fafc;
+    font-size:15px;
+    transition:0.3s;
 }
 
-/* BUTTON */
-.btn{
-    background:#1e293b;
-    color:white;
-    border:none;
-    padding:10px 12px;
-    cursor:pointer;
-    margin:5px 0;
-    border-radius:6px;
-}
-
-.btn:hover{
-    background:#38bdf8;
-    color:black;
-}
-
-/* TOTAL BOX */
-.total-box{
+input:focus{
+    outline:none;
+    border-color:#2563eb;
     background:white;
-    padding:15px;
-    margin-top:15px;
-    border-radius:10px;
-    width:100%;
-    max-width:250px;
+    box-shadow:0 0 0 4px rgba(37,99,235,0.15);
 }
 
-/* IMAGE */
-.preview{
-    margin-top:10px;
-    max-width:120px;
-    border-radius:6px;
-}
+/* ================= IMAGE ================= */
 
-/* TABLE WRAPPER */
-.table-wrapper{
-    width:100%;
-    overflow-x:auto;
+.upload-box{
     margin-top:20px;
 }
 
-/* TABLE */
-table{
-    width:100%;
-    min-width:800px;
-    border-collapse:collapse;
-    background:white;
+.preview{
+    margin-top:15px;
+    width:120px;
+    height:120px;
+    border-radius:15px;
+    object-fit:cover;
+    border:3px solid #dbeafe;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
 }
 
-th,td{
-    border:1px solid #ccc;
-    padding:8px;
+/* ================= TOTAL ================= */
+
+.total-box{
+    margin-top:20px;
+    background:linear-gradient(135deg,#1d4ed8,#38bdf8);
+    color:white;
+    padding:20px;
+    border-radius:18px;
+    width:100%;
+    max-width:280px;
+    box-shadow:0 10px 25px rgba(37,99,235,0.25);
+}
+
+.total-box h3{
+    font-size:26px;
+}
+
+/* ================= BUTTON ================= */
+
+.btn-area{
+    margin-top:25px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+}
+
+.btn{
+    background:linear-gradient(135deg,#0f172a,#2563eb);
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:12px;
+    cursor:pointer;
+    font-size:15px;
+    font-weight:600;
+    transition:0.3s;
+}
+
+.btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 10px 20px rgba(37,99,235,0.3);
+}
+
+/* ================= SEARCH ================= */
+
+.search-box{
+    margin-top:25px;
+}
+
+.search-box input{
+    max-width:350px;
+}
+
+/* ================= TABLE ================= */
+
+.table-box{
+    background:white;
+    margin-top:25px;
+    padding:25px;
+    border-radius:22px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
+.table-box h3{
+    margin-bottom:18px;
+    font-size:24px;
+}
+
+.table-wrapper{
+    width:100%;
+    overflow-x:auto;
+}
+
+table{
+    width:100%;
+    min-width:950px;
+    border-collapse:collapse;
+}
+
+th{
+    background:#0f172a;
+    color:white;
+    padding:14px;
+    font-size:14px;
+}
+
+td{
+    padding:12px;
+    border-bottom:1px solid #e2e8f0;
     text-align:center;
     font-size:14px;
 }
 
-th{
-    background:#1e293b;
+tr:hover{
+    background:#f8fbff;
+}
+
+/* ================= TABLE IMAGE ================= */
+
+.bill-img{
+    width:55px;
+    height:55px;
+    object-fit:cover;
+    border-radius:10px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.bill-img:hover{
+    transform:scale(1.08);
+}
+
+/* ================= ACTION ================= */
+
+.action-btn{
+    border:none;
+    padding:8px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:600;
+    margin:2px;
+}
+
+.edit-btn{
+    background:#2563eb;
     color:white;
 }
 
-/* MODAL */
+.delete-btn{
+    background:#dc2626;
+    color:white;
+}
+
+/* ================= MODAL ================= */
+
 .modal{
     display:none;
     position:fixed;
@@ -146,25 +298,68 @@ th{
     left:0;
     width:100%;
     height:100%;
-    background:rgba(0,0,0,0.8);
+    background:rgba(0,0,0,0.85);
     justify-content:center;
     align-items:center;
+    z-index:1000;
 }
 
 .modal img{
     max-width:90%;
     max-height:90%;
+    border-radius:20px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
 }
 
-/* MOBILE */
-@media (max-width:500px){
+/* ================= FOOTER ================= */
+
+.footer{
+    margin-top:25px;
+    background:#0f172a;
+    color:#cbd5e1;
+    text-align:center;
+    padding:14px;
+    font-size:14px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:900px){
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+@media(max-width:600px){
+
     .header{
         flex-direction:column;
         align-items:flex-start;
     }
 
+    .menu{
+        width:100%;
+    }
+
+    .menu button{
+        width:100%;
+    }
+
+    .container{
+        padding:15px;
+    }
+
+    .page-title h2{
+        font-size:24px;
+    }
+
     .btn{
         width:100%;
+    }
+
+    .total-box{
+        max-width:100%;
     }
 }
 
@@ -173,214 +368,521 @@ th{
 
 <body>
 
+<!-- HEADER -->
+
 <div class="header">
-    <div class="logo">Vendor Register</div>
+
+    <div class="logo">
+        Prime Vendor Register
+    </div>
 
     <div class="menu">
-        <a href="uniform.html"><button>Home</button></a>
-        <a href="entry.html"><button>Data Entry</button></a>
-        <a href="stock.html"><button>Stock</button></a>
-        <a href="#"><button>Vendor</button></a>
-        <a href="setting.html"><button>Setting</button></a>
-        <a href="dashboard.html"><button>Exit</button></a>
+
+        <a href="uniform.html">
+            <button>Home</button>
+        </a>
+
+        <a href="entry.html">
+            <button>Data Entry</button>
+        </a>
+
+        <a href="stock.html">
+            <button>Stock</button>
+        </a>
+
+        <a href="#">
+            <button class="active">Vendor</button>
+        </a>
+
+        <a href="setting.html">
+            <button>Setting</button>
+        </a>
+
+        <a href="dashboard.html">
+            <button>Exit</button>
+        </a>
+
     </div>
+
 </div>
+
+<!-- CONTAINER -->
 
 <div class="container">
 
-<h2>Vendor Bill Entry</h2>
+    <!-- TITLE -->
 
-<div class="form-grid">
+    <div class="page-title">
 
-<input type="text" id="vendor" placeholder="Vendor Name">
-<input type="date" id="date">
+        <h2>Vendor Bill Management</h2>
 
-<input type="text" id="product" placeholder="Product Name">
-<input type="number" id="qty" placeholder="Quantity">
+        <p>
+            Manage vendor bills, invoices and stock purchase records professionally.
+        </p>
 
-<input type="number" id="rate" placeholder="Rate">
+    </div>
 
-</div>
+    <!-- FORM -->
 
-<br>
+    <div class="form-box">
 
-<input type="file" onchange="uploadImage(event)">
-<br>
-<img id="preview" class="preview">
+        <div class="form-grid">
 
-<div class="total-box">
-<h3>Total: ₹ <span id="total">0</span></h3>
-</div>
+            <div class="input-group">
+                <label>Vendor Name</label>
+                <input type="text" id="vendor" placeholder="Enter Vendor Name">
+            </div>
 
-<button class="btn" onclick="calculate()">Calculate</button>
-<button class="btn" onclick="saveBill()">Save</button>
-<button class="btn" onclick="exportExcel()">Excel</button>
+            <div class="input-group">
+                <label>Bill Date</label>
+                <input type="date" id="date">
+            </div>
 
-<br><br>
+            <div class="input-group">
+                <label>Product Name</label>
+                <input type="text" id="product" placeholder="Enter Product Name">
+            </div>
 
-<input type="text" id="search" placeholder="Search..." onkeyup="searchData()">
+            <div class="input-group">
+                <label>Quantity</label>
+                <input type="number" id="qty" placeholder="Enter Quantity">
+            </div>
 
-<div class="table-wrapper">
+            <div class="input-group">
+                <label>Rate</label>
+                <input type="number" id="rate" placeholder="Enter Rate">
+            </div>
 
-<table>
-<thead>
-<tr>
-<th>Vendor</th>
-<th>Date</th>
-<th>Product</th>
-<th>Qty</th>
-<th>Rate</th>
-<th>Total</th>
-<th>Image</th>
-<th>Action</th>
-</tr>
-</thead>
+        </div>
 
-<tbody id="tableData"></tbody>
+        <!-- IMAGE -->
 
-</table>
+        <div class="upload-box">
 
-</div>
+            <label style="font-weight:600;">
+                Upload Bill Image
+            </label>
+
+            <br><br>
+
+            <input type="file" onchange="uploadImage(event)">
+
+            <br>
+
+            <img id="preview" class="preview">
+
+        </div>
+
+        <!-- TOTAL -->
+
+        <div class="total-box">
+
+            <h3>
+                ₹ <span id="total">0</span>
+            </h3>
+
+            <p>Total Bill Amount</p>
+
+        </div>
+
+        <!-- BUTTON -->
+
+        <div class="btn-area">
+
+            <button class="btn" onclick="calculate()">
+                🧮 Calculate
+            </button>
+
+            <button class="btn" onclick="saveBill()">
+                💾 Save Bill
+            </button>
+
+            <button class="btn" onclick="exportExcel()">
+                📥 Export Excel
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- TABLE -->
+
+    <div class="table-box">
+
+        <h3>Saved Vendor Bills</h3>
+
+        <div class="search-box">
+
+            <input
+            type="text"
+            id="search"
+            placeholder="Search Vendor..."
+            onkeyup="searchData()">
+
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>Vendor</th>
+                        <th>Date</th>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Rate</th>
+                        <th>Total</th>
+                        <th>Bill</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="tableData"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
 
 </div>
 
 <!-- MODAL -->
+
 <div class="modal" id="imgModal" onclick="closeModal()">
-<img id="bigImg">
+
+    <img id="bigImg">
+
+</div>
+
+<!-- FOOTER -->
+
+<div class="footer">
+    © 2022 - 2026 | Designed By PrimeWebTech
 </div>
 
 <script>
 
-const API_URL = "https://script.google.com/macros/s/AKfycbwlk8Zfu0j3KvhB5eKF1dkbOPfQWaS4qr7aV_VG4qQaIUXWvovPOXo1A7IajMYDUgz8Vg/exec";
+const API_URL =
+"https://script.google.com/macros/s/AKfycbwlk8Zfu0j3KvhB5eKF1dkbOPfQWaS4qr7aV_VG4qQaIUXWvovPOXo1A7IajMYDUgz8Vg/exec";
 
 let imageData = "";
 let editRow = null;
 
 /* CALCULATE */
+
 function calculate(){
-    let qty = Number(qty.value || 0);
-    let rate = Number(rate.value || 0);
-    total.innerText = qty * rate;
+
+    let q = Number(qty.value || 0);
+
+    let r = Number(rate.value || 0);
+
+    total.innerText = q * r;
 }
 
 /* IMAGE */
+
 function uploadImage(e){
+
     let file = e.target.files[0];
+
     let reader = new FileReader();
 
     reader.onload = function(){
+
         imageData = reader.result;
+
         preview.src = imageData;
     }
 
-    if(file) reader.readAsDataURL(file);
+    if(file){
+
+        reader.readAsDataURL(file);
+    }
 }
 
 /* SAVE */
+
 async function saveBill(){
 
     let obj = {
+
         sheet:"Vendor_Bills",
+
         vendor:vendor.value,
+
         date:date.value,
+
         product:product.value,
+
         qty:qty.value,
+
         rate:rate.value,
+
         total:total.innerText,
+
         image:imageData
     };
 
     if(editRow){
-        obj.action="update";
-        obj.row=editRow;
+
+        obj.action = "update";
+
+        obj.row = editRow;
     }
 
     await fetch(API_URL,{
+
         method:"POST",
+
         body:JSON.stringify(obj)
     });
 
-    alert("Saved");
+    alert(
+        editRow
+        ? "Updated Successfully"
+        : "Saved Successfully"
+    );
+
     clearForm();
+
     loadTable();
 }
 
-/* LOAD */
+/* LOAD TABLE */
+
 async function loadTable(){
 
-    let res = await fetch(API_URL + "?sheet=Vendor_Bills");
+    let res =
+    await fetch(API_URL + "?sheet=Vendor_Bills");
+
     let data = await res.json();
 
-    tableData.innerHTML="";
+    tableData.innerHTML = "";
 
     data.slice(1).forEach((d,i)=>{
 
         tableData.innerHTML += `
+
         <tr>
+
             <td>${d[0]}</td>
+
             <td>${d[1]}</td>
+
             <td>${d[2]}</td>
+
             <td>${d[3]}</td>
-            <td>${d[4]}</td>
-            <td>${d[5]}</td>
+
+            <td>₹ ${d[4]}</td>
+
+            <td>₹ ${d[5]}</td>
+
             <td>
-                ${d[6] ? `<img src="${d[6]}" width="50" onclick="showImage('${d[6]}')">` : "No"}
+
+                ${
+                    d[6]
+
+                    ?
+
+                    `<img
+                    src="${d[6]}"
+                    class="bill-img"
+                    onclick="showImage('${d[6]}')">`
+
+                    :
+
+                    "No Image"
+                }
+
             </td>
+
             <td>
-                <button onclick="deleteData(${i+2})">Del</button>
+
+                <button
+                class="action-btn edit-btn"
+                onclick='editData(
+                    ${i+2},
+                    ${JSON.stringify(d[0])},
+                    ${JSON.stringify(d[1])},
+                    ${JSON.stringify(d[2])},
+                    ${JSON.stringify(d[3])},
+                    ${JSON.stringify(d[4])},
+                    ${JSON.stringify(d[5])},
+                    ${JSON.stringify(d[6])}
+                )'>
+
+                Edit
+
+                </button>
+
+                <button
+                class="action-btn delete-btn"
+                onclick="deleteData(${i+2})">
+
+                Delete
+
+                </button>
+
             </td>
+
         </tr>`;
     });
 }
 
+/* EDIT */
+
+function editData(
+row,
+v,
+dt,
+p,
+q,
+r,
+t,
+img
+){
+
+    vendor.value = v;
+
+    date.value = dt;
+
+    product.value = p;
+
+    qty.value = q;
+
+    rate.value = r;
+
+    total.innerText = t;
+
+    preview.src = img;
+
+    imageData = img;
+
+    editRow = row;
+}
+
 /* DELETE */
+
 async function deleteData(row){
-    if(confirm("Delete?")){
+
+    if(confirm("Delete Bill?")){
+
         await fetch(API_URL,{
+
             method:"POST",
+
             body:JSON.stringify({
+
                 sheet:"Vendor_Bills",
+
                 action:"delete",
+
                 row:row
             })
         });
+
+        alert("Deleted Successfully");
+
         loadTable();
     }
 }
 
 /* SEARCH */
-function searchData(){
-    let val = search.value.toLowerCase();
 
-    document.querySelectorAll("#tableData tr").forEach(r=>{
-        r.style.display = r.innerText.toLowerCase().includes(val)?"":"none";
+function searchData(){
+
+    let val =
+    search.value.toLowerCase();
+
+    document
+    .querySelectorAll("#tableData tr")
+    .forEach(r=>{
+
+        r.style.display =
+        r.innerText
+        .toLowerCase()
+        .includes(val)
+
+        ? ""
+
+        : "none";
     });
 }
 
 /* CLEAR */
+
 function clearForm(){
-    vendor.value="";
-    date.value="";
-    product.value="";
-    qty.value="";
-    rate.value="";
-    total.innerText="0";
-    preview.src="";
-    imageData="";
-    editRow=null;
+
+    vendor.value = "";
+
+    date.value = "";
+
+    product.value = "";
+
+    qty.value = "";
+
+    rate.value = "";
+
+    total.innerText = "0";
+
+    preview.src = "";
+
+    imageData = "";
+
+    editRow = null;
 }
 
-/* IMAGE */
+/* EXPORT */
+
+async function exportExcel(){
+
+    let res =
+    await fetch(API_URL + "?sheet=Vendor_Bills");
+
+    let data = await res.json();
+
+    let csv =
+    "Vendor,Date,Product,Qty,Rate,Total\n";
+
+    data.slice(1).forEach(d=>{
+
+        csv +=
+`${d[0]},${d[1]},${d[2]},${d[3]},${d[4]},${d[5]}\n`;
+    });
+
+    let blob = new Blob([csv]);
+
+    let a = document.createElement("a");
+
+    a.href = URL.createObjectURL(blob);
+
+    a.download = "Vendor_Report.csv";
+
+    a.click();
+}
+
+/* IMAGE VIEW */
+
 function showImage(src){
-    imgModal.style.display="flex";
-    bigImg.src=src;
+
+    imgModal.style.display = "flex";
+
+    bigImg.src = src;
 }
 
 function closeModal(){
-    imgModal.style.display="none";
+
+    imgModal.style.display = "none";
 }
 
 /* INIT */
+
 loadTable();
 
 </script>
