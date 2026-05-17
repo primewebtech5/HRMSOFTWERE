@@ -2,13 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+
 <meta
 name="viewport"
 content="width=device-width, initial-scale=1.0">
 
 <title>Quick Access</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
+
+/* ================= GLOBAL ================= */
 
 *{
     margin:0;
@@ -17,146 +26,391 @@ content="width=device-width, initial-scale=1.0">
 }
 
 body{
-    font-family:Arial;
-    background:#f1f5f9;
+
+    font-family:'Poppins',sans-serif;
+
     min-height:100vh;
+
     display:flex;
+
     flex-direction:column;
+
+    background:linear-gradient(
+        -45deg,
+        #020617,
+        #0f172a,
+        #1e3a8a,
+        #38bdf8
+    );
+
+    background-size:400% 400%;
+
+    animation:bgMove 8s ease infinite;
+
+    overflow-x:hidden;
+
+    color:white;
 }
 
-/* HEADER */
+/* ================= ANIMATION ================= */
+
+@keyframes bgMove{
+
+    0%{
+        background-position:0% 50%;
+    }
+
+    50%{
+        background-position:100% 50%;
+    }
+
+    100%{
+        background-position:0% 50%;
+    }
+}
+
+/* ================= HEADER ================= */
 
 .header{
-    background:#0d6efd;
-    color:white;
-    padding:15px 20px;
+
     display:flex;
+
     justify-content:space-between;
+
     align-items:center;
+
+    padding:18px 30px;
+
+    background:rgba(255,255,255,0.08);
+
+    backdrop-filter:blur(12px);
+
+    border-bottom:1px solid rgba(255,255,255,0.1);
+
     flex-wrap:wrap;
-    gap:10px;
+
+    gap:15px;
 }
 
 .logo{
-    font-size:22px;
-    font-weight:bold;
+
+    font-size:28px;
+
+    font-weight:700;
 }
 
-/* BACK BUTTON */
+.logo span{
+
+    color:#38bdf8;
+}
+
+/* ================= BACK BUTTON ================= */
 
 .back-btn{
-    padding:8px 14px;
+
+    padding:10px 18px;
+
     border:none;
-    border-radius:8px;
+
+    border-radius:12px;
+
     cursor:pointer;
-    background:white;
-    color:#0d6efd;
-    font-weight:bold;
+
+    background:linear-gradient(
+        135deg,
+        #38bdf8,
+        #2563eb
+    );
+
+    color:white;
+
+    font-weight:600;
+
     transition:0.3s;
+
+    box-shadow:
+    0 5px 15px rgba(0,0,0,0.25);
 }
 
 .back-btn:hover{
-    background:#1e293b;
-    color:white;
+
+    transform:translateY(-3px);
+
+    box-shadow:
+    0 8px 20px rgba(56,189,248,0.45);
 }
 
-/* CONTAINER */
+/* ================= CONTAINER ================= */
 
 .container{
+
     flex:1;
-    padding:20px;
+
+    padding:35px;
 }
 
-/* BUTTON GRID */
+/* ================= TITLE ================= */
+
+.top-title{
+
+    text-align:center;
+
+    margin-bottom:35px;
+
+    animation:fadeUp 1s ease;
+}
+
+.top-title h1{
+
+    font-size:38px;
+
+    margin-bottom:10px;
+}
+
+.top-title p{
+
+    color:#dbeafe;
+
+    font-size:15px;
+}
+
+/* ================= GRID ================= */
 
 .grid{
+
     display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-    gap:18px;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(220px,1fr));
+
+    gap:25px;
 }
 
-/* BUTTON CARD */
+/* ================= CARD ================= */
 
 .btn{
-    background:white;
-    padding:25px 15px;
-    border-radius:15px;
+
+    position:relative;
+
+    background:rgba(255,255,255,0.10);
+
+    backdrop-filter:blur(14px);
+
+    border:1px solid rgba(255,255,255,0.12);
+
+    border-radius:24px;
+
+    padding:35px 20px;
+
     text-align:center;
+
     cursor:pointer;
-    font-size:15px;
-    font-weight:bold;
-    box-shadow:0 5px 15px rgba(0,0,0,0.1);
-    transition:0.3s;
-    border:2px solid transparent;
+
+    overflow:hidden;
+
+    transition:0.4s;
+
+    box-shadow:
+    0 10px 25px rgba(0,0,0,0.15);
+
+    animation:fadeUp 0.8s ease;
 }
 
+/* LIGHT EFFECT */
+
+.btn::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:220px;
+
+    height:220px;
+
+    background:rgba(255,255,255,0.08);
+
+    border-radius:50%;
+
+    top:-120px;
+
+    right:-120px;
+
+    transition:0.5s;
+}
+
+.btn:hover::before{
+
+    transform:scale(1.2);
+}
+
+/* HOVER */
+
 .btn:hover{
-    background:#0d6efd;
-    color:white;
-    transform:translateY(-5px);
-    border-color:#1e293b;
+
+    transform:
+    translateY(-10px)
+    scale(1.03);
+
+    border-color:#38bdf8;
+
+    box-shadow:
+    0 12px 30px rgba(0,0,0,0.25),
+    0 0 20px rgba(56,189,248,0.35);
 }
 
 /* ICON */
 
 .icon{
-    font-size:32px;
-    margin-bottom:10px;
+
+    font-size:50px;
+
+    margin-bottom:18px;
+
+    animation:float 3s ease-in-out infinite;
 }
 
-/* FOOTER */
+/* TEXT */
+
+.card-title{
+
+    font-size:20px;
+
+    font-weight:600;
+
+    margin-bottom:8px;
+}
+
+.card-subtitle{
+
+    font-size:14px;
+
+    color:#dbeafe;
+
+    line-height:1.6;
+}
+
+/* ================= FOOTER ================= */
 
 .footer{
-    background:#0d6efd;
-    color:white;
+
     text-align:center;
-    padding:12px;
-    font-size:13px;
+
+    padding:15px;
+
+    background:rgba(255,255,255,0.08);
+
+    backdrop-filter:blur(10px);
+
+    border-top:1px solid rgba(255,255,255,0.1);
+
+    color:#dbeafe;
+
+    font-size:14px;
 }
 
-/* MOBILE RESPONSIVE */
+/* ================= ANIMATION ================= */
+
+@keyframes fadeUp{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(40px);
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+    }
+}
+
+@keyframes float{
+
+    0%{
+        transform:translateY(0px);
+    }
+
+    50%{
+        transform:translateY(-8px);
+    }
+
+    100%{
+        transform:translateY(0px);
+    }
+}
+
+/* ================= MOBILE ================= */
 
 @media(max-width:768px){
 
     .header{
-        flex-direction:column;
-        text-align:center;
+
+        padding:15px 20px;
     }
 
     .logo{
-        font-size:20px;
+
+        font-size:22px;
     }
 
     .container{
-        padding:15px;
+
+        padding:20px;
     }
 
-    .grid{
-        grid-template-columns:repeat(2,1fr);
-        gap:12px;
-    }
+    .top-title h1{
 
-    .btn{
-        padding:20px 10px;
-        font-size:14px;
-    }
-
-    .icon{
         font-size:28px;
     }
 
-}
-
-@media(max-width:480px){
-
     .grid{
-        grid-template-columns:1fr;
+
+        gap:18px;
     }
 
     .btn{
-        width:100%;
+
+        padding:28px 18px;
     }
 
+    .icon{
+
+        font-size:42px;
+    }
+}
+
+@media(max-width:500px){
+
+    .header{
+
+        flex-direction:column;
+
+        text-align:center;
+    }
+
+    .top-title h1{
+
+        font-size:24px;
+    }
+
+    .top-title p{
+
+        font-size:13px;
+    }
+
+    .card-title{
+
+        font-size:18px;
+    }
+
+    .card-subtitle{
+
+        font-size:13px;
+    }
 }
 
 </style>
@@ -169,7 +423,9 @@ body{
 <div class="header">
 
     <div class="logo">
-        Prime Software
+
+        Prime <span>Software</span>
+
     </div>
 
     <button
@@ -186,6 +442,18 @@ body{
 
 <div class="container">
 
+    <div class="top-title">
+
+        <h1>
+            Quick Access Panel
+        </h1>
+
+        <p>
+            Fast access to important software tools & settings
+        </p>
+
+    </div>
+
     <div class="grid">
 
         <!-- RESET PASSWORD -->
@@ -198,11 +466,18 @@ body{
                 🔐
             </div>
 
-            Reset Password
+            <div class="card-title">
+                Reset Password
+            </div>
+
+            <div class="card-subtitle">
+                Change login password
+                securely & instantly.
+            </div>
 
         </div>
 
-        <!-- EMPTY -->
+        <!-- FEATURE -->
 
         <div
         class="btn"
@@ -212,25 +487,39 @@ body{
                 ⚡
             </div>
 
-            Empty
+            <div class="card-title">
+                Smart Features
+            </div>
+
+            <div class="card-subtitle">
+                New automation tools
+                coming very soon.
+            </div>
 
         </div>
 
-        <!-- EXTRA -->
+        <!-- REPORT -->
 
         <div
         class="btn"
-        onclick="alert('New Feature Soon 🔥')">
+        onclick="alert('Reports Module Soon 🔥')">
 
             <div class="icon">
                 📊
             </div>
 
-            Reports
+            <div class="card-title">
+                Reports
+            </div>
+
+            <div class="card-subtitle">
+                View analytics,
+                reports & business data.
+            </div>
 
         </div>
 
-        <!-- EXTRA -->
+        <!-- BACKUP -->
 
         <div
         class="btn"
@@ -240,7 +529,14 @@ body{
                 💾
             </div>
 
-            Backup
+            <div class="card-title">
+                Backup System
+            </div>
+
+            <div class="card-subtitle">
+                Secure software data
+                backup & restore system.
+            </div>
 
         </div>
 
@@ -252,7 +548,7 @@ body{
 
 <div class="footer">
 
-    © 2022 - 2026 | Made by PrimeWebTech
+    © 2022 - 2026 | Developed By PrimeWebTech
 
 </div>
 
