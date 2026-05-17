@@ -2,49 +2,155 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prime Software</title>
 
 <style>
 
+/* BODY */
+
 body{
     margin:0;
     font-family:Arial;
-    background:#0d6efd;
+
+    background:linear-gradient(
+        -45deg,
+        #0f172a,
+        #1e3a8a,
+        #38bdf8,
+        #0ea5e9
+    );
+
+    background-size:400% 400%;
+
+    animation:bgMove 4s ease infinite;
+
     display:flex;
     justify-content:center;
     align-items:center;
+
     height:100vh;
+
+    overflow:hidden;
+
     color:white;
 }
 
+/* BACKGROUND ANIMATION */
+
+@keyframes bgMove{
+
+    0%{
+        background-position:0% 50%;
+    }
+
+    50%{
+        background-position:100% 50%;
+    }
+
+    100%{
+        background-position:0% 50%;
+    }
+}
+
 /* CENTER BOX */
+
 .box{
     text-align:center;
+
+    animation:boxUp 1.5s ease;
 }
 
-/* MAIN TEXT */
+/* GLASS EFFECT */
+
 .title{
-    font-size:36px;
+    font-size:40px;
     font-weight:bold;
-    background:white;
-    color:#0d6efd;
-    padding:10px 20px;
-    border-radius:10px;
-    display:inline-block;
-    animation:fadeIn 1.5s ease;
+
+    padding:18px 35px;
+
+    border-radius:20px;
+
+    background:rgba(255,255,255,0.15);
+
+    backdrop-filter:blur(12px);
+
+    border:1px solid rgba(255,255,255,0.2);
+
+    box-shadow:0 8px 30px rgba(0,0,0,0.3);
+
+    letter-spacing:1px;
+
+    animation:glow 2s infinite alternate;
 }
 
-/* SUB TEXT */
+/* SUBTITLE */
+
 .subtitle{
-    margin-top:10px;
-    font-size:14px;
+    margin-top:18px;
+
+    font-size:15px;
+
+    letter-spacing:2px;
+
     opacity:0.9;
+
+    animation:fade 2s ease;
 }
 
-/* ANIMATION */
-@keyframes fadeIn{
-    from{opacity:0; transform:scale(0.8);}
-    to{opacity:1; transform:scale(1);}
+/* BOX ENTRY */
+
+@keyframes boxUp{
+
+    from{
+        opacity:0;
+        transform:translateY(50px) scale(0.8);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0) scale(1);
+    }
+}
+
+/* GLOW EFFECT */
+
+@keyframes glow{
+
+    from{
+        box-shadow:0 0 15px rgba(255,255,255,0.2);
+    }
+
+    to{
+        box-shadow:0 0 35px rgba(56,189,248,0.8);
+    }
+}
+
+/* FADE */
+
+@keyframes fade{
+
+    from{
+        opacity:0;
+    }
+
+    to{
+        opacity:1;
+    }
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+    .title{
+        font-size:28px;
+        padding:15px 20px;
+    }
+
+    .subtitle{
+        font-size:13px;
+    }
 }
 
 </style>
@@ -53,16 +159,26 @@ body{
 <body>
 
 <div class="box">
-    <div class="title">Prime HRM Software</div>
-    <div class="subtitle">Made by PrimeWebTech</div>
+
+    <div class="title">
+        Prime HRM Software
+    </div>
+
+    <div class="subtitle">
+        Made by PrimeWebTech
+    </div>
+
 </div>
 
 <script>
 
-// 3 SECOND REDIRECT
+/* REDIRECT AFTER 4 SECOND */
+
 setTimeout(()=>{
+
     window.location.href = "login.html";
-},3000);
+
+},4000);
 
 </script>
 
