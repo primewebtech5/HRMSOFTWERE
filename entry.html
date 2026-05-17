@@ -3,149 +3,350 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Uniform Entry</title>
+<title>Professional Uniform Entry</title>
 
 <style>
 
-body {
+*{
     margin:0;
-    font-family:Arial;
-    background:#f1f5f9;
-}
-
-/* HEADER */
-.header {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    background:#1e293b;
-    padding:15px 20px;
-    color:white;
-    flex-wrap:wrap;
-    gap:10px;
-}
-
-.logo { font-size:20px; font-weight:bold; }
-
-.menu {
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-}
-
-.menu button {
-    background:transparent;
-    border:none;
-    color:white;
-    padding:8px 10px;
-    cursor:pointer;
-}
-
-.menu button:hover {
-    background:#38bdf8;
-    color:black;
-}
-
-/* CONTAINER */
-.container {
-    padding:15px;
-}
-
-/* FORM */
-.form-grid {
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:15px;
-}
-
-@media (max-width:768px){
-    .form-grid{
-        grid-template-columns:1fr;
-    }
-
-    .menu{
-        width:100%;
-        justify-content:flex-start;
-    }
-}
-
-/* INPUT */
-input, select {
-    width:100%;
-    padding:10px;
+    padding:0;
     box-sizing:border-box;
 }
 
-label { font-weight:bold; }
+body{
+    font-family:Arial,sans-serif;
+    background:#f1f5f9;
+    color:#1e293b;
+}
 
-/* BUTTON */
-button {
-    margin:5px;
-    padding:8px 12px;
+/* HEADER */
+
+.header{
+    background:linear-gradient(135deg,#0f172a,#1e3a8a,#0284c7);
+    padding:16px 22px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:15px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.15);
+}
+
+.logo{
+    color:white;
+    font-size:24px;
+    font-weight:bold;
+    letter-spacing:1px;
+}
+
+.menu{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.menu button{
+    border:none;
+    background:rgba(255,255,255,0.12);
+    color:white;
+    padding:10px 15px;
+    border-radius:10px;
     cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
 }
 
-/* TABLE WRAPPER */
-.table-wrapper{
-    width:100%;
-    overflow-x:auto;
-    margin-top:20px;
+.menu button:hover{
+    background:white;
+    color:#0f172a;
+    transform:translateY(-2px);
 }
 
-/* TABLE */
-table {
-    width:100%;
-    min-width:700px;
-    border-collapse:collapse;
+.active{
+    background:white !important;
+    color:#0f172a !important;
+}
+
+/* CONTAINER */
+
+.container{
+    padding:25px;
+}
+
+/* TOP TITLE */
+
+.page-title{
+    margin-bottom:20px;
+}
+
+.page-title h2{
+    font-size:30px;
+    margin-bottom:5px;
+}
+
+.page-title p{
+    color:#64748b;
+}
+
+/* FORM CARD */
+
+.form-card{
+    background:white;
+    padding:25px;
+    border-radius:20px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
+    margin-bottom:25px;
+}
+
+/* FORM GRID */
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:18px;
+}
+
+.form-group{
+    display:flex;
+    flex-direction:column;
+}
+
+label{
+    font-size:14px;
+    font-weight:bold;
+    margin-bottom:7px;
+    color:#334155;
+}
+
+input,
+select{
+    padding:12px;
+    border:1px solid #cbd5e1;
+    border-radius:10px;
+    outline:none;
+    transition:0.3s;
+    font-size:14px;
+    background:#f8fafc;
+}
+
+input:focus,
+select:focus{
+    border-color:#2563eb;
+    box-shadow:0 0 0 3px rgba(37,99,235,0.15);
     background:white;
 }
 
-th, td {
-    border:1px solid #ccc;
-    padding:8px;
+/* BUTTONS */
+
+.btn-group{
+    margin-top:25px;
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+.btn{
+    border:none;
+    padding:12px 20px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+.primary-btn{
+    background:#2563eb;
+    color:white;
+}
+
+.primary-btn:hover{
+    background:#1d4ed8;
+    transform:translateY(-2px);
+}
+
+.secondary-btn{
+    background:#0f172a;
+    color:white;
+}
+
+.secondary-btn:hover{
+    background:#1e293b;
+}
+
+/* SEARCH */
+
+.search-box{
+    background:white;
+    padding:18px;
+    border-radius:18px;
+    margin-bottom:20px;
+    box-shadow:0 8px 20px rgba(0,0,0,0.06);
+}
+
+.search-box input{
+    width:100%;
+}
+
+/* TABLE */
+
+.table-card{
+    background:white;
+    border-radius:20px;
+    padding:20px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
+}
+
+.table-wrapper{
+    overflow-x:auto;
+    margin-top:15px;
+}
+
+table{
+    width:100%;
+    min-width:900px;
+    border-collapse:collapse;
+}
+
+th{
+    background:#0f172a;
+    color:white;
+    padding:14px;
+    font-size:14px;
+}
+
+td{
+    padding:12px;
+    border-bottom:1px solid #e2e8f0;
     text-align:center;
     font-size:14px;
 }
 
-th {
-    background:#1e293b;
-    color:white;
+tr:hover{
+    background:#f8fafc;
+}
+
+/* ACTION BUTTON */
+
+.action-btn{
+    border:none;
+    padding:7px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    margin:2px;
+    font-size:12px;
+    font-weight:bold;
+}
+
+.view-btn{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+.edit-btn{
+    background:#fef3c7;
+    color:#b45309;
+}
+
+.delete-btn{
+    background:#fee2e2;
+    color:#dc2626;
 }
 
 /* MODAL */
-.modal {
+
+.modal{
     display:none;
     position:fixed;
-    top:0; left:0;
-    width:100%; height:100%;
-    background:rgba(0,0,0,0.6);
+    inset:0;
+    background:rgba(0,0,0,0.5);
+    z-index:1000;
+    padding:15px;
 }
 
-.modal-content {
+.modal-content{
     background:white;
-    width:90%;
-    max-width:400px;
-    margin:80px auto;
-    padding:20px;
-    border-radius:10px;
+    max-width:500px;
+    margin:60px auto;
+    border-radius:20px;
+    padding:25px;
+    position:relative;
+    animation:popup 0.3s ease;
 }
 
-.close {
-    float:right;
+@keyframes popup{
+    from{
+        transform:scale(0.8);
+        opacity:0;
+    }
+
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+}
+
+.close{
+    position:absolute;
+    right:18px;
+    top:15px;
+    font-size:22px;
     cursor:pointer;
     font-weight:bold;
 }
 
-/* MOBILE IMPROVEMENTS */
-@media (max-width:500px){
+/* DETAIL BOX */
+
+.detail-row{
+    background:#f8fafc;
+    padding:12px;
+    border-radius:10px;
+    margin-bottom:10px;
+}
+
+/* FOOTER */
+
+.footer{
+    margin-top:25px;
+    background:#0f172a;
+    color:#cbd5e1;
+    text-align:center;
+    padding:14px;
+    font-size:14px;
+}
+
+/* MOBILE */
+
+@media(max-width:768px){
+
     .header{
         flex-direction:column;
         align-items:flex-start;
     }
 
-    button{
+    .menu{
         width:100%;
     }
+
+    .menu a{
+        flex:1;
+    }
+
+    .menu button{
+        width:100%;
+    }
+
+    .container{
+        padding:15px;
+    }
+
+    .btn-group{
+        flex-direction:column;
+    }
+
+    .btn{
+        width:100%;
+    }
+
 }
 
 </style>
@@ -153,247 +354,560 @@ th {
 
 <body>
 
+<!-- HEADER -->
+
 <div class="header">
-    <div class="logo">Uniform Register</div>
+
+    <div class="logo">
+        Prime Uniform System
+    </div>
 
     <div class="menu">
-        <a href="uniform.html"><button>Home</button></a>
-        <a href="#"><button>Data Entry</button></a>
-        <a href="stock.html"><button>Stock</button></a>
-        <a href="vendor.html"><button>Vendor</button></a>
-        <a href="setting.html"><button>Setting</button></a>
-        <a href="dashboard.html"><button>Exit</button></a>
+
+        <a href="uniform.html">
+            <button>🏠 Home</button>
+        </a>
+
+        <a href="#">
+            <button class="active">📝 Entry</button>
+        </a>
+
+        <a href="stock.html">
+            <button>📦 Stock</button>
+        </a>
+
+        <a href="vendor.html">
+            <button>🚚 Vendor</button>
+        </a>
+
+        <a href="setting.html">
+            <button>⚙ Setting</button>
+        </a>
+
+        <a href="dashboard.html">
+            <button>🚪 Exit</button>
+        </a>
+
     </div>
+
 </div>
+
+<!-- CONTAINER -->
 
 <div class="container">
 
-<h2>Employee Uniform Entry</h2>
+    <!-- TITLE -->
 
-<div class="form-grid">
+    <div class="page-title">
 
-<div>
-<label>Company</label>
-<select id="company">
-<option>Equity Hyundai</option>
-<option>Entity Renault</option>
-</select>
-</div>
+        <h2>Employee Uniform Entry</h2>
 
-<div>
-<label>Branch</label>
-<select id="branch"></select>
-</div>
+        <p>
+            Manage employee uniform issue records professionally.
+        </p>
 
-<div>
-<label>Department</label>
-<select id="department"></select>
-</div>
+    </div>
 
-<div>
-<label>Employee Name</label>
-<input type="text" id="empName">
-</div>
+    <!-- FORM -->
 
-<div>
-<label>Joining Date</label>
-<input type="date" id="joining">
-</div>
+    <div class="form-card">
 
-<div>
-<label>Given Date</label>
-<input type="date" id="given" onchange="autoDueDate()">
-</div>
+        <div class="form-grid">
 
-<div>
-<label>Pair</label>
-<input type="text" id="pair">
-</div>
+            <div class="form-group">
+                <label>Company</label>
 
-<div>
-<label>Material</label>
-<select id="material"></select>
-</div>
+                <select id="company">
 
-<div>
-<label>Due Date</label>
-<input type="date" id="due" readonly>
-</div>
+                    <option>Equity Hyundai</option>
 
-<div style="grid-column:span 2;">
-<label>Remarks</label>
-<input type="text" id="remarks">
-</div>
+                    <option>Entity Renault</option>
 
-</div>
+                </select>
+            </div>
 
-<button onclick="addData()">Submit</button>
-<button onclick="exportExcel()">Export Excel</button>
+            <div class="form-group">
 
-<br><br>
+                <label>Branch</label>
 
-<input type="text" id="search" placeholder="Search..." onkeyup="searchData()">
+                <select id="branch"></select>
 
-<div class="table-wrapper">
-<table>
-<thead>
-<tr>
-<th>SR</th>
-<th>Name</th>
-<th>Company</th>
-<th>Date</th>
-<th>Action</th>
-</tr>
-</thead>
-<tbody id="tbody"></tbody>
-</table>
-</div>
+            </div>
+
+            <div class="form-group">
+
+                <label>Department</label>
+
+                <select id="department"></select>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Employee Name</label>
+
+                <input type="text" id="empName">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Joining Date</label>
+
+                <input type="date" id="joining">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Given Date</label>
+
+                <input type="date" id="given"
+                onchange="autoDueDate()">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Pair</label>
+
+                <input type="number" id="pair">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Material</label>
+
+                <select id="material"></select>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Due Date</label>
+
+                <input type="date" id="due" readonly>
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Remarks</label>
+
+                <input type="text" id="remarks">
+
+            </div>
+
+        </div>
+
+        <!-- BUTTON -->
+
+        <div class="btn-group">
+
+            <button
+            class="btn primary-btn"
+            onclick="addData()">
+
+            💾 Save Entry
+
+            </button>
+
+            <button
+            class="btn secondary-btn"
+            onclick="exportExcel()">
+
+            📥 Export Excel
+
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- SEARCH -->
+
+    <div class="search-box">
+
+        <input
+        type="text"
+        id="search"
+        placeholder="🔍 Search employee..."
+        onkeyup="searchData()">
+
+    </div>
+
+    <!-- TABLE -->
+
+    <div class="table-card">
+
+        <h3>📋 Employee Uniform Records</h3>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>SR</th>
+
+                        <th>Employee</th>
+
+                        <th>Company</th>
+
+                        <th>Department</th>
+
+                        <th>Material</th>
+
+                        <th>Pair</th>
+
+                        <th>Given Date</th>
+
+                        <th>Due Date</th>
+
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="tbody"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
 
 </div>
 
 <!-- MODAL -->
+
 <div id="modal" class="modal">
+
     <div class="modal-content">
-        <span class="close" onclick="closeModal()">X</span>
-        <h3>Employee Details</h3>
+
+        <span class="close"
+        onclick="closeModal()">
+
+        ×
+
+        </span>
+
+        <h2 style="margin-bottom:20px;">
+            Employee Details
+        </h2>
+
         <div id="detailBox"></div>
+
     </div>
+
+</div>
+
+<!-- FOOTER -->
+
+<div class="footer">
+    © 2026 PrimeWebTech | Uniform Management System
 </div>
 
 <script>
 
-const API_URL = "https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDcqb70esqPB52-RVwzT5AbBunwQxct1AbiSjmvz0nllFkM/exec";
+const API_URL =
+"https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDcqb70esqPB52-RVwzT5AbBunwQxct1AbiSjmvz0nllFkM/exec";
 
 let data = [];
-let editIndex = -1;
 
-/* LOAD */
-async function loadMaster(sheet, elementId){
-    let res = await fetch(API_URL + "?sheet=" + sheet);
+/* LOAD MASTER */
+
+async function loadMaster(sheet,elementId){
+
+    let res =
+    await fetch(API_URL + "?sheet=" + sheet);
+
     let d = await res.json();
 
-    let el = document.getElementById(elementId);
-    el.innerHTML = `<option>Select</option>`;
+    let el =
+    document.getElementById(elementId);
+
+    el.innerHTML =
+    `<option>Select</option>`;
 
     d.slice(1).forEach(i=>{
-        el.innerHTML += `<option>${i[0]}</option>`;
+
+        el.innerHTML +=
+        `<option>${i[0]}</option>`;
     });
 }
 
+/* AUTO DUE */
+
 function autoDueDate(){
+
     if(given.value){
+
         let d = new Date(given.value);
+
         d.setFullYear(d.getFullYear()+1);
-        due.value = d.toISOString().split('T')[0];
+
+        due.value =
+        d.toISOString().split("T")[0];
     }
 }
 
+/* RENDER */
+
 async function render(){
-    let res = await fetch(API_URL + "?sheet=Employee_Entry");
+
+    let res =
+    await fetch(API_URL + "?sheet=Employee_Entry");
+
     let sheetData = await res.json();
 
-    data = [];
     tbody.innerHTML = "";
 
+    data = [];
+
     sheetData.slice(1).forEach((row,i)=>{
+
         let obj = {
+
             company:row[0],
+
             branch:row[1],
+
             department:row[2],
+
             empName:row[3],
+
             joining:row[4],
+
             given:row[5],
+
             pair:row[6],
+
             material:row[7],
+
             due:row[8],
+
             remarks:row[9],
+
             rowNumber:i+2
         };
 
         data.push(obj);
 
         tbody.innerHTML += `
+
         <tr>
+
             <td>${i+1}</td>
+
             <td>${obj.empName}</td>
+
             <td>${obj.company}</td>
+
+            <td>${obj.department}</td>
+
+            <td>${obj.material}</td>
+
+            <td>${obj.pair}</td>
+
             <td>${obj.given}</td>
+
+            <td>${obj.due}</td>
+
             <td>
-                <button onclick="showDetails(${i})">View</button>
-                <button onclick="editData(${i})">Edit</button>
-                <button onclick="deleteData(${i})">Del</button>
+
+                <button
+                class="action-btn view-btn"
+                onclick="showDetails(${i})">
+
+                View
+
+                </button>
+
+                <button
+                class="action-btn edit-btn">
+
+                Edit
+
+                </button>
+
+                <button
+                class="action-btn delete-btn">
+
+                Delete
+
+                </button>
+
             </td>
-        </tr>`;
+
+        </tr>
+        `;
     });
 }
 
+/* SHOW DETAILS */
+
 function showDetails(i){
+
     let d = data[i];
 
     detailBox.innerHTML = `
-    <p><b>Name:</b> ${d.empName}</p>
-    <p><b>Company:</b> ${d.company}</p>
-    <p><b>Branch:</b> ${d.branch}</p>
-    <p><b>Given:</b> ${d.given}</p>
-    <p><b>Due:</b> ${d.due}</p>
-    <p><b>Remarks:</b> ${d.remarks}</p>
+
+    <div class="detail-row">
+        <b>Employee:</b> ${d.empName}
+    </div>
+
+    <div class="detail-row">
+        <b>Company:</b> ${d.company}
+    </div>
+
+    <div class="detail-row">
+        <b>Branch:</b> ${d.branch}
+    </div>
+
+    <div class="detail-row">
+        <b>Department:</b> ${d.department}
+    </div>
+
+    <div class="detail-row">
+        <b>Material:</b> ${d.material}
+    </div>
+
+    <div class="detail-row">
+        <b>Pair:</b> ${d.pair}
+    </div>
+
+    <div class="detail-row">
+        <b>Given Date:</b> ${d.given}
+    </div>
+
+    <div class="detail-row">
+        <b>Due Date:</b> ${d.due}
+    </div>
+
+    <div class="detail-row">
+        <b>Remarks:</b> ${d.remarks}
+    </div>
     `;
 
-    modal.style.display="block";
+    modal.style.display = "block";
 }
 
+/* CLOSE */
+
 function closeModal(){
-    modal.style.display="none";
+
+    modal.style.display = "none";
 }
+
+/* SAVE */
 
 async function addData(){
 
     let obj = {
+
         sheet:"Employee_Entry",
+
         company:company.value,
+
         branch:branch.value,
+
         department:department.value,
+
         empName:empName.value,
+
         joining:joining.value,
+
         given:given.value,
+
         pair:pair.value,
+
         material:material.value,
+
         due:due.value,
+
         remarks:remarks.value
     };
 
     await fetch(API_URL,{
+
         method:"POST",
+
         body:JSON.stringify(obj)
     });
 
-    alert("Saved");
+    alert("Entry Saved Successfully");
+
     render();
 }
 
+/* SEARCH */
+
 function searchData(){
-    let val = search.value.toLowerCase();
-    document.querySelectorAll("#tbody tr").forEach(r=>{
-        r.style.display = r.innerText.toLowerCase().includes(val)?"":"none";
+
+    let val =
+    search.value.toLowerCase();
+
+    document
+    .querySelectorAll("#tbody tr")
+    .forEach(r=>{
+
+        r.style.display =
+        r.innerText.toLowerCase()
+        .includes(val)
+
+        ? ""
+
+        : "none";
     });
 }
 
+/* EXPORT */
+
 function exportExcel(){
-    let csv="SR,Name,Company,Date\n";
+
+    let csv =
+    "SR,Employee,Company,Department,Material,Pair,Given,Due\n";
+
     data.forEach((d,i)=>{
-        csv+=`${i+1},${d.empName},${d.company},${d.given}\n`;
+
+        csv +=
+        `${i+1},
+        ${d.empName},
+        ${d.company},
+        ${d.department},
+        ${d.material},
+        ${d.pair},
+        ${d.given},
+        ${d.due}\n`;
     });
 
-    let blob=new Blob([csv]);
-    let a=document.createElement("a");
-    a.href=URL.createObjectURL(blob);
-    a.download="uniform.csv";
+    let blob = new Blob([csv]);
+
+    let a =
+    document.createElement("a");
+
+    a.href =
+    URL.createObjectURL(blob);
+
+    a.download =
+    "Uniform_Records.csv";
+
     a.click();
 }
 
+/* INIT */
+
 loadMaster("Branch_Master","branch");
+
 loadMaster("Department_Master","department");
+
 loadMaster("Material_Master","material");
+
 render();
 
 </script>
