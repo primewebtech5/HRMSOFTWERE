@@ -5,91 +5,400 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prime Software Dashboard</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
 <style>
 
-body{
+/* ================= BODY ================= */
+
+*{
     margin:0;
-    font-family:Arial;
-    background:#f1f5f9;
-    display:flex;
-    flex-direction:column;
-    min-height:100vh;
+    padding:0;
+    box-sizing:border-box;
 }
 
-/* HEADER */
-.header{
-    background:#0d6efd;
+body{
+
+    font-family:'Poppins',sans-serif;
+
+    background:linear-gradient(
+        -45deg,
+        #020617,
+        #0f172a,
+        #1e3a8a,
+        #38bdf8
+    );
+
+    background-size:400% 400%;
+
+    animation:bgMove 8s ease infinite;
+
+    min-height:100vh;
+
     color:white;
-    padding:15px 30px;
+
+    overflow-x:hidden;
+}
+
+/* ================= BACKGROUND ANIMATION ================= */
+
+@keyframes bgMove{
+
+    0%{
+        background-position:0% 50%;
+    }
+
+    50%{
+        background-position:100% 50%;
+    }
+
+    100%{
+        background-position:0% 50%;
+    }
+}
+
+/* ================= HEADER ================= */
+
+.header{
+
+    width:100%;
+
+    padding:18px 35px;
+
     display:flex;
+
     justify-content:space-between;
+
     align-items:center;
+
+    background:rgba(255,255,255,0.08);
+
+    backdrop-filter:blur(14px);
+
+    border-bottom:1px solid rgba(255,255,255,0.1);
+
+    position:sticky;
+
+    top:0;
+
+    z-index:999;
 }
 
 .logo{
-    font-size:22px;
-    font-weight:bold;
+
+    font-size:28px;
+
+    font-weight:700;
+
+    letter-spacing:1px;
+
+    color:white;
 }
 
+.logo span{
+
+    color:#38bdf8;
+}
+
+/* ================= BUTTON ================= */
+
 .menu button{
-    background:white;
-    color:#0d6efd;
+
+    background:linear-gradient(
+        135deg,
+        #38bdf8,
+        #2563eb
+    );
+
     border:none;
-    padding:8px 15px;
-    border-radius:6px;
+
+    color:white;
+
+    padding:10px 18px;
+
+    border-radius:10px;
+
     cursor:pointer;
-    font-weight:bold;
+
+    font-weight:600;
+
+    transition:0.3s;
+
+    box-shadow:0 5px 15px rgba(0,0,0,0.2);
 }
 
 .menu button:hover{
-    background:#dbeafe;
+
+    transform:translateY(-3px) scale(1.03);
+
+    box-shadow:0 8px 20px rgba(56,189,248,0.4);
 }
 
-/* DASHBOARD GRID */
-.container{
-    display:grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
-    gap:20px;
-    padding:30px;
-    flex:1;
-}
+/* ================= WELCOME ================= */
 
-/* CARD BUTTON */
-.card{
-    background:white;
-    padding:30px;
-    border-radius:12px;
+.top-title{
+
     text-align:center;
-    box-shadow:0 5px 15px rgba(0,0,0,0.1);
-    cursor:pointer;
-    transition:0.3s;
+
+    margin-top:40px;
+
+    padding:0 20px;
+
+    animation:fadeUp 1s ease;
 }
 
-.card:hover{
-    transform:translateY(-5px);
-    background:#0d6efd;
-    color:white;
-}
+.top-title h1{
 
-/* ICON */
-.icon{
     font-size:40px;
+
     margin-bottom:10px;
 }
 
-/* TEXT */
-.title{
-    font-size:18px;
-    font-weight:bold;
+.top-title p{
+
+    color:#dbeafe;
+
+    font-size:15px;
 }
 
-/* FOOTER */
-.footer{
-    background:#0d6efd;
-    color:white;
+/* ================= GRID ================= */
+
+.container{
+
+    width:100%;
+
+    padding:40px;
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(240px,1fr));
+
+    gap:25px;
+}
+
+/* ================= CARD ================= */
+
+.card{
+
+    position:relative;
+
+    background:rgba(255,255,255,0.10);
+
+    border:1px solid rgba(255,255,255,0.15);
+
+    backdrop-filter:blur(12px);
+
+    border-radius:22px;
+
+    padding:35px 25px;
+
     text-align:center;
-    padding:12px;
+
+    cursor:pointer;
+
+    overflow:hidden;
+
+    transition:0.4s;
+
+    animation:fadeUp 0.8s ease;
+}
+
+/* HOVER EFFECT */
+
+.card:hover{
+
+    transform:
+    translateY(-10px)
+    scale(1.03);
+
+    border-color:#38bdf8;
+
+    box-shadow:
+    0 10px 30px rgba(0,0,0,0.25),
+    0 0 20px rgba(56,189,248,0.35);
+}
+
+/* LIGHT EFFECT */
+
+.card::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:200px;
+
+    height:200px;
+
+    background:rgba(255,255,255,0.1);
+
+    border-radius:50%;
+
+    top:-120px;
+
+    right:-120px;
+
+    transition:0.5s;
+}
+
+.card:hover::before{
+
+    transform:scale(1.2);
+}
+
+/* ICON */
+
+.icon{
+
+    font-size:55px;
+
+    margin-bottom:18px;
+
+    animation:float 3s ease-in-out infinite;
+}
+
+/* TITLE */
+
+.title{
+
+    font-size:20px;
+
+    font-weight:600;
+
+    margin-bottom:8px;
+}
+
+/* SUBTITLE */
+
+.subtitle{
+
+    font-size:13px;
+
+    color:#dbeafe;
+
+    line-height:1.6;
+}
+
+/* ================= FOOTER ================= */
+
+.footer{
+
+    margin-top:auto;
+
+    background:rgba(255,255,255,0.08);
+
+    backdrop-filter:blur(10px);
+
+    border-top:1px solid rgba(255,255,255,0.1);
+
+    text-align:center;
+
+    padding:16px;
+
     font-size:14px;
+
+    color:#dbeafe;
+}
+
+/* ================= ANIMATIONS ================= */
+
+@keyframes fadeUp{
+
+    from{
+
+        opacity:0;
+
+        transform:
+        translateY(40px);
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:
+        translateY(0);
+    }
+}
+
+@keyframes float{
+
+    0%{
+        transform:translateY(0px);
+    }
+
+    50%{
+        transform:translateY(-8px);
+    }
+
+    100%{
+        transform:translateY(0px);
+    }
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:768px){
+
+    .header{
+
+        padding:15px 20px;
+    }
+
+    .logo{
+
+        font-size:22px;
+    }
+
+    .top-title h1{
+
+        font-size:28px;
+    }
+
+    .container{
+
+        padding:20px;
+    }
+
+    .card{
+
+        padding:28px 20px;
+    }
+
+    .icon{
+
+        font-size:45px;
+    }
+}
+
+@media(max-width:500px){
+
+    .header{
+
+        flex-direction:column;
+
+        gap:12px;
+    }
+
+    .top-title{
+
+        margin-top:25px;
+    }
+
+    .top-title h1{
+
+        font-size:24px;
+    }
+
+    .top-title p{
+
+        font-size:13px;
+    }
 }
 
 </style>
@@ -98,62 +407,198 @@ body{
 <body>
 
 <!-- HEADER -->
+
 <div class="header">
-    <div class="logo">Prime Software</div>
-    <div class="menu">
-        <button onclick="go('login.html')">Log Out</button>
+
+    <div class="logo">
+        Prime <span>Software</span>
     </div>
+
+    <div class="menu">
+
+        <button onclick="go('login.html')">
+            Log Out
+        </button>
+
+    </div>
+
+</div>
+
+<!-- TITLE -->
+
+<div class="top-title">
+
+    <h1>
+        Welcome To Prime HRM Dashboard
+    </h1>
+
+    <p>
+        Smart Employee & Business Management System
+    </p>
+
 </div>
 
 <!-- DASHBOARD -->
+
 <div class="container">
 
-<div class="card" onclick="go('employeedashboard.html')">
-    <div class="icon">🧑🏻‍💼</div>
-    <div class="title">Employee Management</div>
-</div>
+    <!-- EMPLOYEE -->
 
-<div class="card" onclick="go('interview_detail.html')">
-    <div class="icon">👨🏻‍💼</div>
-    <div class="title">Candidate Management</div>
-</div>
+    <div class="card"
+    onclick="go('employeedashboard.html')">
 
-<div class="card" onclick="go('uniform.html')">
-    <div class="icon">👔</div>
-    <div class="title">Uniform Management</div>
-</div>
+        <div class="icon">
+            🧑🏻‍💼
+        </div>
 
-<div class="card" onclick="go('.html')">
-    <div class="icon"></div>
-    <div class="title">Empty</div>
-</div>
+        <div class="title">
+            Employee Management
+        </div>
 
-<div class="card" onclick="go('.html')">
-    <div class="icon"></div>
-    <div class="title">Empty</div>
-</div>
+        <div class="subtitle">
+            Manage employee details,
+            salary, attendance & records.
+        </div>
 
-<div class="card" onclick="go('settingdashboard.html')">
-    <div class="icon">⚙️</div>
-    <div class="title">Settings</div>
-</div>
+    </div>
 
-<div class="card" onclick="go('error.html')">
-    <div class="icon">⚠️</div>
-    <div class="title">Solving the problem</div>
-</div>
+    <!-- CANDIDATE -->
+
+    <div class="card"
+    onclick="go('interview_detail.html')">
+
+        <div class="icon">
+            👨🏻‍💼
+        </div>
+
+        <div class="title">
+            Candidate Management
+        </div>
+
+        <div class="subtitle">
+            Interview tracking,
+            hiring process & candidate data.
+        </div>
+
+    </div>
+
+    <!-- UNIFORM -->
+
+    <div class="card"
+    onclick="go('uniform.html')">
+
+        <div class="icon">
+            👔
+        </div>
+
+        <div class="title">
+            Uniform Management
+        </div>
+
+        <div class="subtitle">
+            Track uniform stock,
+            vendor & employee records.
+        </div>
+
+    </div>
+
+    <!-- REPORT -->
+
+    <div class="card"
+    onclick="go('.html')">
+
+        <div class="icon">
+            📊
+        </div>
+
+        <div class="title">
+            Reports Analytics
+        </div>
+
+        <div class="subtitle">
+            View reports,
+            performance & company analytics.
+        </div>
+
+    </div>
+
+    <!-- DOCUMENT -->
+
+    <div class="card"
+    onclick="go('.html')">
+
+        <div class="icon">
+            📁
+        </div>
+
+        <div class="title">
+            Document Center
+        </div>
+
+        <div class="subtitle">
+            Store company files,
+            employee documents & forms.
+        </div>
+
+    </div>
+
+    <!-- SETTINGS -->
+
+    <div class="card"
+    onclick="go('settingdashboard.html')">
+
+        <div class="icon">
+            ⚙️
+        </div>
+
+        <div class="title">
+            Settings
+        </div>
+
+        <div class="subtitle">
+            Manage software settings,
+            permissions & controls.
+        </div>
+
+    </div>
+
+    <!-- SUPPORT -->
+
+    <div class="card"
+    onclick="go('error.html')">
+
+        <div class="icon">
+            🛠️
+        </div>
+
+        <div class="title">
+            Technical Support
+        </div>
+
+        <div class="subtitle">
+            Report issues &
+            get instant software support.
+        </div>
+
+    </div>
 
 </div>
 
 <!-- FOOTER -->
+
 <div class="footer">
-    © 2022 - 2026 | Made by PrimeWebTech
+
+    © 2022 - 2026 | Developed By PrimeWebTech
+
 </div>
 
 <script>
+
 function go(page){
+
     window.location.href = page;
 }
+
 </script>
 
 </body>
