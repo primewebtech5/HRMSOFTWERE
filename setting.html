@@ -17,8 +17,15 @@ content="width=device-width, initial-scale=1.0">
 }
 
 body{
-    font-family:Arial;
-    background:#f1f5f9;
+    font-family:Arial, sans-serif;
+    background:
+    linear-gradient(
+    135deg,
+    #dbeafe,
+    #f8fafc,
+    #e0f2fe
+    );
+    min-height:100vh;
 }
 
 /* HEADER */
@@ -31,22 +38,32 @@ body{
 
     align-items:center;
 
-    background:#1e293b;
+    background:
+    linear-gradient(
+    90deg,
+    #0f172a,
+    #1e293b
+    );
 
-    padding:15px 30px;
+    padding:18px 30px;
 
     color:white;
 
     flex-wrap:wrap;
 
     gap:15px;
+
+    box-shadow:
+    0 5px 15px rgba(0,0,0,0.2);
 }
 
 .logo{
 
-    font-size:22px;
+    font-size:24px;
 
     font-weight:bold;
+
+    letter-spacing:1px;
 }
 
 .menu{
@@ -70,18 +87,22 @@ body{
 
     cursor:pointer;
 
-    padding:8px 12px;
+    padding:10px 16px;
 
-    border-radius:6px;
+    border-radius:10px;
 
     transition:0.3s;
+
+    font-weight:bold;
 }
 
 .menu button:hover{
 
     background:#38bdf8;
 
-    color:black;
+    color:#000;
+
+    transform:translateY(-2px);
 }
 
 .active{
@@ -89,46 +110,61 @@ body{
     background:#38bdf8 !important;
 
     color:black !important;
+
+    box-shadow:
+    0 4px 10px rgba(56,189,248,0.4);
 }
 
 /* CONTENT */
 
 .container{
 
-    padding:20px;
+    padding:25px;
 
-    display:flex;
+    display:grid;
+
+    grid-template-columns:
+    repeat(auto-fit,minmax(320px,1fr));
 
     gap:25px;
-
-    flex-wrap:wrap;
-
-    justify-content:center;
 }
 
 /* BOX */
 
 .box{
 
-    background:white;
+    background:
+    rgba(255,255,255,0.7);
 
-    padding:20px;
+    backdrop-filter:blur(10px);
 
-    border-radius:12px;
+    padding:22px;
 
-    width:100%;
-
-    max-width:350px;
+    border-radius:20px;
 
     box-shadow:
-    0 5px 15px rgba(0,0,0,0.1);
+    0 10px 25px rgba(0,0,0,0.08);
+
+    transition:0.3s;
+
+    border:1px solid rgba(255,255,255,0.5);
+}
+
+.box:hover{
+
+    transform:translateY(-5px);
+
+    box-shadow:
+    0 15px 35px rgba(0,0,0,0.12);
 }
 
 .box h3{
 
-    margin-bottom:15px;
+    margin-bottom:18px;
 
-    color:#1e293b;
+    color:#0f172a;
+
+    font-size:20px;
 }
 
 /* INPUT */
@@ -137,17 +173,21 @@ input{
 
     width:100%;
 
-    padding:12px;
+    padding:13px;
 
-    margin-bottom:10px;
+    margin-bottom:12px;
 
-    border:1px solid #ccc;
+    border:1px solid #cbd5e1;
 
-    border-radius:8px;
+    border-radius:10px;
 
     outline:none;
 
     font-size:14px;
+
+    background:white;
+
+    transition:0.3s;
 }
 
 input:focus{
@@ -155,14 +195,14 @@ input:focus{
     border-color:#38bdf8;
 
     box-shadow:
-    0 0 5px #38bdf8;
+    0 0 10px rgba(56,189,248,0.4);
 }
 
 /* BUTTON */
 
 button{
 
-    padding:8px 12px;
+    padding:10px 14px;
 
     margin:4px;
 
@@ -170,16 +210,23 @@ button{
 
     border:none;
 
-    border-radius:6px;
+    border-radius:10px;
 
     transition:0.3s;
+
+    font-weight:bold;
 }
 
 /* ADD BUTTON */
 
 .add-btn{
 
-    background:#1e293b;
+    background:
+    linear-gradient(
+    90deg,
+    #0f172a,
+    #1e293b
+    );
 
     color:white;
 
@@ -188,23 +235,32 @@ button{
 
 .add-btn:hover{
 
-    background:#38bdf8;
+    background:
+    linear-gradient(
+    90deg,
+    #38bdf8,
+    #0ea5e9
+    );
 
     color:black;
+
+    transform:scale(1.02);
 }
 
 /* UPDATE BUTTON */
 
 .update-btn{
 
-    background:#0d6efd;
+    background:#2563eb;
 
     color:white;
 }
 
 .update-btn:hover{
 
-    background:#0b5ed7;
+    background:#1d4ed8;
+
+    transform:scale(1.05);
 }
 
 /* DELETE BUTTON */
@@ -219,6 +275,8 @@ button{
 .delete-btn:hover{
 
     background:#dc2626;
+
+    transform:scale(1.05);
 }
 
 /* TABLE */
@@ -226,6 +284,8 @@ button{
 .table-wrapper{
 
     overflow-x:auto;
+
+    margin-top:15px;
 }
 
 table{
@@ -234,25 +294,43 @@ table{
 
     border-collapse:collapse;
 
-    margin-top:15px;
-}
+    overflow:hidden;
 
-th,td{
-
-    border:1px solid #ccc;
-
-    padding:10px;
-
-    text-align:center;
-
-    font-size:14px;
+    border-radius:12px;
 }
 
 th{
 
-    background:#1e293b;
+    background:
+    linear-gradient(
+    90deg,
+    #0f172a,
+    #1e293b
+    );
 
     color:white;
+
+    padding:12px;
+
+    font-size:14px;
+}
+
+td{
+
+    background:white;
+
+    padding:12px;
+
+    text-align:center;
+
+    border-bottom:1px solid #e2e8f0;
+
+    font-size:14px;
+}
+
+tr:hover td{
+
+    background:#f0f9ff;
 }
 
 /* MOBILE */
@@ -286,19 +364,11 @@ th{
         padding:15px;
     }
 
-    .box{
+    .logo{
 
-        max-width:100%;
-    }
-
-    th,td{
-
-        font-size:13px;
-
-        padding:8px;
+        font-size:20px;
     }
 }
-
 </style>
 </head>
 
