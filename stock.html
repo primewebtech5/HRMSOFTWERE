@@ -3,172 +3,348 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Stock Master</title>
+
+<title>Prime Uniform Stock Management</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
 
-body{
+*{
     margin:0;
-    font-family:Arial;
-    background:#f1f5f9;
+    padding:0;
+    box-sizing:border-box;
 }
 
-/* HEADER */
+body{
+    font-family:'Poppins',sans-serif;
+    background:#eef4ff;
+    min-height:100vh;
+    color:#1e293b;
+}
+
+/* ================= HEADER ================= */
+
 .header{
+    background:linear-gradient(135deg,#0f172a,#1e3a8a,#0ea5e9);
+    color:white;
+    padding:18px 25px;
     display:flex;
     justify-content:space-between;
     align-items:center;
-    background:#1e293b;
-    padding:15px 20px;
-    color:white;
     flex-wrap:wrap;
-    gap:10px;
+    gap:15px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.15);
+    position:sticky;
+    top:0;
+    z-index:1000;
 }
 
 .logo{
-    font-size:20px;
-    font-weight:bold;
+    font-size:24px;
+    font-weight:700;
+    letter-spacing:1px;
 }
 
 .menu{
     display:flex;
-    flex-wrap:wrap;
     gap:10px;
+    flex-wrap:wrap;
 }
 
 .menu button{
-    background:transparent;
+    background:rgba(255,255,255,0.12);
     border:none;
     color:white;
-    padding:8px 10px;
+    padding:10px 16px;
+    border-radius:10px;
     cursor:pointer;
-    border-radius:6px;
+    font-weight:600;
+    transition:0.3s;
+    backdrop-filter:blur(5px);
 }
 
 .menu button:hover{
-    background:#38bdf8;
-    color:black;
+    background:white;
+    color:#0f172a;
+    transform:translateY(-2px);
 }
 
 .active{
-    background:#38bdf8 !important;
-    color:black !important;
+    background:white !important;
+    color:#0f172a !important;
 }
 
-/* CONTAINER */
+/* ================= CONTAINER ================= */
+
 .container{
-    padding:15px;
+    padding:25px;
 }
 
-/* TOP CARD */
+/* ================= TOP CARD ================= */
+
 .stock-top{
-    text-align:center;
-    background:#1e293b;
+    background:linear-gradient(135deg,#0f172a,#1d4ed8,#38bdf8);
     color:white;
-    padding:15px;
-    border-radius:10px;
+    padding:30px;
+    border-radius:22px;
+    text-align:center;
+    box-shadow:0 12px 30px rgba(37,99,235,0.25);
 }
 
-/* MATERIAL GRID */
+.stock-top h2{
+    font-size:30px;
+    margin-bottom:10px;
+}
+
+.stock-top h3{
+    font-size:50px;
+    margin-bottom:10px;
+}
+
+.stock-top h4{
+    font-size:18px;
+    font-weight:500;
+}
+
+/* ================= MATERIAL GRID ================= */
+
 .material-grid{
     display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:15px;
-    margin-top:15px;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:18px;
+    margin-top:25px;
 }
 
 .material-box{
     background:white;
-    padding:15px;
-    border-radius:10px;
-    text-align:center;
-    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    padding:22px;
+    border-radius:18px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
+    transition:0.3s;
+    position:relative;
+    overflow:hidden;
 }
 
-/* BOX */
+.material-box::before{
+    content:'';
+    position:absolute;
+    width:100%;
+    height:5px;
+    top:0;
+    left:0;
+    background:linear-gradient(to right,#2563eb,#38bdf8);
+}
+
+.material-box:hover{
+    transform:translateY(-5px);
+}
+
+.material-name{
+    font-size:17px;
+    font-weight:600;
+    color:#334155;
+}
+
+.material-stock{
+    font-size:42px;
+    font-weight:700;
+    color:#2563eb;
+    margin-top:12px;
+}
+
+/* ================= BOX ================= */
+
 .box{
     background:white;
-    padding:15px;
-    margin-top:20px;
-    border-radius:10px;
+    margin-top:25px;
+    border-radius:22px;
+    padding:25px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.08);
 }
 
-/* FORM */
+.box h3{
+    margin-bottom:18px;
+    font-size:24px;
+    color:#0f172a;
+}
+
+/* ================= FORM ================= */
+
 .form-grid{
     display:grid;
     grid-template-columns:repeat(2,1fr);
-    gap:15px;
+    gap:18px;
+}
+
+.input-group{
+    display:flex;
+    flex-direction:column;
+}
+
+.input-group label{
+    margin-bottom:8px;
+    font-size:14px;
+    font-weight:600;
+    color:#334155;
 }
 
 input,select{
     width:100%;
-    padding:10px;
-    box-sizing:border-box;
+    padding:13px;
+    border-radius:12px;
+    border:1px solid #cbd5e1;
+    font-size:15px;
+    background:#f8fafc;
+    transition:0.3s;
 }
 
-/* BUTTON */
+input:focus,
+select:focus{
+    outline:none;
+    border-color:#2563eb;
+    background:white;
+    box-shadow:0 0 0 4px rgba(37,99,235,0.15);
+}
+
+/* ================= BUTTON ================= */
+
+.btn-area{
+    margin-top:20px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+}
+
 .btn{
-    background:#1e293b;
+    background:linear-gradient(135deg,#1d4ed8,#38bdf8);
     color:white;
     border:none;
-    padding:10px 12px;
-    border-radius:6px;
+    padding:12px 18px;
+    border-radius:12px;
     cursor:pointer;
-    margin:5px 0;
+    font-size:15px;
+    font-weight:600;
+    transition:0.3s;
 }
 
 .btn:hover{
-    background:#38bdf8;
-    color:black;
+    transform:translateY(-3px);
+    box-shadow:0 8px 20px rgba(37,99,235,0.3);
 }
 
-/* TABLE WRAPPER */
-.table-wrapper{
-    width:100%;
-    overflow-x:auto;
+/* ================= SEARCH ================= */
+
+.search-box{
     margin-top:15px;
 }
 
-/* TABLE */
+.search-box input{
+    max-width:350px;
+}
+
+/* ================= TABLE ================= */
+
+.table-wrapper{
+    width:100%;
+    overflow-x:auto;
+    margin-top:20px;
+}
+
 table{
     width:100%;
-    min-width:800px;
+    min-width:900px;
     border-collapse:collapse;
 }
 
-th,td{
-    border:1px solid #ccc;
-    padding:8px;
+th{
+    background:#0f172a;
+    color:white;
+    padding:14px;
+    font-size:14px;
+}
+
+td{
+    padding:12px;
+    border-bottom:1px solid #e2e8f0;
     text-align:center;
     font-size:14px;
 }
 
-th{
-    background:#1e293b;
+tr:hover{
+    background:#f8fbff;
+}
+
+/* ================= ACTION BUTTON ================= */
+
+.action-btn{
+    border:none;
+    padding:8px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:13px;
+    font-weight:600;
+}
+
+.delete-btn{
+    background:#dc2626;
     color:white;
 }
 
-/* RESPONSIVE */
-@media(max-width:900px){
+/* ================= FOOTER ================= */
 
-    .material-grid{
-        grid-template-columns:repeat(2,1fr);
-    }
+.footer{
+    margin-top:25px;
+    background:#0f172a;
+    color:#cbd5e1;
+    text-align:center;
+    padding:14px;
+    font-size:14px;
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media(max-width:900px){
 
     .form-grid{
         grid-template-columns:1fr;
     }
+
+    .stock-top h3{
+        font-size:40px;
+    }
 }
 
-@media(max-width:500px){
+@media(max-width:600px){
 
     .header{
         flex-direction:column;
         align-items:flex-start;
     }
 
-    .material-grid{
-        grid-template-columns:1fr;
+    .menu{
+        width:100%;
+    }
+
+    .menu button{
+        width:100%;
+    }
+
+    .container{
+        padding:15px;
+    }
+
+    .stock-top{
+        padding:22px;
+    }
+
+    .stock-top h2{
+        font-size:22px;
+    }
+
+    .stock-top h3{
+        font-size:34px;
     }
 
     .btn{
@@ -181,208 +357,447 @@ th{
 
 <body>
 
+<!-- HEADER -->
+
 <div class="header">
-    <div class="logo">Uniform Stock</div>
+
+    <div class="logo">
+        Prime Uniform Stock
+    </div>
 
     <div class="menu">
-        <a href="uniform.html"><button>Home</button></a>
-        <a href="entry.html"><button>Entry</button></a>
-        <a href="#"><button class="active">Stock</button></a>
-        <a href="vendor.html"><button>Vendor</button></a>
-        <a href="setting.html"><button>Setting</button></a>
-        <a href="dashboard.html"><button>Exit</button></a>
+
+        <a href="uniform.html">
+            <button>Home</button>
+        </a>
+
+        <a href="entry.html">
+            <button>Entry</button>
+        </a>
+
+        <a href="#">
+            <button class="active">Stock</button>
+        </a>
+
+        <a href="vendor.html">
+            <button>Vendor</button>
+        </a>
+
+        <a href="setting.html">
+            <button>Setting</button>
+        </a>
+
+        <a href="dashboard.html">
+            <button>Exit</button>
+        </a>
+
     </div>
+
 </div>
+
+<!-- CONTAINER -->
 
 <div class="container">
 
-<!-- TOP -->
-<div class="stock-top">
-    <h2>Available Stock</h2>
-    <h3 id="totalStock">0</h3>
-    <h4>Total Value: ₹ <span id="totalValue">0</span></h4>
+    <!-- TOP -->
+
+    <div class="stock-top">
+
+        <h2>Total Available Stock</h2>
+
+        <h3 id="totalStock">0</h3>
+
+        <h4>
+            Total Investment :
+            ₹ <span id="totalValue">0</span>
+        </h4>
+
+    </div>
+
+    <!-- MATERIAL GRID -->
+
+    <div class="material-grid" id="materialGrid"></div>
+
+    <!-- FORM -->
+
+    <div class="box">
+
+        <h3>Add New Stock</h3>
+
+        <div class="form-grid">
+
+            <div class="input-group">
+                <label>Material</label>
+                <select id="material"></select>
+            </div>
+
+            <div class="input-group">
+                <label>Price</label>
+                <input type="number" id="price" placeholder="Enter Price">
+            </div>
+
+            <div class="input-group">
+                <label>Pair</label>
+                <input type="number" id="pair" placeholder="Enter Pair">
+            </div>
+
+            <div class="input-group">
+                <label>Purchase Date</label>
+                <input type="date" id="pdate">
+            </div>
+
+            <div class="input-group" style="grid-column:span 2;">
+                <label>Remarks</label>
+                <input type="text" id="remarks" placeholder="Enter Remarks">
+            </div>
+
+        </div>
+
+        <div class="btn-area">
+
+            <button class="btn" onclick="addStock()">
+                ➕ Add Stock
+            </button>
+
+            <button class="btn" onclick="exportExcel()">
+                📥 Export Excel
+            </button>
+
+            <button class="btn" onclick="exportPDF()">
+                📄 Export PDF
+            </button>
+
+        </div>
+
+    </div>
+
+    <!-- TABLE -->
+
+    <div class="box">
+
+        <h3>Stock History</h3>
+
+        <div class="search-box">
+            <input
+            type="text"
+            id="search"
+            placeholder="Search Stock..."
+            onkeyup="searchData()">
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+
+                        <th>SR</th>
+                        <th>Material</th>
+                        <th>Price</th>
+                        <th>Pair</th>
+                        <th>Date</th>
+                        <th>Remarks</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="tbody"></tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
 </div>
 
-<!-- MATERIAL GRID -->
-<div class="material-grid" id="materialGrid"></div>
+<!-- FOOTER -->
 
-<!-- FORM -->
-<div class="box">
-<h3>Add Stock</h3>
-
-<div class="form-grid">
-
-<select id="material"></select>
-<input type="number" id="price" placeholder="Price">
-<input type="number" id="pair" placeholder="Pair">
-<input type="date" id="pdate">
-<input type="text" id="remarks" placeholder="Remarks">
-
-</div>
-
-<button class="btn" onclick="addStock()">Add</button>
-<button class="btn" onclick="exportExcel()">Excel</button>
-<button class="btn" onclick="exportPDF()">PDF</button>
-
-</div>
-
-<!-- TABLE -->
-<div class="box">
-<h3>Stock History</h3>
-
-<input type="text" id="search" placeholder="Search..." onkeyup="searchData()">
-
-<div class="table-wrapper">
-
-<table>
-<thead>
-<tr>
-<th>SR</th>
-<th>Material</th>
-<th>Price</th>
-<th>Pair</th>
-<th>Date</th>
-<th>Remarks</th>
-<th>Action</th>
-</tr>
-</thead>
-
-<tbody id="tbody"></tbody>
-
-</table>
-
-</div>
-
-</div>
-
+<div class="footer">
+    © 2022 - 2026 | Designed By PrimeWebTech
 </div>
 
 <script>
 
-const API_URL = "https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDcqb70esqPB52-RVwzT5AbBunwQxct1AbiSjmvz0nllFkM/exec";
+const API_URL =
+"https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDcqb70esqPB52-RVwzT5AbBunwQxct1AbiSjmvz0nllFkM/exec";
 
 let stockData = [];
 let materials = [];
 
 /* LOAD MATERIAL */
+
 async function loadMaterials(){
 
-    let res = await fetch(API_URL+"?sheet=Material_Master");
+    let res =
+    await fetch(API_URL + "?sheet=Material_Master");
+
     let data = await res.json();
 
     material.innerHTML = "";
 
     data.slice(1).forEach(m=>{
+
         materials.push(m[0]);
-        material.innerHTML += `<option>${m[0]}</option>`;
+
+        material.innerHTML += `
+        <option>${m[0]}</option>`;
     });
 }
 
 /* ADD STOCK */
+
 async function addStock(){
 
     let obj = {
+
         sheet:"Stock_Entry",
+
         material:material.value,
+
         price:price.value,
+
         pair:pair.value,
+
         date:pdate.value,
+
         remarks:remarks.value
     };
 
     await fetch(API_URL,{
+
         method:"POST",
+
         body:JSON.stringify(obj)
     });
 
-    alert("Saved");
+    alert("Stock Added Successfully");
+
+    price.value = "";
+    pair.value = "";
+    pdate.value = "";
+    remarks.value = "";
+
     render();
 }
 
 /* RENDER */
+
 async function render(){
 
-    let stock = await fetch(API_URL+"?sheet=Stock_Entry").then(r=>r.json());
-    let entry = await fetch(API_URL+"?sheet=Employee_Entry").then(r=>r.json());
+    let stock =
+    await fetch(API_URL + "?sheet=Stock_Entry")
+    .then(r=>r.json());
+
+    let entry =
+    await fetch(API_URL + "?sheet=Employee_Entry")
+    .then(r=>r.json());
 
     stockData = [];
+
     tbody.innerHTML = "";
 
     stock.slice(1).forEach((d,i)=>{
 
         let obj = {
+
             material:d[0],
+
             price:d[1],
+
             pair:d[2],
+
             date:d[3],
+
             remarks:d[4],
+
             row:i+2
         };
 
         stockData.push(obj);
 
         tbody.innerHTML += `
+
         <tr>
+
             <td>${i+1}</td>
+
             <td>${obj.material}</td>
-            <td>${obj.price}</td>
+
+            <td>₹ ${obj.price}</td>
+
             <td>${obj.pair}</td>
+
             <td>${obj.date}</td>
-            <td>${obj.remarks}</td>
+
+            <td>${obj.remarks || "-"}</td>
+
             <td>
-                <button onclick="deleteRow(${i})">Del</button>
+
+                <button
+                class="action-btn delete-btn"
+                onclick="deleteRow(${i})">
+
+                Delete
+
+                </button>
+
             </td>
+
         </tr>`;
     });
 
     let count = {};
+
     materials.forEach(m=>count[m]=0);
 
     stockData.forEach(d=>{
-        count[d.material]+=Number(d.pair||0);
+
+        count[d.material] +=
+        Number(d.pair || 0);
     });
 
     entry.slice(1).forEach(d=>{
-        let mat=d[7];
-        let p=Number(d[6]||0);
-        if(count[mat]!=undefined) count[mat]-=p;
+
+        let mat = d[7];
+
+        let p = Number(d[6] || 0);
+
+        if(count[mat] != undefined){
+
+            count[mat] -= p;
+        }
     });
 
-    materialGrid.innerHTML="";
+    materialGrid.innerHTML = "";
 
-    let total=0;
+    let total = 0;
 
     for(let m in count){
 
-        total+=count[m];
+        total += count[m];
 
-        materialGrid.innerHTML+=`
-        <div class="material-box">
-            ${m}
-            <h2>${count[m]}</h2>
+        let color =
+        count[m] <= 5
+        ? "#fee2e2"
+        : "white";
+
+        materialGrid.innerHTML += `
+
+        <div
+        class="material-box"
+        style="background:${color}">
+
+            <div class="material-name">
+                ${m}
+            </div>
+
+            <div class="material-stock">
+                ${count[m]}
+            </div>
+
         </div>`;
     }
 
-    totalStock.innerText=total;
+    totalStock.innerText = total;
 
-    let value=0;
+    let value = 0;
 
     stockData.forEach(d=>{
-        value+=Number(d.price||0);
+
+        value +=
+        Number(d.price || 0) *
+        Number(d.pair || 0);
     });
 
-    totalValue.innerText=value;
+    totalValue.innerText = value;
+}
+
+/* DELETE */
+
+async function deleteRow(i){
+
+    if(confirm("Delete Stock?")){
+
+        await fetch(API_URL,{
+
+            method:"POST",
+
+            body:JSON.stringify({
+
+                action:"delete",
+
+                sheet:"Stock_Entry",
+
+                row:stockData[i].row
+            })
+        });
+
+        alert("Deleted Successfully");
+
+        render();
+    }
 }
 
 /* SEARCH */
+
 function searchData(){
-    let val=search.value.toLowerCase();
-    document.querySelectorAll("#tbody tr").forEach(r=>{
-        r.style.display=r.innerText.toLowerCase().includes(val)?"":"none";
+
+    let val =
+    search.value.toLowerCase();
+
+    document
+    .querySelectorAll("#tbody tr")
+    .forEach(r=>{
+
+        r.style.display =
+        r.innerText
+        .toLowerCase()
+        .includes(val)
+
+        ? ""
+
+        : "none";
     });
 }
 
+/* EXPORT EXCEL */
+
+function exportExcel(){
+
+    let csv =
+    "SR,Material,Price,Pair,Date,Remarks\n";
+
+    stockData.forEach((d,i)=>{
+
+        csv +=
+`${i+1},${d.material},${d.price},${d.pair},${d.date},${d.remarks}\n`;
+    });
+
+    let blob = new Blob([csv]);
+
+    let a = document.createElement("a");
+
+    a.href = URL.createObjectURL(blob);
+
+    a.download = "Stock_Report.csv";
+
+    a.click();
+}
+
+/* PDF */
+
+function exportPDF(){
+
+    window.print();
+}
+
 /* INIT */
+
 loadMaterials().then(render);
 
 </script>
