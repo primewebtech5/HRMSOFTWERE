@@ -5,160 +5,295 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Uniform Dashboard</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+
 <style>
 
-body{
+*{
     margin:0;
-    font-family:Arial;
-    background:linear-gradient(135deg,#e2e8f0,#f8fafc);
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, sans-serif;
+    background:#f1f5f9;
     min-height:100vh;
     display:flex;
     flex-direction:column;
+    color:#1e293b;
 }
 
 /* HEADER */
+
 .header{
+    background:linear-gradient(135deg,#0f172a,#1e3a8a,#0284c7);
+    padding:16px 25px;
     display:flex;
     justify-content:space-between;
     align-items:center;
-    background:#1e293b;
-    padding:15px 20px;
-    color:white;
     flex-wrap:wrap;
-    gap:10px;
+    gap:15px;
+    position:sticky;
+    top:0;
+    z-index:1000;
+    box-shadow:0 4px 20px rgba(0,0,0,0.15);
 }
 
 .logo{
-    font-size:20px;
+    color:white;
+    font-size:24px;
     font-weight:bold;
+    letter-spacing:1px;
 }
 
 .menu{
     display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.menu button{
+    border:none;
+    padding:10px 16px;
+    border-radius:10px;
+    background:rgba(255,255,255,0.12);
+    color:white;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+    backdrop-filter:blur(5px);
+}
+
+.menu button:hover{
+    background:white;
+    color:#0f172a;
+    transform:translateY(-2px);
+}
+
+.active{
+    background:white !important;
+    color:#0f172a !important;
+}
+
+/* MAIN */
+
+.container{
+    display:grid;
+    grid-template-columns:320px 1fr;
+    gap:20px;
+    padding:25px;
+    flex:1;
+}
+
+/* ALERT BOX */
+
+.alert-box{
+    background:white;
+    border-radius:18px;
+    padding:20px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
+    height:fit-content;
+}
+
+.alert-title{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:18px;
+}
+
+.alert-title h3{
+    font-size:20px;
+}
+
+.alert-count{
+    background:#dc2626;
+    color:white;
+    padding:5px 10px;
+    border-radius:30px;
+    font-size:13px;
+}
+
+.alert-item{
+    background:#fff7ed;
+    border-left:5px solid #f97316;
+    padding:14px;
+    border-radius:12px;
+    margin-bottom:12px;
+    transition:0.3s;
+}
+
+.alert-item:hover{
+    transform:translateX(4px);
+}
+
+.overdue{
+    background:#fee2e2;
+    border-left:5px solid #dc2626;
+}
+
+.alert-name{
+    font-weight:bold;
+    margin-bottom:5px;
+}
+
+.alert-date{
+    font-size:14px;
+    color:#475569;
+}
+
+/* RIGHT SECTION */
+
+.right-section{
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+}
+
+/* TOP CARDS */
+
+.summary-box{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:20px;
+}
+
+.summary-card{
+    position:relative;
+    overflow:hidden;
+    background:white;
+    border-radius:20px;
+    padding:25px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
+    transition:0.3s;
+}
+
+.summary-card:hover{
+    transform:translateY(-6px);
+}
+
+.summary-card::before{
+    content:"";
+    position:absolute;
+    width:120px;
+    height:120px;
+    background:rgba(59,130,246,0.08);
+    border-radius:50%;
+    top:-30px;
+    right:-30px;
+}
+
+.card-icon{
+    font-size:35px;
+    margin-bottom:12px;
+}
+
+.summary-card h2{
+    font-size:34px;
+    margin-bottom:8px;
+    color:#0f172a;
+}
+
+.summary-card p{
+    color:#64748b;
+    font-weight:bold;
+}
+
+/* STOCK SECTION */
+
+.stock-box{
+    background:white;
+    border-radius:20px;
+    padding:22px;
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
+}
+
+.stock-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
     flex-wrap:wrap;
     gap:10px;
 }
 
-.menu button{
-    background:transparent;
-    border:none;
-    color:white;
-    padding:8px 10px;
-    border-radius:6px;
-    cursor:pointer;
+.stock-header h3{
+    font-size:22px;
 }
 
-.menu button:hover{
-    background:#38bdf8;
-    color:black;
-}
-
-.active{
-    background:#38bdf8 !important;
-    color:black !important;
-}
-
-/* MAIN */
-.container{
-    display:flex;
-    gap:20px;
-    padding:20px;
-    flex:1;
-}
-
-/* ALERT */
-.alert-box{
-    width:30%;
-    background:white;
-    padding:15px;
-    border-radius:12px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.1);
-    max-height:80vh;
-    overflow:auto;
-}
-
-.alert-item{
-    padding:10px;
-    margin-bottom:10px;
-    border-radius:8px;
-    background:#fee2e2;
-}
-
-.overdue{
-    background:#dc2626;
-    color:white;
-}
-
-/* RIGHT */
-.graph-box{
-    width:70%;
-    background:white;
-    padding:15px;
-    border-radius:12px;
-    box-shadow:0 5px 15px rgba(0,0,0,0.1);
-}
-
-/* SUMMARY */
-.summary-box{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:15px;
-}
-
-.summary-card{
-    background:#f1f5f9;
-    padding:15px;
-    border-radius:10px;
-    text-align:center;
+.live-badge{
+    background:#dcfce7;
+    color:#15803d;
+    padding:7px 14px;
+    border-radius:30px;
+    font-size:13px;
     font-weight:bold;
 }
 
-/* MATERIAL GRID */
+/* GRID */
+
 .material-grid{
     display:grid;
-    grid-template-columns:repeat(4,1fr);
-    gap:15px;
-    margin-top:15px;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:18px;
 }
 
 .material-box{
-    background:#f1f5f9;
-    padding:15px;
-    border-radius:10px;
+    background:linear-gradient(135deg,#eff6ff,#f8fafc);
+    border:1px solid #dbeafe;
+    padding:20px;
+    border-radius:16px;
     text-align:center;
+    transition:0.3s;
+}
+
+.material-box:hover{
+    transform:translateY(-5px);
+    box-shadow:0 8px 20px rgba(59,130,246,0.15);
+}
+
+.material-name{
+    font-size:16px;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+.material-qty{
+    font-size:34px;
+    color:#2563eb;
     font-weight:bold;
 }
 
+.low-stock{
+    background:#fef2f2;
+    border:1px solid #fecaca;
+}
+
+.low-stock .material-qty{
+    color:#dc2626;
+}
+
 /* FOOTER */
+
 .footer{
-    background:#1f2937;
+    background:#0f172a;
     color:#cbd5e1;
     text-align:center;
-    padding:10px;
+    padding:14px;
+    font-size:14px;
 }
 
 /* RESPONSIVE */
-@media (max-width:900px){
+
+@media(max-width:1000px){
 
     .container{
-        flex-direction:column;
-    }
-
-    .alert-box,
-    .graph-box{
-        width:100%;
-    }
-
-    .summary-box{
         grid-template-columns:1fr;
-    }
-
-    .material-grid{
-        grid-template-columns:repeat(2,1fr);
     }
 }
 
-@media (max-width:500px){
+@media(max-width:700px){
 
     .header{
         flex-direction:column;
@@ -167,6 +302,22 @@ body{
 
     .menu{
         width:100%;
+    }
+
+    .menu a{
+        flex:1;
+    }
+
+    .menu button{
+        width:100%;
+    }
+
+    .container{
+        padding:15px;
+    }
+
+    .summary-card h2{
+        font-size:28px;
     }
 
     .material-grid{
@@ -179,172 +330,348 @@ body{
 
 <body>
 
+<!-- HEADER -->
+
 <div class="header">
-    <div class="logo">Uniform Dashboard</div>
+
+    <div class="logo">
+        Prime Uniform Dashboard
+    </div>
 
     <div class="menu">
-        <a href="#"><button class="active">Home</button></a>
-        <a href="entry.html"><button>Entry</button></a>
-        <a href="stock.html"><button>Stock</button></a>
-        <a href="vendor.html"><button>Vendor</button></a>
-        <a href="setting.html"><button>Setting</button></a>
-        <a href="dashboard.html"><button>Exit</button></a>
+
+        <a href="#">
+            <button class="active">🏠 Home</button>
+        </a>
+
+        <a href="entry.html">
+            <button>📝 Entry</button>
+        </a>
+
+        <a href="stock.html">
+            <button>📦 Stock</button>
+        </a>
+
+        <a href="vendor.html">
+            <button>🚚 Vendor</button>
+        </a>
+
+        <a href="setting.html">
+            <button>⚙ Setting</button>
+        </a>
+
+        <a href="dashboard.html">
+            <button>🚪 Exit</button>
+        </a>
+
     </div>
+
 </div>
+
+<!-- MAIN -->
 
 <div class="container">
 
-<!-- ALERT -->
-<div class="alert-box">
-<h3>⚠ Due Alerts</h3>
-<div id="alerts"></div>
+    <!-- ALERT BOX -->
+
+    <div class="alert-box">
+
+        <div class="alert-title">
+
+            <h3>⚠ Due Alerts</h3>
+
+            <div class="alert-count" id="alertCount">
+                0 Alert
+            </div>
+
+        </div>
+
+        <div id="alerts"></div>
+
+    </div>
+
+    <!-- RIGHT -->
+
+    <div class="right-section">
+
+        <!-- SUMMARY -->
+
+        <div class="summary-box">
+
+            <div class="summary-card">
+
+                <div class="card-icon">👔</div>
+
+                <h2 id="totalUniform">0</h2>
+
+                <p>Total Uniform Given</p>
+
+            </div>
+
+            <div class="summary-card">
+
+                <div class="card-icon">📦</div>
+
+                <h2 id="totalStock">0</h2>
+
+                <p>Available Stock</p>
+
+            </div>
+
+            <div class="summary-card">
+
+                <div class="card-icon">💰</div>
+
+                <h2>₹ <span id="grandTotal">0</span></h2>
+
+                <p>Total Investment</p>
+
+            </div>
+
+        </div>
+
+        <!-- STOCK -->
+
+        <div class="stock-box">
+
+            <div class="stock-header">
+
+                <h3>📊 Material Stock Overview</h3>
+
+                <div class="live-badge">
+                    ● Live Data
+                </div>
+
+            </div>
+
+            <div class="material-grid" id="materialGrid"></div>
+
+        </div>
+
+    </div>
+
 </div>
 
-<!-- RIGHT -->
-<div class="graph-box">
-
-<h3>📊 Summary</h3>
-
-<div class="summary-box">
-
-<div class="summary-card">
-<h2 id="totalUniform">0</h2>
-<p>Total Uniform Given</p>
-</div>
-
-<div class="summary-card">
-<h2 id="totalStock">0</h2>
-<p>Available Stock</p>
-</div>
-
-<div class="summary-card">
-<h2>₹ <span id="grandTotal">0</span></h2>
-<p>Total Investment</p>
-</div>
-
-</div>
-
-<h3 style="margin-top:20px;">📦 Material Stock</h3>
-
-<div class="material-grid" id="materialGrid"></div>
-
-</div>
-
-</div>
+<!-- FOOTER -->
 
 <div class="footer">
-© 2026 Uniform System | Made by Prime
+    © 2026 PrimeWebTech | Professional Uniform Management System
 </div>
 
 <script>
 
-const API_URL = "https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDcqb70esqPB52-RVwzT5AbBunwQxct1AbiSjmvz0nllFkM/exec";
+const API_URL =
+"https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDcqb70esqPB52-RVwzT5AbBunwQxct1AbiSjmvz0nllFkM/exec";
 
 let today = new Date();
 
-/* FORMAT */
+/* FORMAT DATE */
+
 function formatDate(d){
+
     if(!d) return "";
+
     let x = new Date(d);
+
     return x.toISOString().split("T")[0];
 }
 
-/* LOAD DASHBOARD */
+/* LOAD */
+
 async function loadDashboard(){
 
-    let entry = await fetch(API_URL + "?sheet=Employee_Entry").then(r=>r.json());
-    let stock = await fetch(API_URL + "?sheet=Stock_Entry").then(r=>r.json());
-    let mat = await fetch(API_URL + "?sheet=Material_Master").then(r=>r.json());
+    let entry =
+    await fetch(API_URL + "?sheet=Employee_Entry")
+    .then(r=>r.json());
+
+    let stock =
+    await fetch(API_URL + "?sheet=Stock_Entry")
+    .then(r=>r.json());
+
+    let mat =
+    await fetch(API_URL + "?sheet=Material_Master")
+    .then(r=>r.json());
 
     loadAlerts(entry);
-    loadSummary(entry, stock, mat);
+
+    loadSummary(entry,stock,mat);
 }
 
 /* ALERTS */
+
 function loadAlerts(entry){
 
     alerts.innerHTML = "";
 
-    let found = false;
+    let count = 0;
 
     entry.slice(1).forEach(d=>{
 
         let name = d[3];
+
         let due = d[8];
 
         if(!due) return;
 
-        let diff = (new Date(due) - today)/(1000*60*60*24);
+        let diff =
+        (new Date(due)-today)
+        /(1000*60*60*24);
 
         if(diff < 0){
-            found = true;
+
+            count++;
+
             alerts.innerHTML += `
+
             <div class="alert-item overdue">
-            ❌ ${name}<br>${formatDate(due)}
-            </div>`;
+
+                <div class="alert-name">
+                    ❌ ${name}
+                </div>
+
+                <div class="alert-date">
+                    Due: ${formatDate(due)}
+                </div>
+
+            </div>
+            `;
         }
+
         else if(diff <= 30){
-            found = true;
+
+            count++;
+
             alerts.innerHTML += `
+
             <div class="alert-item">
-            ⚠ ${name}<br>${formatDate(due)}
-            </div>`;
+
+                <div class="alert-name">
+                    ⚠ ${name}
+                </div>
+
+                <div class="alert-date">
+                    Due: ${formatDate(due)}
+                </div>
+
+            </div>
+            `;
         }
+
     });
 
-    if(!found){
-        alerts.innerHTML = `<div class="alert-item">No Alerts 🎉</div>`;
+    document.getElementById("alertCount").innerText =
+    count + " Alert";
+
+    if(count == 0){
+
+        alerts.innerHTML = `
+
+        <div class="alert-item">
+
+            <div class="alert-name">
+                🎉 No Due Alerts
+            </div>
+
+            <div class="alert-date">
+                Everything is updated
+            </div>
+
+        </div>
+        `;
     }
 }
 
 /* SUMMARY */
-function loadSummary(entry, stock, mat){
 
-    document.getElementById("totalUniform").innerText = entry.length - 1;
+function loadSummary(entry,stock,mat){
 
-    let m = {};
+    document.getElementById("totalUniform")
+    .innerText = entry.length - 1;
+
+    let material = {};
 
     mat.slice(1).forEach(x=>{
-        m[x[0]] = 0;
+
+        material[x[0]] = 0;
     });
+
+    /* ADD STOCK */
 
     stock.slice(1).forEach(x=>{
+
         let matName = x[0];
-        let qty = Number(x[2]||0);
-        if(m[matName] != undefined) m[matName] += qty;
+
+        let qty = Number(x[2] || 0);
+
+        if(material[matName] != undefined){
+
+            material[matName] += qty;
+        }
     });
 
+    /* MINUS ENTRY */
+
     entry.slice(1).forEach(x=>{
+
         let matName = x[7];
-        let qty = Number(x[6]||0);
-        if(m[matName] != undefined) m[matName] -= qty;
+
+        let qty = Number(x[6] || 0);
+
+        if(material[matName] != undefined){
+
+            material[matName] -= qty;
+        }
     });
 
     materialGrid.innerHTML = "";
 
     let totalStock = 0;
 
-    for(let k in m){
+    for(let m in material){
 
-        totalStock += m[k];
+        totalStock += material[m];
+
+        let lowClass =
+        material[m] <= 5
+        ? "low-stock"
+        : "";
 
         materialGrid.innerHTML += `
-        <div class="material-box">
-            ${k}
-            <h2>${m[k]}</h2>
-        </div>`;
+
+        <div class="material-box ${lowClass}">
+
+            <div class="material-name">
+                ${m}
+            </div>
+
+            <div class="material-qty">
+                ${material[m]}
+            </div>
+
+        </div>
+        `;
     }
 
-    document.getElementById("totalStock").innerText = totalStock;
+    document.getElementById("totalStock")
+    .innerText = totalStock;
+
+    /* TOTAL INVESTMENT */
 
     let total = 0;
 
     stock.slice(1).forEach(x=>{
-        total += Number(x[1]||0) * Number(x[2]||0);
+
+        total +=
+        Number(x[1] || 0)
+        *
+        Number(x[2] || 0);
     });
 
-    document.getElementById("grandTotal").innerText = total;
+    document.getElementById("grandTotal")
+    .innerText = total.toLocaleString();
 }
+
+/* INIT */
 
 loadDashboard();
 
