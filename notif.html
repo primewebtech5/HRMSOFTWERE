@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Notification Center</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial;
+    background:#f1f5f9;
+    min-height:100vh;
+}
+
+/* HEADER */
+
+.header{
+    background:#1e293b;
+    color:white;
+    padding:15px 25px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+.logo{
+    font-size:22px;
+    font-weight:bold;
+}
+
+.header button{
+    background:#38bdf8;
+    border:none;
+    padding:10px 15px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+/* CONTAINER */
+
+.container{
+    padding:20px;
+}
+
+/* FORM */
+
+.form-box{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+
+    margin-bottom:25px;
+}
+
+.form-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+input,
+textarea{
+    width:100%;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+
+textarea{
+    resize:none;
+    height:120px;
+}
+
+/* BUTTON */
+
+.send-btn{
+    margin-top:15px;
+    background:#1e293b;
+    color:white;
+    border:none;
+    padding:12px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.send-btn:hover{
+    background:#38bdf8;
+    color:black;
+}
+
+/* NOTIFICATION LIST */
+
+.notification-box{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+.notification-item{
+    background:#eff6ff;
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:15px;
+    border-left:5px solid #2563eb;
+
+    animation:fadeIn 0.4s ease;
+}
+
+.notification-item h3{
+    margin-bottom:5px;
+    color:#1e293b;
+}
+
+.notification-item p{
+    color:#475569;
+    margin-bottom:5px;
+}
+
+.time{
+    font-size:12px;
+    color:#64748b;
+}
+
+/* POPUP */
+
+.popup{
+    position:fixed;
+    top:20px;
+    right:20px;
+    background:#1e293b;
+    color:white;
+    padding:15px 20px;
+    border-radius:12px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.2);
+
+    display:none;
+
+    animation:slide 0.4s ease;
+}
+
+/* ANIMATION */
+
+@keyframes slide{
+    from{
+        transform:translateX(100%);
+        opacity:0;
+    }
+
+    to{
+        transform:translateX(0);
+        opacity:1;
+    }
+}
+
+@keyframes fadeIn{
+    from{
+        opacity:0;
+        transform:translateY(10px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* MOBILE */
+
+@media(max-width:768px){
+
+    .form-grid{
+        grid-template-columns:1fr;
+    }
+
+    .header{
+        flex-direction:column;
+        align-items:flex-start;
+    }
+
+    .send-btn{
+        width:100%;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<div class="header">
+
+    <div class="logo">
+        Prime Notification Center
+    </div>
+
+    <a href="dashboard.html">
+        <button>⬅ Back</button>
+    </a>
+
+</div>
+
+<!-- CONTAINER -->
+
+<div class="container">
+
+    <!-- FORM -->
+
+    <div class="form-box">
+
+        <h2>Send Notification 🔔</h2>
+
+        <br>
+
+        <div class="form-grid">
+
+            <input
+            type="text"
+            id="title"
+            placeholder="Notification Title">
+
+            <input
+            type="time"
+            id="ntime">
+
+        </div>
+
+        <br>
+
+        <textarea
+        id="message"
+        placeholder="Enter Notification Message"></textarea>
+
+        <button
+        class="send-btn"
+        onclick="sendNotification()">
+
+        Send Notification
+
+        </button>
+
+    </div>
+
+    <!-- LIST -->
+
+    <div class="notification-box">
+
+        <h2>Recent Notifications 📢</h2>
+
+        <br>
+
+        <div id="notificationList"></div>
+
+    </div>
+
+</div>
+
+<!-- POPUP -->
+
+<div class="popup" id="popup"></div>
+
+<script>
+
+/* REQUEST PERMISSION */
+
+if(Notification.permission !== "granted"){
+    Notification.requestPermission();
+}
+
+/* SEND */
+
+function sendNotification(){
+
+    let title =
+    document.getElementById("title").value;
+
+    let message =
+    document.getElementById("message").value;
+
+    let time =
+    document.getElementById("ntime").value;
+
+    if(title=="" || message=="" || time==""){
+        alert("Fill all fields");
+        return;
+    }
+
+    let now = new Date();
+
+    let target = new Date();
+
+    let t = time.split(":");
+
+    target.setHours(t[0]);
+    target.setMinutes(t[1]);
+    target.setSeconds(0);
+
+    let diff = target - now;
+
+    if(diff < 0){
+        alert("Select Future Time");
+        return;
+    }
+
+    /* SAVE */
+
+    let data = JSON.parse(
+    localStorage.getItem("notifications")
+    ) || [];
+
+    let obj = {
+        title,
+        message,
+        time
+    };
+
+    data.unshift(obj);
+
+    localStorage.setItem(
+    "notifications",
+    JSON.stringify(data)
+    );
+
+    loadNotifications();
+
+    /* TIMER */
+
+    setTimeout(()=>{
+
+        /* BROWSER NOTIFICATION */
+
+        new Notification(title,{
+            body:message
+        });
+
+        /* POPUP */
+
+        let popup =
+        document.getElementById("popup");
+
+        popup.innerHTML = `
+        <b>${title}</b><br>
+        ${message}
+        `;
+
+        popup.style.display="block";
+
+        setTimeout(()=>{
+            popup.style.display="none";
+        },5000);
+
+    },diff);
+
+    alert("Notification Scheduled ✅");
+
+    document.getElementById("title").value="";
+    document.getElementById("message").value="";
+    document.getElementById("ntime").value="";
+}
+
+/* LOAD */
+
+function loadNotifications(){
+
+    let data = JSON.parse(
+    localStorage.getItem("notifications")
+    ) || [];
+
+    let box =
+    document.getElementById("notificationList");
+
+    box.innerHTML="";
+
+    if(data.length==0){
+
+        box.innerHTML=`
+        <p>No Notification Found</p>
+        `;
+
+        return;
+    }
+
+    data.forEach(n=>{
+
+        box.innerHTML += `
+
+        <div class="notification-item">
+
+            <h3>${n.title}</h3>
+
+            <p>${n.message}</p>
+
+            <div class="time">
+            ⏰ ${n.time}
+            </div>
+
+        </div>
+        `;
+    });
+}
+
+loadNotifications();
+
+</script>
+
+</body>
+</html>
