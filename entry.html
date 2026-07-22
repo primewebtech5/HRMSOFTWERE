@@ -446,7 +446,10 @@ tr:hover{
 
                 <label>Employee Name</label>
 
-                <input type="text" id="empName">
+                <input
+                type="text"
+                id="empName"
+                onkeyup="loadHistory()">
 
             </div>
 
@@ -537,6 +540,14 @@ tr:hover{
 
     </div>
 
+<div class="table-card" id="historyCard" style="display:none;margin-bottom:20px;">
+
+    <h3>📋 Previous Uniform History</h3>
+
+    <div id="historyBody" style="margin-top:15px;"></div>
+
+</div>
+    
     <!-- TABLE -->
 
     <div class="table-card">
