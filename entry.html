@@ -660,10 +660,13 @@ function autoDueDate(){
 
 async function render(){
 
-    let res =
-    await fetch(API_URL + "?sheet=Employee_Entry");
+    const res = await fetch(API_URL + "?sheet=Employee_Entry",{
+    cache:"no-store"
+});
 
-    let sheetData = await res.json();
+
+
+const sheetData = await res.json();
 
     tbody.innerHTML = "";
 
@@ -728,25 +731,76 @@ async function render(){
 
                 </button>
 
-                <button
-                class="action-btn edit-btn">
+               <button
+class="action-btn edit-btn"
+onclick="editData(${i})">
 
-                Edit
+Edit
 
-                </button>
+</button>
 
-                <button
-                class="action-btn delete-btn">
+<button
+class="action-btn delete-btn"
+onclick="deleteData(${i})">
 
-                Delete
+Delete
 
-                </button>
+</button>
 
             </td>
 
         </tr>
         `;
     });
+}
+
+let editRow = null;
+
+function editData(i){
+
+    let d = data[i];
+
+    editRow = d.rowNumber;
+
+    company.value = d.company;
+    branch.value = d.branch;
+    department.value = d.department;
+    empName.value = d.empName;
+    joining.value = d.joining;
+    given.value = d.given;
+    pair.value = d.pair;
+    material.value = d.material;
+    due.value = d.due;
+    remarks.value = d.remarks;
+
+    document.querySelector(".primary-btn").innerHTML="✅ Update Entry";
+
+}
+
+async function deleteData(i){
+
+    if(!confirm("Delete this Record?")) return;
+
+    await fetch(API_URL,{
+
+        method:"POST",
+
+        body:JSON.stringify({
+
+            sheet:"Employee_Entry",
+
+            action:"delete",
+
+            row:data[i].rowNumber
+
+        })
+
+    });
+
+    alert("Deleted Successfully");
+
+    render();
+
 }
 
 /* SHOW DETAILS */
@@ -808,7 +862,7 @@ function closeModal(){
 
 async function addData(){
 
-    let obj = {
+    let obj={
 
         sheet:"Employee_Entry",
 
@@ -831,20 +885,36 @@ async function addData(){
         due:due.value,
 
         remarks:remarks.value
+
     };
+
+    if(editRow){
+
+        obj.action="update";
+
+        obj.row=editRow;
+
+    }
 
     await fetch(API_URL,{
 
         method:"POST",
 
         body:JSON.stringify(obj)
+
     });
 
-    alert("Entry Saved Successfully");
+    alert(editRow ? "Updated Successfully" : "Saved Successfully");
+
+    editRow=null;
+
+    document.querySelector(".primary-btn").innerHTML="💾 Save Entry";
+
+    document.querySelectorAll("input").forEach(i=>i.value="");
 
     render();
-}
 
+}
 /* SEARCH */
 
 function searchData(){
@@ -902,13 +972,11 @@ function exportExcel(){
 
 /* INIT */
 
-loadMaster("Branch_Master","branch");
-
-loadMaster("Department_Master","department");
-
-loadMaster("Material_Master","material");
-
-render();
+Promise.all([
+    loadMaster("Branch_Master","branch"),
+    loadMaster("Department_Master","department"),
+    loadMaster("Material_Master","material")
+]).then(render);
 
 </script>
 
