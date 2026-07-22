@@ -480,17 +480,11 @@ function formatDate(d){
 
 async function loadDashboard(){
 
-    let entry =
-    await fetch(API_URL + "?sheet=Employee_Entry")
-    .then(r=>r.json());
-
-    let stock =
-    await fetch(API_URL + "?sheet=Stock_Entry")
-    .then(r=>r.json());
-
-    let mat =
-    await fetch(API_URL + "?sheet=Material_Master")
-    .then(r=>r.json());
+    const [entry, stock, mat] = await Promise.all([
+    fetch(API_URL + "?sheet=Employee_Entry").then(r => r.json()),
+    fetch(API_URL + "?sheet=Stock_Entry").then(r => r.json()),
+    fetch(API_URL + "?sheet=Material_Master").then(r => r.json())
+]);
 
     loadAlerts(entry);
 
