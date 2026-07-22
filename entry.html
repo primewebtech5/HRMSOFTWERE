@@ -717,9 +717,9 @@ const sheetData = await res.json();
 
             <td>${obj.pair}</td>
 
-            <td>${obj.given}</td>
+           <td>${formatDate(obj.given)}</td>
 
-            <td>${obj.due}</td>
+           <td>${formatDate(obj.due)}</td>
 
             <td>
 
@@ -800,6 +800,20 @@ async function deleteData(i){
     alert("Deleted Successfully");
 
     render();
+
+}
+
+function formatDate(date){
+
+    if(!date) return "";
+
+    let d = new Date(date);
+
+    let day = String(d.getDate()).padStart(2,"0");
+    let month = String(d.getMonth()+1).padStart(2,"0");
+    let year = d.getFullYear();
+
+    return `${day}/${month}/${year}`;
 
 }
 
