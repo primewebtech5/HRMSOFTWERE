@@ -501,6 +501,16 @@ tr:hover{
 
             </div>
 
+            <div class="form-group">
+
+                <label>Next Uniform Date</label>
+
+                <input type="date" id="nextDate">
+
+            </div>
+
+
+
         </div>
 
         <!-- BUTTON -->
@@ -570,6 +580,8 @@ tr:hover{
                         <th>Given Date</th>
 
                         <th>Due Date</th>
+
+                        <th>Next Uniform</th>
 
                         <th>Action</th>
 
@@ -699,9 +711,12 @@ const sheetData = await res.json();
             due:row[8],
 
             remarks:row[9],
+            
+            nextDate:row[10],
 
-            rowNumber:i+2
-        };
+        rowNumber:i+2
+        
+    };
 
         data.push(obj);
 
@@ -724,6 +739,8 @@ const sheetData = await res.json();
            <td>${formatDate(obj.given)}</td>
 
            <td>${formatDate(obj.due)}</td>
+
+           <td>${formatDate(obj.nextDate)}</td>
 
             <td>
 
@@ -787,6 +804,10 @@ function editData(i){
     due.value = d.due ? d.due.split("T")[0] : "";
 
     remarks.value = d.remarks;
+
+    nextDate.value = d.nextDate
+    ? d.nextDate.split("T")[0]
+    : "";
 
     document.querySelector(".primary-btn").innerHTML = "✅ Update Entry";
 
@@ -869,6 +890,8 @@ async function showDetails(i){
 
                 <p><b>📝 Remarks :</b> ${r[9]}</p>
 
+                <p><b>📆 Next Uniform :</b> ${formatDate(r[10])}</p>
+
             </div>
 
             `;
@@ -936,7 +959,9 @@ async function addData(){
 
         due:due.value,
 
-        remarks:remarks.value
+        remarks:remarks.value,
+        
+        nextDate:nextDate.value
 
     };
 
@@ -998,7 +1023,7 @@ function searchData(){
 function exportExcel(){
 
     let csv =
-    "SR,Employee,Company,Department,Material,Pair,Given,Due\n";
+"SR,Employee,Company,Department,Material,Pair,Given,Due,Next Uniform\n";
 
     data.forEach((d,i)=>{
 
@@ -1010,7 +1035,8 @@ function exportExcel(){
         ${d.material},
         ${d.pair},
         ${d.given},
-        ${d.due}\n`;
+        ${d.due},
+        ${d.nextDate}\n`;
     });
 
     let blob = new Blob([csv]);
