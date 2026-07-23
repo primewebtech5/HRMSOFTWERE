@@ -463,19 +463,14 @@ body{
 const API_URL =
 "https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDcqb70esqPB52-RVwzT5AbBunwQxct1AbiSjmvz0nllFkM/exec";
 
-let today = new Date();
-
 /* FORMAT DATE */
 
 function formatDate(d){
 
     if(!d) return "";
 
-    let x = new Date(d);
-
-    return x.toISOString().split("T")[0];
+    return new Date(d).toISOString().split("T")[0];
 }
-
 /* LOAD */
 
 async function loadDashboard(){
@@ -495,84 +490,68 @@ async function loadDashboard(){
 
 function loadAlerts(entry){
 
-    alerts.innerHTML = "";
-
+    let html = "";
     let count = 0;
 
-    entry.slice(1).forEach(d=>{
+    const now = Date.now();
 
-        let name = d[3];
+    entry.slice(1).forEach(d => {
 
-        let due = d[8];
+        const name = d[3];
+        const due = d[8];
 
         if(!due) return;
 
-        let diff =
-        (new Date(due)-today)
-        /(1000*60*60*24);
+        const diff =
+        (new Date(due).getTime() - now) / 86400000;
 
         if(diff < 0){
 
             count++;
 
-            alerts.innerHTML += `
-
+            html += `
             <div class="alert-item overdue">
-
                 <div class="alert-name">
                     ❌ ${name}
                 </div>
-
                 <div class="alert-date">
                     Due: ${formatDate(due)}
                 </div>
-
-            </div>
-            `;
+            </div>`;
         }
 
         else if(diff <= 30){
 
             count++;
 
-            alerts.innerHTML += `
-
+            html += `
             <div class="alert-item">
-
                 <div class="alert-name">
                     ⚠ ${name}
                 </div>
-
                 <div class="alert-date">
                     Due: ${formatDate(due)}
                 </div>
-
-            </div>
-            `;
+            </div>`;
         }
 
     });
 
-    document.getElementById("alertCount").innerText =
-    count + " Alert";
+    if(count === 0){
 
-    if(count == 0){
-
-        alerts.innerHTML = `
-
+        html = `
         <div class="alert-item">
-
             <div class="alert-name">
                 🎉 No Due Alerts
             </div>
-
             <div class="alert-date">
                 Everything is updated
             </div>
-
-        </div>
-        `;
+        </div>`;
     }
+
+    alerts.innerHTML = html;
+    alertCount.innerText = count + " Alert";
 }
 
 /* SUMMARY */
@@ -618,6 +597,7 @@ function loadSummary(entry,stock,mat){
     });
 
     materialGrid.innerHTML = "";
+    let grid = "";
 
     let totalStock = 0;
 
@@ -630,7 +610,7 @@ function loadSummary(entry,stock,mat){
         ? "low-stock"
         : "";
 
-        materialGrid.innerHTML += `
+        grid += `
 
         <div class="material-box ${lowClass}">
 
@@ -645,6 +625,8 @@ function loadSummary(entry,stock,mat){
         </div>
         `;
     }
+
+    materialGrid.innerHTML = grid;
 
     document.getElementById("totalStock")
     .innerText = totalStock;
