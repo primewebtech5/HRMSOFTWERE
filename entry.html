@@ -448,8 +448,7 @@ tr:hover{
 
                 <input
                 type="text"
-                id="empName"
-                onkeyup="loadHistory()">
+                id="empName">
 
             </div>
 
@@ -540,13 +539,7 @@ tr:hover{
 
     </div>
 
-<div class="table-card" id="historyCard" style="display:none;margin-bottom:20px;">
 
-    <h3>📋 Previous Uniform History</h3>
-
-    <div id="historyBody" style="margin-top:15px;"></div>
-
-</div>
     
     <!-- TABLE -->
 
@@ -828,76 +821,6 @@ function formatDate(date){
 
 }
 
-async function loadHistory(){
-
-    let name = empName.value.trim();
-
-    if(name==""){
-
-        historyCard.style.display="none";
-
-        return;
-
-    }
-
-    let res = await fetch(API_URL + "?sheet=Employee_Entry");
-
-    let rows = await res.json();
-
-    let html = "";
-
-    let count = 0;
-
-    rows.slice(1).forEach(r=>{
-
-        if(r[3].toLowerCase() == name.toLowerCase()){
-
-            count++;
-
-            html += `
-            <div class="detail-row">
-
-                <b>${count}.</b>
-
-                ${formatDate(r[5])}
-
-                |
-
-                ${r[7]}
-
-                |
-
-                ${r[6]} Pair
-
-            </div>
-            `;
-        }
-
-    });
-
-    if(count==0){
-
-        historyBody.innerHTML=
-        "<div class='detail-row'>No Previous Uniform History</div>";
-
-    }else{
-
-        historyBody.innerHTML=
-        html+
-
-        `<div class="detail-row"
-        style="background:#dbeafe;font-weight:bold;">
-
-        Total Uniform Issued :
-        ${count} Times
-
-        </div>`;
-
-    }
-
-    historyCard.style.display="block";
-
-}
 
 /* SHOW DETAILS */
 
@@ -930,14 +853,13 @@ function showDetails(i){
     <div class="detail-row">
         <b>Pair:</b> ${d.pair}
     </div>
+<div class="detail-row">
+    <b>📅 Given Date:</b> ${formatDate(d.given)}
+</div>
 
-    <div class="detail-row">
-        <b>Given Date:</b> ${d.given}
-    </div>
-
-    <div class="detail-row">
-        <b>Due Date:</b> ${d.due}
-    </div>
+<div class="detail-row">
+    <b>⏰ Due Date:</b> ${formatDate(d.due)}
+</div>
 
     <div class="detail-row">
         <b>Remarks:</b> ${d.remarks}
