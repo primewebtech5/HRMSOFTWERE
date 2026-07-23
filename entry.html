@@ -349,6 +349,57 @@ tr:hover{
 
 }
 
+/* ================= LOADER ================= */
+
+#loader{
+
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(255,255,255,0.9);
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+
+    z-index:99999;
+}
+
+.spinner{
+
+    width:70px;
+    height:70px;
+
+    border:8px solid #dbeafe;
+    border-top:8px solid #2563eb;
+
+    border-radius:50%;
+
+    animation:spin 1s linear infinite;
+}
+
+.loader-text{
+
+    margin-top:20px;
+    font-size:18px;
+    font-weight:bold;
+    color:#2563eb;
+}
+
+@keyframes spin{
+
+    100%{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+
 </style>
 </head>
 
@@ -630,10 +681,23 @@ tr:hover{
 
 <script>
 
+function showLoader(){
+
+    loader.style.display = "flex";
+
+}
+
+function hideLoader(){
+
+    loader.style.display = "none";
+
+}    
+
 const API_URL =
 "https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDcqb70esqPB52-RVwzT5AbBunwQxct1AbiSjmvz0nllFkM/exec";
 
 let data = [];
+let allRows = [];
 
 /* LOAD MASTER */
 
@@ -661,15 +725,17 @@ async function loadMaster(sheet,elementId){
 
 function autoDueDate(){
 
-    if(given.value){
+    if(!given.value) return;
 
-        let d = new Date(given.value);
+    let d = new Date(given.value + "T00:00:00");
 
-        d.setFullYear(d.getFullYear()+1);
+    d.setFullYear(d.getFullYear()+1);
 
-        due.value =
-        d.toISOString().split("T")[0];
-    }
+    let y = d.getFullYear();
+    let m = String(d.getMonth()+1).padStart(2,"0");
+    let day = String(d.getDate()).padStart(2,"0");
+
+    due.value = `${y}-${m}-${day}`;
 }
 
 /* RENDER */
@@ -683,6 +749,7 @@ async function render(){
 
 
 const sheetData = await res.json();
+allRows = sheetData;
 
     tbody.innerHTML = "";
 
@@ -795,19 +862,17 @@ function editData(i){
 
     empName.value = d.empName;
 
-    joining.value = d.joining ? d.joining.split("T")[0] : "";
+joining.value = toInputDate(d.joining);
 
-    given.value = d.given ? d.given.split("T")[0] : "";
+given.value = toInputDate(d.given);
 
-    pair.value = d.pair;
+pair.value = d.pair;
 
-    due.value = d.due ? d.due.split("T")[0] : "";
+due.value = toInputDate(d.due);
 
-    remarks.value = d.remarks;
+remarks.value = d.remarks;
 
-    nextDate.value = d.nextDate
-    ? d.nextDate.split("T")[0]
-    : "";
+nextDate.value = toInputDate(d.nextDate);
 
     document.querySelector(".primary-btn").innerHTML = "✅ Update Entry";
 
@@ -816,6 +881,7 @@ function editData(i){
 async function deleteData(i){
 
     if(!confirm("Delete this Record?")) return;
+    showLoader();
 
     await fetch(API_URL,{
 
@@ -832,41 +898,67 @@ async function deleteData(i){
         })
 
     });
+await render();
 
-    alert("Deleted Successfully");
+hideLoader();
 
-    render();
+alert("Deleted Successfully");
 
 }
+
+/* ============================================================
+   FIXED DATE FUNCTIONS (v3 — final)
+   ------------------------------------------------------------
+   The real bug was on the BACKEND (Apps Script): plain date
+   strings sent via setValue() were being auto-converted by
+   Google Sheets into Date serials, then re-serialized to UTC
+   ISO strings on the way out — shifting the day depending on
+   timezone.
+
+   That backend has now been fixed to ALWAYS store and return
+   dates as clean plain-text "yyyy-MM-dd" strings — never as
+   real Date objects. So the frontend no longer needs to touch
+   Date objects, getUTC*, timezones, or offsets at all. Plain
+   string splitting is now 100% correct and safe.
+   ============================================================ */
 
 function formatDate(date){
 
     if(!date) return "";
 
-    let d = new Date(date);
+    let p = String(date).split("-");
 
-    let day = String(d.getDate()).padStart(2,"0");
-    let month = String(d.getMonth()+1).padStart(2,"0");
-    let year = d.getFullYear();
+    if(p.length === 3){
+        let [y,m,d] = p;
+        return `${d}/${m}/${y}`;
+    }
 
-    return `${day}/${month}/${year}`;
-
+    return String(date);
 }
 
+function toInputDate(date){
 
-/* SHOW DETAILS */
-async function showDetails(i){
+    if(!date) return "";
+
+    let p = String(date).split("-");
+
+    if(p.length === 3){
+        let [y,m,d] = p;
+        return `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
+    }
+
+    return "";
+}
+
+function showDetails(i){
 
     let employee = data[i].empName;
-
-    let res = await fetch(API_URL + "?sheet=Employee_Entry");
-    let rows = await res.json();
 
     let history = "";
 
     let count = 0;
 
-    rows.slice(1).forEach(r=>{
+    allRows.slice(1).forEach(r=>{
 
         if(r[3].toLowerCase() == employee.toLowerCase()){
 
@@ -879,7 +971,9 @@ async function showDetails(i){
                 <h3 style="color:#2563eb;margin-bottom:10px;">
                     Uniform Issue ${count}
                 </h3>
-
+                
+                <p><b>📅 Joining Date :</b> ${formatDate(r[4])}</p>
+                
                 <p><b>📅 Given Date :</b> ${formatDate(r[5])}</p>
 
                 <p><b>⏰ Due Date :</b> ${formatDate(r[8])}</p>
@@ -895,6 +989,7 @@ async function showDetails(i){
             </div>
 
             `;
+
         }
 
     });
@@ -936,6 +1031,7 @@ function closeModal(){
 /* SAVE */
 
 async function addData(){
+    showLoader();
 
     let obj={
 
@@ -980,7 +1076,7 @@ async function addData(){
         body:JSON.stringify(obj)
 
     });
-
+hideLoader();
  alert(editRow ? "Updated Successfully" : "Saved Successfully");
 
 editRow = null;
@@ -1062,6 +1158,16 @@ Promise.all([
 ]).then(render);
 
 </script>
+<!-- LOADER -->
 
+<div id="loader">
+
+    <div class="spinner"></div>
+
+    <div class="loader-text">
+        Please Wait...
+    </div>
+
+</div>
 </body>
 </html>
