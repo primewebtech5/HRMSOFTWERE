@@ -807,7 +807,11 @@ allRows = sheetData;
 
            <td>${formatDate(obj.due)}</td>
 
-           <td>${formatDate(obj.nextDate)}</td>
+           <td>${
+formatDate(
+String(obj.nextDate).split(",").pop().trim()
+)
+}</td>
 
             <td>
 
