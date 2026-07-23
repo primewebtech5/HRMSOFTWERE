@@ -475,15 +475,19 @@ function formatDate(d){
 
 async function loadDashboard(){
 
-    const [entry, stock, mat] = await Promise.all([
-    fetch(API_URL + "?sheet=Employee_Entry").then(r => r.json()),
-    fetch(API_URL + "?sheet=Stock_Entry").then(r => r.json()),
-    fetch(API_URL + "?sheet=Material_Master").then(r => r.json())
-]);
+   async function loadDashboard(){
 
-    loadAlerts(entry);
+    const data = await fetch(API_URL + "?action=dashboard")
+    .then(r => r.json());
 
-    loadSummary(entry,stock,mat);
+    loadAlerts(data.entry);
+
+    loadSummary(
+        data.entry,
+        data.stock,
+        data.material
+    );
+}
 }
 
 /* ALERTS */
