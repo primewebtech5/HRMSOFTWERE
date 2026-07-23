@@ -955,6 +955,8 @@ function showDetails(i){
     let employee = data[i].empName;
 
     let history = "";
+    let nextDates = [];
+
 
     let count = 0;
 
@@ -963,58 +965,100 @@ function showDetails(i){
         if(r[3].toLowerCase() == employee.toLowerCase()){
 
             count++;
+ if(r[10]){
 
-            history += `
+    String(r[10]).split(",").forEach(date=>{
 
-            <div class="detail-row">
+        date = date.trim();
 
-                <h3 style="color:#2563eb;margin-bottom:10px;">
-                    Uniform Issue ${count}
-                </h3>
-                
-                <p><b>📅 Joining Date :</b> ${formatDate(r[4])}</p>
-                
-                <p><b>📅 Given Date :</b> ${formatDate(r[5])}</p>
-
-                <p><b>⏰ Due Date :</b> ${formatDate(r[8])}</p>
-
-                <p><b>👕 Material :</b> ${r[7]}</p>
-
-                <p><b>📦 Pair :</b> ${r[6]}</p>
-
-                <p><b>📝 Remarks :</b> ${r[9]}</p>
-
-                <p><b>📆 Next Uniform :</b> ${formatDate(r[10])}</p>
-
-            </div>
-
-            `;
-
+        if(date && !nextDates.includes(date)){
+            nextDates.push(date);
         }
 
     });
 
-    detailBox.innerHTML = `
+}
+        history += `
 
-        <h2 style="margin-bottom:15px;">
-            👤 ${employee}
-        </h2>
+<div class="detail-row">
 
-        <div style="
-            background:#dbeafe;
-            padding:12px;
-            border-radius:10px;
-            margin-bottom:20px;
-            font-weight:bold;
-        ">
+<h3 style="color:#2563eb;margin-bottom:10px;">
+Uniform Issue ${count}
+</h3>
 
-        Total Uniform Issued : ${count}
+<p><b>📅 Joining Date :</b> ${formatDate(r[4])}</p>
 
-        </div>
+<p><b>📅 Given Date :</b> ${formatDate(r[5])}</p>
 
-        ${history}
+<p><b>⏰ Due Date :</b> ${formatDate(r[8])}</p>
 
-    `;
+<p><b>👕 Material :</b> ${r[7]}</p>
+
+<p><b>📦 Pair :</b> ${r[6]}</p>
+
+<p><b>📝 Remarks :</b> ${r[9]}</p>
+
+</div>
+
+`;
+        }
+
+    });
+
+let dropdown = `
+<select style="width:100%;padding:10px;border-radius:8px;margin-top:10px;">
+`;
+
+nextDates.forEach(d => {
+
+    String(d).split(",").forEach(date => {
+
+        date = date.trim();
+
+        if(date){
+            dropdown += `<option>${formatDate(date)}</option>`;
+        }
+
+    });
+
+});
+
+dropdown += `</select>`;
+
+detailBox.innerHTML = `
+
+<h2 style="margin-bottom:15px;">
+👤 ${employee}
+</h2>
+
+<div style="
+background:#dbeafe;
+padding:12px;
+border-radius:10px;
+margin-bottom:20px;
+font-weight:bold;
+">
+
+Total Uniform Issued : ${count}
+
+</div>
+
+<div style="
+background:#fff8dc;
+padding:12px;
+border-radius:10px;
+margin-bottom:20px;
+">
+
+<b>📅 Next Uniform History</b>
+
+${dropdown}
+
+</div>
+
+${history}
+
+`;
 
     modal.style.display = "block";
 
