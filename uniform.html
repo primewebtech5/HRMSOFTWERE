@@ -475,10 +475,8 @@ function formatDate(d){
 
 async function loadDashboard(){
 
-   async function loadDashboard(){
-
     const data = await fetch(API_URL + "?action=dashboard")
-    .then(r => r.json());
+        .then(r => r.json());
 
     loadAlerts(data.entry);
 
@@ -487,7 +485,6 @@ async function loadDashboard(){
         data.stock,
         data.material
     );
-}
 }
 
 /* ALERTS */
