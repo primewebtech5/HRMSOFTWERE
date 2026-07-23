@@ -767,17 +767,28 @@ function editData(i){
     editRow = d.rowNumber;
 
     company.value = d.company;
-    branch.value = d.branch;
-    department.value = d.department;
+
+    setTimeout(()=>{
+
+        branch.value = d.branch;
+        department.value = d.department;
+        material.value = d.material;
+
+    },100);
+
     empName.value = d.empName;
-    joining.value = d.joining;
-    given.value = d.given;
+
+    joining.value = d.joining ? d.joining.split("T")[0] : "";
+
+    given.value = d.given ? d.given.split("T")[0] : "";
+
     pair.value = d.pair;
-    material.value = d.material;
-    due.value = d.due;
+
+    due.value = d.due ? d.due.split("T")[0] : "";
+
     remarks.value = d.remarks;
 
-    document.querySelector(".primary-btn").innerHTML="✅ Update Entry";
+    document.querySelector(".primary-btn").innerHTML = "✅ Update Entry";
 
 }
 
@@ -823,51 +834,74 @@ function formatDate(date){
 
 
 /* SHOW DETAILS */
+async function showDetails(i){
 
-function showDetails(i){
+    let employee = data[i].empName;
 
-    let d = data[i];
+    let res = await fetch(API_URL + "?sheet=Employee_Entry");
+    let rows = await res.json();
+
+    let history = "";
+
+    let count = 0;
+
+    rows.slice(1).forEach(r=>{
+
+        if(r[3].toLowerCase() == employee.toLowerCase()){
+
+            count++;
+
+            history += `
+
+            <div class="detail-row">
+
+                <h3 style="color:#2563eb;margin-bottom:10px;">
+                    Uniform Issue ${count}
+                </h3>
+
+                <p><b>📅 Given Date :</b> ${formatDate(r[5])}</p>
+
+                <p><b>⏰ Due Date :</b> ${formatDate(r[8])}</p>
+
+                <p><b>👕 Material :</b> ${r[7]}</p>
+
+                <p><b>📦 Pair :</b> ${r[6]}</p>
+
+                <p><b>📝 Remarks :</b> ${r[9]}</p>
+
+            </div>
+
+            `;
+        }
+
+    });
 
     detailBox.innerHTML = `
 
-    <div class="detail-row">
-        <b>Employee:</b> ${d.empName}
-    </div>
+        <h2 style="margin-bottom:15px;">
+            👤 ${employee}
+        </h2>
 
-    <div class="detail-row">
-        <b>Company:</b> ${d.company}
-    </div>
+        <div style="
+            background:#dbeafe;
+            padding:12px;
+            border-radius:10px;
+            margin-bottom:20px;
+            font-weight:bold;
+        ">
 
-    <div class="detail-row">
-        <b>Branch:</b> ${d.branch}
-    </div>
+        Total Uniform Issued : ${count}
 
-    <div class="detail-row">
-        <b>Department:</b> ${d.department}
-    </div>
+        </div>
 
-    <div class="detail-row">
-        <b>Material:</b> ${d.material}
-    </div>
+        ${history}
 
-    <div class="detail-row">
-        <b>Pair:</b> ${d.pair}
-    </div>
-<div class="detail-row">
-    <b>📅 Given Date:</b> ${formatDate(d.given)}
-</div>
-
-<div class="detail-row">
-    <b>⏰ Due Date:</b> ${formatDate(d.due)}
-</div>
-
-    <div class="detail-row">
-        <b>Remarks:</b> ${d.remarks}
-    </div>
     `;
 
     modal.style.display = "block";
+
 }
+
 
 /* CLOSE */
 
@@ -922,15 +956,20 @@ async function addData(){
 
     });
 
-    alert(editRow ? "Updated Successfully" : "Saved Successfully");
+ alert(editRow ? "Updated Successfully" : "Saved Successfully");
 
-    editRow=null;
+editRow = null;
 
-    document.querySelector(".primary-btn").innerHTML="💾 Save Entry";
+document.querySelector(".primary-btn").innerHTML = "💾 Save Entry";
 
-    document.querySelectorAll("input").forEach(i=>i.value="");
+document.querySelectorAll("input").forEach(i => i.value = "");
 
-    render();
+company.selectedIndex = 0;
+branch.selectedIndex = 0;
+department.selectedIndex = 0;
+material.selectedIndex = 0;
+
+render();
 
 }
 /* SEARCH */
