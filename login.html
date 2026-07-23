@@ -238,7 +238,108 @@ button:hover{
         transform:translateY(0);
     }
 }
+/* LOGIN LOADER */
 
+#loader{
+
+    position:fixed;
+    inset:0;
+
+    background:rgba(255,255,255,.9);
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+
+    z-index:99999;
+}
+
+.spinner{
+
+    width:70px;
+    height:70px;
+
+    border:8px solid #dbeafe;
+    border-top:8px solid #0d6efd;
+
+    border-radius:50%;
+
+    animation:spin 1s linear infinite;
+}
+
+.loader-text{
+
+    margin-top:18px;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    color:#0d6efd;
+}
+
+@keyframes spin{
+
+    100%{
+
+        transform:rotate(360deg);
+
+    }
+
+}
+    /* LOGIN LOADER */
+
+#loader{
+
+    position:fixed;
+    inset:0;
+
+    background:rgba(255,255,255,.9);
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+
+    z-index:99999;
+}
+
+.spinner{
+
+    width:70px;
+    height:70px;
+
+    border:8px solid #dbeafe;
+    border-top:8px solid #0d6efd;
+
+    border-radius:50%;
+
+    animation:spin 1s linear infinite;
+}
+
+.loader-text{
+
+    margin-top:18px;
+
+    font-size:18px;
+
+    font-weight:bold;
+
+    color:#0d6efd;
+}
+
+@keyframes spin{
+
+    100%{
+
+        transform:rotate(360deg);
+
+    }
+
+}
 </style>
 </head>
 
@@ -329,12 +430,15 @@ async function login(){
         return;
     }
 
+showLoader();
+
     try{
 
         /* FETCH DATA */
 
-        let response =
-        await fetch(API_URL);
+let response = await fetch(API_URL,{
+    cache:"force-cache"
+});
 
         let data =
         await response.json();
@@ -353,6 +457,8 @@ async function login(){
 
         if(found){
 
+            hideLoader();
+
             success.innerText =
             "Login Success ✅";
 
@@ -370,11 +476,15 @@ async function login(){
 
         }else{
 
+            hideLoader();
+
             error.innerText =
             "Wrong Username or Password ❌";
         }
 
     }catch(err){
+
+        hideLoader();
 
         console.log(err);
 
@@ -459,8 +569,26 @@ document.addEventListener(
 "dragstart",
 e => e.preventDefault()
 );
+function showLoader(){
 
+    loader.style.display="flex";
+
+}
+
+function hideLoader(){
+
+    loader.style.display="none";
+
+}
 </script>
+<div id="loader">
 
+    <div class="spinner"></div>
+
+    <div class="loader-text">
+        Logging In...
+    </div>
+
+</div>
 </body>
 </html>
