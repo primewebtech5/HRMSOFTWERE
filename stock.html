@@ -208,6 +208,18 @@ select:focus{
     box-shadow:0 0 0 4px rgba(37,99,235,0.15);
 }
 
+/* GST preview line */
+.gst-preview{
+    grid-column:span 2;
+    background:#eff6ff;
+    border:1px dashed #93c5fd;
+    border-radius:12px;
+    padding:12px 16px;
+    font-size:14px;
+    color:#1e3a8a;
+    font-weight:600;
+}
+
 /* ================= BUTTON ================= */
 
 .btn-area{
@@ -254,7 +266,7 @@ select:focus{
 
 table{
     width:100%;
-    min-width:900px;
+    min-width:1100px;
     border-collapse:collapse;
 }
 
@@ -311,6 +323,10 @@ tr:hover{
         grid-template-columns:1fr;
     }
 
+    .gst-preview{
+        grid-column:span 1;
+    }
+
     .stock-top h3{
         font-size:40px;
     }
@@ -348,8 +364,57 @@ tr:hover{
     }
 
     .btn{
-        width:100%;
+    width:100%;
     }
+}
+
+/* ================= LOADER ================= */
+
+#loader{
+
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(255,255,255,0.9);
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+
+    z-index:99999;
+}
+
+.spinner{
+
+    width:70px;
+    height:70px;
+
+    border:8px solid #dbeafe;
+    border-top:8px solid #2563eb;
+
+    border-radius:50%;
+
+    animation:spin 1s linear infinite;
+}
+
+.loader-text{
+
+    margin-top:20px;
+    font-size:18px;
+    font-weight:bold;
+    color:#2563eb;
+}
+
+@keyframes spin{
+
+    100%{
+        transform:rotate(360deg);
+    }
+
 }
 
 </style>
@@ -408,7 +473,7 @@ tr:hover{
         <h3 id="totalStock">0</h3>
 
         <h4>
-            Total Investment :
+            Total Investment (with GST) :
             ₹ <span id="totalValue">0</span>
         </h4>
 
@@ -432,13 +497,13 @@ tr:hover{
             </div>
 
             <div class="input-group">
-                <label>Price</label>
-                <input type="number" id="price" placeholder="Enter Price">
+                <label>Price (Base, without GST)</label>
+                <input type="number" id="price" placeholder="Enter Price" oninput="updateGstPreview()">
             </div>
 
             <div class="input-group">
                 <label>Pair</label>
-                <input type="number" id="pair" placeholder="Enter Pair">
+                <input type="number" id="pair" placeholder="Enter Pair" oninput="updateGstPreview()">
             </div>
 
             <div class="input-group">
@@ -446,9 +511,23 @@ tr:hover{
                 <input type="date" id="pdate">
             </div>
 
+            <div class="input-group">
+                <label>CGST %</label>
+                <input type="number" id="cgst" placeholder="e.g. 9" oninput="updateGstPreview()">
+            </div>
+
+            <div class="input-group">
+                <label>SGST %</label>
+                <input type="number" id="sgst" placeholder="e.g. 9" oninput="updateGstPreview()">
+            </div>
+
             <div class="input-group" style="grid-column:span 2;">
                 <label>Remarks</label>
                 <input type="text" id="remarks" placeholder="Enter Remarks">
+            </div>
+
+            <div class="gst-preview" id="gstPreview">
+                Base Amount: ₹0 &nbsp;|&nbsp; CGST: ₹0 &nbsp;|&nbsp; SGST: ₹0 &nbsp;|&nbsp; <b>Price with GST: ₹0</b>
             </div>
 
         </div>
@@ -497,6 +576,9 @@ tr:hover{
                         <th>Material</th>
                         <th>Price</th>
                         <th>Pair</th>
+                        <th>CGST %</th>
+                        <th>SGST %</th>
+                        <th>Price with GST</th>
                         <th>Date</th>
                         <th>Remarks</th>
                         <th>Action</th>
@@ -515,6 +597,18 @@ tr:hover{
 
 </div>
 
+<!-- LOADER -->
+
+<div id="loader">
+
+    <div class="spinner"></div>
+
+    <div class="loader-text">
+        Please Wait...
+    </div>
+
+</div>
+
 <!-- FOOTER -->
 
 <div class="footer">
@@ -526,32 +620,104 @@ tr:hover{
 const API_URL =
 "https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDcqb70esqPB52-RVwzT5AbBunwQxct1AbiSjmvz0nllFkM/exec";
 
+function showLoader(){
+    const el = document.getElementById("loader");
+    if(el) el.style.display = "flex";
+}
+
+function hideLoader(){
+    const el = document.getElementById("loader");
+    if(el) el.style.display = "none";
+}
+
 let stockData = [];
 let materials = [];
 
-/* LOAD MATERIAL */
+/* ============================================================
+   SPEED FIX
+   ------------------------------------------------------------
+   OLD FLOW: page load kartu 3 alag calls thata — Material_Master
+   (loadMaterials), pachi render() ni andar Stock_Entry ane
+   Employee_Entry — banne alag alag fetch. Ek call j 1-2 second
+   levano hoy chhe, etle 3 calls = slow.
 
-async function loadMaterials(){
+   NEW FLOW: FAKT EK j call (?action=stockPage) — backend thi
+   material + stock + entry badhu ek sathe male chhe.
+   ============================================================ */
 
-    let res =
-    await fetch(API_URL + "?sheet=Material_Master");
+async function loadAll(){
 
-    let data = await res.json();
+    showLoader();
 
-    material.innerHTML = "";
+    try{
 
-    data.slice(1).forEach(m=>{
+        let res = await fetch(API_URL + "?action=stockPage",{cache:"no-store"});
+        let json = await res.json();
 
-        materials.push(m[0]);
+        if(json && json.error){
+            console.error("Backend error:", json.message);
+            alert("Data load karva ma problem: " + json.message);
+            return;
+        }
 
-        material.innerHTML += `
-        <option>${m[0]}</option>`;
-    });
+        fillMaterialSelect(json.material || []);
+        renderStock(json.stock || [], json.entry || []);
+
+    } catch(err){
+
+        console.error("loadAll failed:", err);
+        alert("Data load karva ma problem aavi, page refresh kari jovo.");
+
+    } finally {
+        hideLoader();
+    }
+}
+
+function fillMaterialSelect(materialRows){
+
+    materials = [];
+
+    let html = "";
+
+    for(let i=1;i<materialRows.length;i++){
+        let m = materialRows[i][0];
+        if(m){
+            materials.push(m);
+            html += `<option>${m}</option>`;
+        }
+    }
+
+    material.innerHTML = html;
+}
+
+/* GST LIVE PREVIEW (shown while filling the Add Stock form) */
+
+function calcGst(priceVal, pairVal, cgstVal, sgstVal){
+
+    const base = (Number(priceVal)||0) * (Number(pairVal)||0);
+    const cgstAmt = base * ((Number(cgstVal)||0)/100);
+    const sgstAmt = base * ((Number(sgstVal)||0)/100);
+    const total = base + cgstAmt + sgstAmt;
+
+    return { base, cgstAmt, sgstAmt, total };
+}
+
+function updateGstPreview(){
+
+    const r = calcGst(price.value, pair.value, cgst.value, sgst.value);
+
+    gstPreview.innerHTML =
+        `Base Amount: ₹${r.base.toFixed(2)} &nbsp;|&nbsp; ` +
+        `CGST: ₹${r.cgstAmt.toFixed(2)} &nbsp;|&nbsp; ` +
+        `SGST: ₹${r.sgstAmt.toFixed(2)} &nbsp;|&nbsp; ` +
+        `<b>Price with GST: ₹${r.total.toFixed(2)}</b>`;
 }
 
 /* ADD STOCK */
 
 async function addStock(){
+
+    showLoader();
 
     let obj = {
 
@@ -565,7 +731,12 @@ async function addStock(){
 
         date:pdate.value,
 
-        remarks:remarks.value
+        remarks:remarks.value,
+
+        cgst:cgst.value,
+
+        sgst:sgst.value
+
     };
 
     await fetch(API_URL,{
@@ -575,146 +746,128 @@ async function addStock(){
         body:JSON.stringify(obj)
     });
 
-    alert("Stock Added Successfully");
-
     price.value = "";
     pair.value = "";
     pdate.value = "";
     remarks.value = "";
+    cgst.value = "";
+    sgst.value = "";
 
-    render();
+    updateGstPreview();
+
+    await loadAll();
+
+    hideLoader();
+
+    alert("Stock Added Successfully");
 }
 
-/* RENDER */
+/* RENDER — builds rows into an array and sets innerHTML ONCE
+   (instead of tbody.innerHTML += "..." inside the loop, which
+   gets slow as records grow). */
 
-async function render(){
-
-    let stock =
-    await fetch(API_URL + "?sheet=Stock_Entry")
-    .then(r=>r.json());
-
-    let entry =
-    await fetch(API_URL + "?sheet=Employee_Entry")
-    .then(r=>r.json());
+function renderStock(stock, entry){
 
     stockData = [];
 
-    tbody.innerHTML = "";
+    let rowsHtml = [];
 
-    stock.slice(1).forEach((d,i)=>{
+    for(let i=1;i<stock.length;i++){
+
+        let d = stock[i];
 
         let obj = {
-
             material:d[0],
-
             price:d[1],
-
             pair:d[2],
-
             date:d[3],
-
             remarks:d[4],
-
-            row:i+2
+            cgst:d[5],
+            sgst:d[6],
+            priceWithGst:d[7],
+            row:i+1
         };
 
         stockData.push(obj);
 
-        tbody.innerHTML += `
+        let idx = i-1;
 
+        let priceWithGstDisplay =
+            (obj.priceWithGst !== undefined && obj.priceWithGst !== "")
+            ? Number(obj.priceWithGst).toFixed(2)
+            : calcGst(obj.price, obj.pair, obj.cgst, obj.sgst).total.toFixed(2);
+
+        rowsHtml.push(`
         <tr>
-
-            <td>${i+1}</td>
-
+            <td>${idx+1}</td>
             <td>${obj.material}</td>
-
             <td>₹ ${obj.price}</td>
-
             <td>${obj.pair}</td>
-
+            <td>${obj.cgst || 0}%</td>
+            <td>${obj.sgst || 0}%</td>
+            <td><b>₹ ${priceWithGstDisplay}</b></td>
             <td>${obj.date}</td>
-
             <td>${obj.remarks || "-"}</td>
-
             <td>
-
-                <button
-                class="action-btn delete-btn"
-                onclick="deleteRow(${i})">
-
-                Delete
-
-                </button>
-
+                <button class="action-btn delete-btn" onclick="deleteRow(${idx})">Delete</button>
             </td>
+        </tr>
+        `);
+    }
 
-        </tr>`;
-    });
+    tbody.innerHTML = rowsHtml.join("");
+
+    /* ---- Material stock counts (stock added - uniforms issued) ---- */
 
     let count = {};
+    materials.forEach(m => count[m] = 0);
 
-    materials.forEach(m=>count[m]=0);
-
-    stockData.forEach(d=>{
-
-        count[d.material] +=
-        Number(d.pair || 0);
-    });
-
-    entry.slice(1).forEach(d=>{
-
-        let mat = d[7];
-
-        let p = Number(d[6] || 0);
-
-        if(count[mat] != undefined){
-
-            count[mat] -= p;
+    stockData.forEach(d => {
+        if(count[d.material] !== undefined){
+            count[d.material] += Number(d.pair || 0);
         }
     });
 
-    materialGrid.innerHTML = "";
+    for(let i=1;i<entry.length;i++){
+        let mat = entry[i][7];
+        let p = Number(entry[i][6] || 0);
+        if(count[mat] !== undefined){
+            count[mat] -= p;
+        }
+    }
 
+    let gridHtml = [];
     let total = 0;
 
     for(let m in count){
 
         total += count[m];
 
-        let color =
-        count[m] <= 5
-        ? "#fee2e2"
-        : "white";
+        let color = count[m] <= 5 ? "#fee2e2" : "white";
 
-        materialGrid.innerHTML += `
-
-        <div
-        class="material-box"
-        style="background:${color}">
-
-            <div class="material-name">
-                ${m}
-            </div>
-
-            <div class="material-stock">
-                ${count[m]}
-            </div>
-
-        </div>`;
+        gridHtml.push(`
+        <div class="material-box" style="background:${color}">
+            <div class="material-name">${m}</div>
+            <div class="material-stock">${count[m]}</div>
+        </div>`);
     }
 
+    materialGrid.innerHTML = gridHtml.join("");
     totalStock.innerText = total;
+
+    /* ---- Total investment (with GST) ---- */
 
     let value = 0;
 
-    stockData.forEach(d=>{
-
-        value +=
-        Number(d.price || 0) *
-        Number(d.pair || 0);
+    stockData.forEach(d => {
+        if(d.priceWithGst !== undefined && d.priceWithGst !== ""){
+            value += Number(d.priceWithGst || 0);
+        } else {
+            value += calcGst(d.price, d.pair, d.cgst, d.sgst).total;
+        }
     });
 
-    totalValue.innerText = value;
+    totalValue.innerText = value.toFixed(2);
 }
 
 /* DELETE */
@@ -722,6 +875,8 @@ async function render(){
 async function deleteRow(i){
 
     if(confirm("Delete Stock?")){
+
+        showLoader();
 
         await fetch(API_URL,{
 
@@ -737,9 +892,11 @@ async function deleteRow(i){
             })
         });
 
-        alert("Deleted Successfully");
+        await loadAll();
 
-        render();
+        hideLoader();
+
+        alert("Deleted Successfully");
     }
 }
 
@@ -770,12 +927,16 @@ function searchData(){
 function exportExcel(){
 
     let csv =
-    "SR,Material,Price,Pair,Date,Remarks\n";
+    "SR,Material,Price,Pair,CGST%,SGST%,Price with GST,Date,Remarks\n";
 
     stockData.forEach((d,i)=>{
 
+        let pwg = (d.priceWithGst !== undefined && d.priceWithGst !== "")
+            ? d.priceWithGst
+            : calcGst(d.price, d.pair, d.cgst, d.sgst).total.toFixed(2);
+
         csv +=
-`${i+1},${d.material},${d.price},${d.pair},${d.date},${d.remarks}\n`;
+`${i+1},${d.material},${d.price},${d.pair},${d.cgst||0},${d.sgst||0},${pwg},${d.date},${d.remarks}\n`;
     });
 
     let blob = new Blob([csv]);
@@ -796,9 +957,9 @@ function exportPDF(){
     window.print();
 }
 
-/* INIT */
+/* INIT — single combined call now, instead of 3 separate ones */
 
-loadMaterials().then(render);
+loadAll();
 
 </script>
 
