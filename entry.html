@@ -568,14 +568,12 @@ tr:hover{
 
         <div class="btn-group">
 
-            <button
-            class="btn primary-btn"
-            onclick="addData()">
-
-            💾 Save Entry
-
-            </button>
-
+<button
+class="btn primary-btn"
+id="saveBtn"
+onclick="saveOrUpdate()">
+💾 Save Entry
+</button>
             <button
             class="btn secondary-btn"
             onclick="exportExcel()">
@@ -673,6 +671,18 @@ tr:hover{
 
 </div>
 
+<!-- LOADER -->
+
+<div id="loader">
+
+    <div class="spinner"></div>
+
+    <div class="loader-text">
+        Please Wait...
+    </div>
+
+</div>
+
 <!-- FOOTER -->
 
 <div class="footer">
@@ -683,13 +693,15 @@ tr:hover{
 
 function showLoader(){
 
-    loader.style.display = "flex";
+    const el = document.getElementById("loader");
+    if(el) el.style.display = "flex";
 
 }
 
 function hideLoader(){
 
-    loader.style.display = "none";
+    const el = document.getElementById("loader");
+    if(el) el.style.display = "none";
 
 }    
 
@@ -699,26 +711,72 @@ const API_URL =
 let data = [];
 let allRows = [];
 
-/* LOAD MASTER */
+/* ============================================================
+   SPEED FIX
+   ------------------------------------------------------------
+   OLD FLOW: page load kartu 4 ALAG Google Apps Script calls —
+   Branch_Master, Department_Master, Material_Master, ane
+   Employee_Entry — badha separate round-trips. Ek call j
+   1-2 second (kayi vaar vadhu) le chhe, etle 4 calls = slow.
 
+   NEW FLOW: page load par FAKT EK j call (?action=entryPage) —
+   backend thi branch+department+material+entry badhu ek sathe
+   male chhe. Add/Edit/Delete pachi refresh mate hajuye fakt
+   Employee_Entry j mangavay chhe (masters vaaramvaar mangva ni
+   jarur nathi, te badalta nathi).
+   ============================================================ */
+
+function fillSelect(elementId, rows){
+
+    let el = document.getElementById(elementId);
+
+    let html = "<option>Select</option>";
+
+    for(let i=1;i<rows.length;i++){
+        if(rows[i][0] !== "" && rows[i][0] != null){
+            html += `<option>${rows[i][0]}</option>`;
+        }
+    }
+
+    el.innerHTML = html;
+}
+
+async function initPage(){
+
+    showLoader();
+
+    try{
+
+        let res = await fetch(API_URL + "?action=entryPage",{cache:"no-store"});
+        let json = await res.json();
+
+        if(json && json.error){
+            console.error("Backend error:", json.message);
+            alert("Backend ma error aavi: " + json.message);
+            return;
+        }
+
+        fillSelect("branch", json.branch || []);
+        fillSelect("department", json.department || []);
+        fillSelect("material", json.material || []);
+
+        renderTable(json.entry || []);
+
+    } catch(err){
+
+        console.error("initPage failed:",err);
+        alert("Data load karva ma problem aavi, page refresh kari jovo.");
+
+    } finally {
+        hideLoader();
+    }
+}
+
+/* Kept for backward-compat, not used on init anymore */
 async function loadMaster(sheet,elementId){
-
-    let res =
-    await fetch(API_URL + "?sheet=" + sheet);
-
+    let res = await fetch(API_URL + "?sheet=" + sheet);
     let d = await res.json();
-
-    let el =
-    document.getElementById(elementId);
-
-    el.innerHTML =
-    `<option>Select</option>`;
-
-    d.slice(1).forEach(i=>{
-
-        el.innerHTML +=
-        `<option>${i[0]}</option>`;
-    });
+    fillSelect(elementId, d);
 }
 
 /* AUTO DUE */
@@ -738,112 +796,78 @@ function autoDueDate(){
     due.value = `${y}-${m}-${day}`;
 }
 
-/* RENDER */
+/* RENDER (re-fetches only Employee_Entry — used after save/delete) */
 
 async function render(){
 
     const res = await fetch(API_URL + "?sheet=Employee_Entry",{
-    cache:"no-store"
-});
+        cache:"no-store"
+    });
 
+    const sheetData = await res.json();
 
+    renderTable(sheetData);
+}
 
-const sheetData = await res.json();
-allRows = sheetData;
+/* RENDER TABLE — builds rows into an array and sets innerHTML ONCE
+   (instead of tbody.innerHTML += "..." inside the loop, which
+   re-parses the whole table on every single row and gets slow
+   as records grow). */
 
-    tbody.innerHTML = "";
+function renderTable(sheetData){
+
+    allRows = sheetData;
 
     data = [];
 
-    sheetData.slice(1).forEach((row,i)=>{
+    let rowsHtml = [];
+
+    for(let i=1;i<sheetData.length;i++){
+
+        let row = sheetData[i];
 
         let obj = {
-
             company:row[0],
-
             branch:row[1],
-
             department:row[2],
-
             empName:row[3],
-
             joining:row[4],
-
             given:row[5],
-
             pair:row[6],
-
             material:row[7],
-
             due:row[8],
-
             remarks:row[9],
-            
             nextDate:row[10],
-
-        rowNumber:i+2
-        
-    };
+            rowNumber:i+1
+        };
 
         data.push(obj);
 
-        tbody.innerHTML += `
+        let idx = i-1;
 
+        let lastNext = String(obj.nextDate || "").split(",").pop().trim();
+
+        rowsHtml.push(`
         <tr>
-
-            <td>${i+1}</td>
-
+            <td>${idx+1}</td>
             <td>${obj.empName}</td>
-
             <td>${obj.company}</td>
-
             <td>${obj.department}</td>
-
             <td>${obj.material}</td>
-
             <td>${obj.pair}</td>
-
-           <td>${formatDate(obj.given)}</td>
-
-           <td>${formatDate(obj.due)}</td>
-
-           <td>${
-formatDate(
-String(obj.nextDate).split(",").pop().trim()
-)
-}</td>
-
+            <td>${formatDate(obj.given)}</td>
+            <td>${formatDate(obj.due)}</td>
+            <td>${formatDate(lastNext)}</td>
             <td>
-
-                <button
-                class="action-btn view-btn"
-                onclick="showDetails(${i})">
-
-                View
-
-                </button>
-
-               <button
-class="action-btn edit-btn"
-onclick="editData(${i})">
-
-Edit
-
-</button>
-
-<button
-class="action-btn delete-btn"
-onclick="deleteData(${i})">
-
-Delete
-
-</button>
-
+                <button class="action-btn view-btn" onclick="showDetails(${idx})">View</button>
+                <button class="action-btn edit-btn" onclick="editData(${idx})">Edit</button>
+                <button class="action-btn delete-btn" onclick="deleteData(${idx})">Delete</button>
             </td>
-
         </tr>
-        `;
-    });
+        `);
+    }
+
+    tbody.innerHTML = rowsHtml.join("");
 }
 
 let editRow = null;
@@ -876,9 +900,9 @@ due.value = toInputDate(d.due);
 
 remarks.value = d.remarks;
 
-nextDate.value = toInputDate(d.nextDate);
+nextDate.value = "";
 
-    document.querySelector(".primary-btn").innerHTML = "✅ Update Entry";
+    document.getElementById("saveBtn").innerHTML = "✅ Update Entry";
 
 }
 
@@ -911,19 +935,11 @@ alert("Deleted Successfully");
 }
 
 /* ============================================================
-   FIXED DATE FUNCTIONS (v3 — final)
+   DATE FUNCTIONS (final)
    ------------------------------------------------------------
-   The real bug was on the BACKEND (Apps Script): plain date
-   strings sent via setValue() were being auto-converted by
-   Google Sheets into Date serials, then re-serialized to UTC
-   ISO strings on the way out — shifting the day depending on
-   timezone.
-
-   That backend has now been fixed to ALWAYS store and return
-   dates as clean plain-text "yyyy-MM-dd" strings — never as
-   real Date objects. So the frontend no longer needs to touch
-   Date objects, getUTC*, timezones, or offsets at all. Plain
-   string splitting is now 100% correct and safe.
+   Backend hamesha "yyyy-MM-dd" plain text string aape chhe,
+   etle ahiya koi Date object / timezone jarur j nathi — fakt
+   string split thi kaam thai jay chhe.
    ============================================================ */
 
 function formatDate(date){
@@ -958,111 +974,62 @@ function showDetails(i){
 
     let employee = data[i].empName;
 
-    let history = "";
-    let nextDates = [];
-
+    let historyHtml = [];
+    let nextDates = new Set();
 
     let count = 0;
 
-    allRows.slice(1).forEach(r=>{
+    for(let r=1;r<allRows.length;r++){
 
-        if(r[3].toLowerCase() == employee.toLowerCase()){
+        let row = allRows[r];
+
+        if(String(row[3]).toLowerCase() == employee.toLowerCase()){
 
             count++;
- if(r[10]){
 
-    String(r[10]).split(",").forEach(date=>{
+            if(row[10]){
+                String(row[10]).split(",").forEach(dt=>{
+                    dt = dt.trim();
+                    if(dt) nextDates.add(dt);
+                });
+            }
 
-        date = date.trim();
-
-        if(date && !nextDates.includes(date)){
-            nextDates.push(date);
+            historyHtml.push(`
+                <div class="detail-row">
+                    <h3 style="color:#2563eb;margin-bottom:10px;">Uniform Issue ${count}</h3>
+                    <p><b>📅 Joining Date :</b> ${formatDate(row[4])}</p>
+                    <p><b>📅 Given Date :</b> ${formatDate(row[5])}</p>
+                    <p><b>⏰ Due Date :</b> ${formatDate(row[8])}</p>
+                    <p><b>👕 Material :</b> ${row[7]}</p>
+                    <p><b>📦 Pair :</b> ${row[6]}</p>
+                    <p><b>📝 Remarks :</b> ${row[9]}</p>
+                </div>
+            `);
         }
+    }
 
-    });
+    let dropdownOptions = Array.from(nextDates)
+        .sort()
+        .map(d => `<option>${formatDate(d)}</option>`)
+        .join("");
 
-}
-        history += `
+    detailBox.innerHTML = `
 
-<div class="detail-row">
+        <h2 style="margin-bottom:15px;">👤 ${employee}</h2>
 
-<h3 style="color:#2563eb;margin-bottom:10px;">
-Uniform Issue ${count}
-</h3>
+        <div style="background:#dbeafe;padding:12px;border-radius:10px;margin-bottom:20px;font-weight:bold;">
+            Total Uniform Issued : ${count}
+        </div>
 
-<p><b>📅 Joining Date :</b> ${formatDate(r[4])}</p>
+        <div style="background:#fff8dc;padding:12px;border-radius:10px;margin-bottom:20px;">
+            <b>📅 Next Uniform History</b>
+            <select style="width:100%;padding:10px;border-radius:8px;margin-top:10px;">
+                ${dropdownOptions}
+            </select>
+        </div>
 
-<p><b>📅 Given Date :</b> ${formatDate(r[5])}</p>
-
-<p><b>⏰ Due Date :</b> ${formatDate(r[8])}</p>
-
-<p><b>👕 Material :</b> ${r[7]}</p>
-
-<p><b>📦 Pair :</b> ${r[6]}</p>
-
-<p><b>📝 Remarks :</b> ${r[9]}</p>
-
-</div>
-
-`;
-        }
-
-    });
-
-let dropdown = `
-<select style="width:100%;padding:10px;border-radius:8px;margin-top:10px;">
-`;
-
-nextDates.forEach(d => {
-
-    String(d).split(",").forEach(date => {
-
-        date = date.trim();
-
-        if(date){
-            dropdown += `<option>${formatDate(date)}</option>`;
-        }
-
-    });
-
-});
-
-dropdown += `</select>`;
-
-detailBox.innerHTML = `
-
-<h2 style="margin-bottom:15px;">
-👤 ${employee}
-</h2>
-
-<div style="
-background:#dbeafe;
-padding:12px;
-border-radius:10px;
-margin-bottom:20px;
-font-weight:bold;
-">
-
-Total Uniform Issued : ${count}
-
-</div>
-
-<div style="
-background:#fff8dc;
-padding:12px;
-border-radius:10px;
-margin-bottom:20px;
-">
-
-<b>📅 Next Uniform History</b>
-
-${dropdown}
-
-</div>
-
-${history}
-
-`;
+        ${historyHtml.join("")}
+    `;
 
     modal.style.display = "block";
 
@@ -1076,9 +1043,15 @@ function closeModal(){
     modal.style.display = "none";
 }
 
-/* SAVE */
+/* SAVE / UPDATE
+   ------------------------------------------------------------
+   On UPDATE, the backend now APPENDS this nextDate to that row's
+   existing history instead of overwriting it — so every next-date
+   you enter across edits stays in the dropdown, not just the
+   latest one. */
 
-async function addData(){
+async function saveOrUpdate(){
+    let isUpdate = editRow != null;
     showLoader();
 
     let obj={
@@ -1109,36 +1082,42 @@ async function addData(){
 
     };
 
-    if(editRow){
+if(isUpdate){
 
-        obj.action="update";
+    obj.action = "update";
+    obj.row = editRow;
 
-        obj.row=editRow;
+}else{
 
-    }
+    obj.action = "add";
 
-    await fetch(API_URL,{
+}
 
-        method:"POST",
+   await fetch(API_URL,{
 
-        body:JSON.stringify(obj)
+    method:"POST",
 
-    });
+    body:JSON.stringify(obj)
+
+});
+
+await render();
+
 hideLoader();
- alert(editRow ? "Updated Successfully" : "Saved Successfully");
+
+alert(isUpdate ? "Updated Successfully" : "Saved Successfully");
 
 editRow = null;
 
-document.querySelector(".primary-btn").innerHTML = "💾 Save Entry";
+document.getElementById("saveBtn").innerHTML = "💾 Save Entry";
 
-document.querySelectorAll("input").forEach(i => i.value = "");
+document.querySelectorAll("input").forEach(i=>i.value="");
 
 company.selectedIndex = 0;
 branch.selectedIndex = 0;
 department.selectedIndex = 0;
 material.selectedIndex = 0;
 
-render();
 
 }
 /* SEARCH */
@@ -1197,25 +1176,10 @@ function exportExcel(){
     a.click();
 }
 
-/* INIT */
+/* INIT — single combined call now, instead of 4 separate ones */
 
-Promise.all([
-    loadMaster("Branch_Master","branch"),
-    loadMaster("Department_Master","department"),
-    loadMaster("Material_Master","material")
-]).then(render);
+initPage();
 
 </script>
-<!-- LOADER -->
-
-<div id="loader">
-
-    <div class="spinner"></div>
-
-    <div class="loader-text">
-        Please Wait...
-    </div>
-
-</div>
 </body>
 </html>
