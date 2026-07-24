@@ -230,7 +230,7 @@ input:focus{
 
 table{
     width:100%;
-    min-width:950px;
+    min-width:1150px;
     border-collapse:collapse;
 }
 
@@ -320,6 +320,53 @@ tr:hover{
     text-align:center;
     padding:14px;
     font-size:14px;
+}
+
+/* ================= LOADER ================= */
+
+#loader{
+
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(255,255,255,0.9);
+
+    display:none;
+
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+
+    z-index:99999;
+}
+
+.spinner{
+
+    width:70px;
+    height:70px;
+
+    border:8px solid #dbeafe;
+    border-top:8px solid #2563eb;
+
+    border-radius:50%;
+
+    animation:spin 1s linear infinite;
+}
+
+.loader-text{
+
+    margin-top:20px;
+    font-size:18px;
+    font-weight:bold;
+    color:#2563eb;
+}
+
+@keyframes spin{
+    100%{
+        transform:rotate(360deg);
+    }
 }
 
 /* ================= RESPONSIVE ================= */
@@ -449,8 +496,8 @@ tr:hover{
             </div>
 
             <div class="input-group">
-                <label>Rate</label>
-                <input type="number" id="rate" placeholder="Enter Rate">
+                <label>Sub Total (Rate)</label>
+                <input type="number" id="rate" placeholder="Enter Sub Total" oninput="calculate()">
             </div>
 
         </div>
@@ -465,11 +512,25 @@ tr:hover{
 
             <br><br>
 
-            <input type="file" onchange="uploadImage(event)">
+            <input type="file" accept="image/*" onchange="uploadImage(event)">
 
             <br>
 
             <img id="preview" class="preview">
+
+        </div>
+
+        <div class="form-grid" style="margin-top:20px;">
+
+            <div class="input-group">
+                <label>Grand Total (from bill, incl. tax/rounding)</label>
+                <input type="number" id="grandTotal" placeholder="Enter Grand Total">
+            </div>
+
+            <div class="input-group">
+                <label>Remarks</label>
+                <input type="text" id="remarks" placeholder="Enter Remarks">
+            </div>
 
         </div>
 
@@ -481,7 +542,7 @@ tr:hover{
                 ₹ <span id="total">0</span>
             </h3>
 
-            <p>Total Bill Amount</p>
+            <p>Sub Total Amount</p>
 
         </div>
 
@@ -533,9 +594,11 @@ tr:hover{
                         <th>Date</th>
                         <th>Product</th>
                         <th>Qty</th>
-                        <th>Rate</th>
-                        <th>Total</th>
+                        <th>Sub Total</th>
+                        <th>Sub Total Amt</th>
+                        <th>Grand Total</th>
                         <th>Bill</th>
+                        <th>Remarks</th>
                         <th>Action</th>
 
                     </tr>
@@ -560,6 +623,18 @@ tr:hover{
 
 </div>
 
+<!-- LOADER -->
+
+<div id="loader">
+
+    <div class="spinner"></div>
+
+    <div class="loader-text">
+        Please Wait...
+    </div>
+
+</div>
+
 <!-- FOOTER -->
 
 <div class="footer">
@@ -571,8 +646,20 @@ tr:hover{
 const API_URL =
 "https://script.google.com/macros/s/AKfycbwlk8Zfu0j3KvhB5eKF1dkbOPfQWaS4qr7aV_VG4qQaIUXWvovPOXo1A7IajMYDUgz8Vg/exec";
 
-let imageData = "";
+function showLoader(){
+    const el = document.getElementById("loader");
+    if(el) el.style.display = "flex";
+}
+
+function hideLoader(){
+    const el = document.getElementById("loader");
+    if(el) el.style.display = "none";
+}
+
+let imageData = "";    // base64 of a freshly chosen file (only set when user picks a new image)
 let editRow = null;
+let editImageUrl = ""; // existing Drive URL kept when editing without changing the image
+let vendorData = [];   // parsed rows, used by edit/delete instead of embedding data in HTML
 
 /* CALCULATE */
 
@@ -585,11 +672,14 @@ function calculate(){
     total.innerText = q * r;
 }
 
-/* IMAGE */
+/* IMAGE — kept as base64 in the browser just long enough to send to
+   the backend, which uploads it to Drive and gives back a short URL. */
 
 function uploadImage(e){
 
     let file = e.target.files[0];
+
+    if(!file) return;
 
     let reader = new FileReader();
 
@@ -600,178 +690,196 @@ function uploadImage(e){
         preview.src = imageData;
     }
 
-    if(file){
-
-        reader.readAsDataURL(file);
-    }
+    reader.readAsDataURL(file);
 }
 
 /* SAVE */
 
 async function saveBill(){
 
-    let obj = {
+    showLoader();
 
-        sheet:"Vendor_Bills",
+    try{
 
-        vendor:vendor.value,
+        let obj = {
 
-        date:date.value,
+            sheet:"Vendor_Bills",
 
-        product:product.value,
+            vendor:vendor.value,
 
-        qty:qty.value,
+            date:date.value,
 
-        rate:rate.value,
+            product:product.value,
 
-        total:total.innerText,
+            qty:qty.value,
 
-        image:imageData
-    };
+            subtotal:rate.value,
 
-    if(editRow){
+            subtotalAmount:total.innerText,
 
-        obj.action = "update";
+            grandTotal:grandTotal.value,
 
-        obj.row = editRow;
+            remarks:remarks.value,
+
+            // Send a FRESH base64 image if one was just picked, otherwise
+            // send back the existing Drive URL unchanged (so update doesn't
+            // wipe out the bill photo when the user didn't touch it).
+            image: imageData || editImageUrl || ""
+        };
+
+        if(editRow){
+
+            obj.action = "update";
+
+            obj.row = editRow;
+        }
+
+        const res = await fetch(API_URL,{
+
+            method:"POST",
+
+            body:JSON.stringify(obj)
+        });
+
+        const result = await res.json();
+
+        if(result && result.status === "error"){
+            alert("Save karva ma error aavi: " + result.message);
+            return;
+        }
+
+        alert(
+            editRow
+            ? "Updated Successfully"
+            : "Saved Successfully"
+        );
+
+        clearForm();
+
+        await loadTable();
+
+    } catch(err){
+
+        console.error("saveBill failed:", err);
+        alert("Save karva ma problem aavi, ferithi try karo.");
+
+    } finally {
+        hideLoader();
     }
-
-    await fetch(API_URL,{
-
-        method:"POST",
-
-        body:JSON.stringify(obj)
-    });
-
-    alert(
-        editRow
-        ? "Updated Successfully"
-        : "Saved Successfully"
-    );
-
-    clearForm();
-
-    loadTable();
 }
 
-/* LOAD TABLE */
+/* LOAD TABLE — builds rows into an array and sets innerHTML ONCE,
+   and keeps row data in a JS array (vendorData) instead of stuffing
+   it into each button's onclick attribute. */
 
 async function loadTable(){
 
-    let res =
-    await fetch(API_URL + "?sheet=Vendor_Bills");
+    showLoader();
 
-    let data = await res.json();
+    try{
 
-    tableData.innerHTML = "";
+        let res = await fetch(API_URL + "?sheet=Vendor_Bills",{cache:"no-store"});
+        let data = await res.json();
 
-    data.slice(1).forEach((d,i)=>{
+        if(data && data.error){
+            console.error("Backend error:", data.message);
+            alert("Data load karva ma problem: " + data.message);
+            return;
+        }
 
-        tableData.innerHTML += `
+        vendorData = [];
 
-        <tr>
+        let rowsHtml = [];
 
-            <td>${d[0]}</td>
+        for(let i=1;i<data.length;i++){
 
-            <td>${d[1]}</td>
+            let d = data[i];
 
-            <td>${d[2]}</td>
+            let obj = {
+                vendor:d[0],
+                date:d[1],
+                product:d[2],
+                qty:d[3],
+                subtotal:d[4],
+                subtotalAmount:d[5],
+                image:d[6],
+                grandTotal:d[7],
+                remarks:d[8],
+                row:i+1
+            };
 
-            <td>${d[3]}</td>
+            vendorData.push(obj);
 
-            <td>₹ ${d[4]}</td>
+            let idx = i-1;
 
-            <td>₹ ${d[5]}</td>
+            rowsHtml.push(`
+            <tr>
+                <td>${obj.vendor}</td>
+                <td>${obj.date}</td>
+                <td>${obj.product}</td>
+                <td>${obj.qty}</td>
+                <td>₹ ${obj.subtotal}</td>
+                <td>₹ ${obj.subtotalAmount}</td>
+                <td>₹ ${obj.grandTotal || 0}</td>
+                <td>
+                    ${
+                        obj.image
+                        ? `<img src="${obj.image}" class="bill-img" onclick="showImage('${obj.image}')">`
+                        : "No Image"
+                    }
+                </td>
+                <td>${obj.remarks || "-"}</td>
+                <td>
+                    <button class="action-btn edit-btn" onclick="editData(${idx})">Edit</button>
+                    <button class="action-btn delete-btn" onclick="deleteData(${idx})">Delete</button>
+                </td>
+            </tr>`);
+        }
 
-            <td>
+        tableData.innerHTML = rowsHtml.join("");
 
-                ${
-                    d[6]
+    } catch(err){
 
-                    ?
+        console.error("loadTable failed:", err);
+        alert("Data load karva ma problem aavi, page refresh kari jovo.");
 
-                    `<img
-                    src="${d[6]}"
-                    class="bill-img"
-                    onclick="showImage('${d[6]}')">`
-
-                    :
-
-                    "No Image"
-                }
-
-            </td>
-
-            <td>
-
-                <button
-                class="action-btn edit-btn"
-                onclick='editData(
-                    ${i+2},
-                    ${JSON.stringify(d[0])},
-                    ${JSON.stringify(d[1])},
-                    ${JSON.stringify(d[2])},
-                    ${JSON.stringify(d[3])},
-                    ${JSON.stringify(d[4])},
-                    ${JSON.stringify(d[5])},
-                    ${JSON.stringify(d[6])}
-                )'>
-
-                Edit
-
-                </button>
-
-                <button
-                class="action-btn delete-btn"
-                onclick="deleteData(${i+2})">
-
-                Delete
-
-                </button>
-
-            </td>
-
-        </tr>`;
-    });
+    } finally {
+        hideLoader();
+    }
 }
 
 /* EDIT */
 
-function editData(
-row,
-v,
-dt,
-p,
-q,
-r,
-t,
-img
-){
+function editData(i){
 
-    vendor.value = v;
+    let d = vendorData[i];
 
-    date.value = dt;
+    vendor.value = d.vendor;
+    date.value = d.date;
+    product.value = d.product;
+    qty.value = d.qty;
+    rate.value = d.subtotal;
+    total.innerText = d.subtotalAmount;
+    grandTotal.value = d.grandTotal || "";
+    remarks.value = d.remarks || "";
 
-    product.value = p;
+    preview.src = d.image || "";
 
-    qty.value = q;
+    imageData = "";               // no NEW file chosen yet
+    editImageUrl = d.image || ""; // keep existing Drive URL unless replaced
 
-    rate.value = r;
-
-    total.innerText = t;
-
-    preview.src = img;
-
-    imageData = img;
-
-    editRow = row;
+    editRow = d.row;
 }
 
 /* DELETE */
 
-async function deleteData(row){
+async function deleteData(i){
 
-    if(confirm("Delete Bill?")){
+    if(!confirm("Delete Bill?")) return;
+
+    showLoader();
+
+    try{
 
         await fetch(API_URL,{
 
@@ -783,13 +891,16 @@ async function deleteData(row){
 
                 action:"delete",
 
-                row:row
+                row:vendorData[i].row
             })
         });
 
         alert("Deleted Successfully");
 
-        loadTable();
+        await loadTable();
+
+    } finally {
+        hideLoader();
     }
 }
 
@@ -820,40 +931,31 @@ function searchData(){
 function clearForm(){
 
     vendor.value = "";
-
     date.value = "";
-
     product.value = "";
-
     qty.value = "";
-
     rate.value = "";
-
     total.innerText = "0";
-
+    grandTotal.value = "";
+    remarks.value = "";
     preview.src = "";
 
     imageData = "";
-
+    editImageUrl = "";
     editRow = null;
 }
 
 /* EXPORT */
 
-async function exportExcel(){
-
-    let res =
-    await fetch(API_URL + "?sheet=Vendor_Bills");
-
-    let data = await res.json();
+function exportExcel(){
 
     let csv =
-    "Vendor,Date,Product,Qty,Rate,Total\n";
+    "Vendor,Date,Product,Qty,Sub Total,Sub Total Amount,Grand Total,Remarks\n";
 
-    data.slice(1).forEach(d=>{
+    vendorData.forEach(d=>{
 
         csv +=
-`${d[0]},${d[1]},${d[2]},${d[3]},${d[4]},${d[5]}\n`;
+`${d.vendor},${d.date},${d.product},${d.qty},${d.subtotal},${d.subtotalAmount},${d.grandTotal||0},${d.remarks||""}\n`;
     });
 
     let blob = new Blob([csv]);
