@@ -19,12 +19,7 @@ content="width=device-width, initial-scale=1.0">
 body{
 
     font-family:Arial;
-
-    background:linear-gradient(
-    135deg,
-    #0d6efd,
-    #1e293b
-    );
+background:linear-gradient(135deg,#0f172a,#334155,#64748b);
 
     display:flex;
 
@@ -41,18 +36,9 @@ body{
 
 .box{
 
-    background:white;
-
-    padding:35px;
-
-    border-radius:18px;
-
     width:100%;
 
     max-width:360px;
-
-    box-shadow:
-    0 10px 30px rgba(0,0,0,0.3);
 
     text-align:center;
 
@@ -222,6 +208,16 @@ button:hover{
     }
 }
 
+@keyframes spin{
+
+100%{
+
+transform:rotate(360deg);
+
+}
+
+}
+
 </style>
 </head>
 
@@ -243,6 +239,58 @@ id="password"
 placeholder="Password"
 autocomplete="new-password">
 
+<input
+type="password"
+id="confirmPassword"
+placeholder="Confirm Password"
+autocomplete="new-password">
+
+<div style="margin-top:15px;text-align:left;">
+
+<label style="font-weight:bold;">
+Security Verification
+</label>
+
+<div style="
+display:flex;
+gap:10px;
+margin-top:8px;
+align-items:center;
+">
+
+<div id="captchaBox"
+style="
+background:#e2e8f0;
+padding:12px 18px;
+border-radius:10px;
+font-size:18px;
+font-weight:bold;
+min-width:110px;
+text-align:center;
+">
+0 + 0
+</div>
+
+<button
+type="button"
+onclick="generateCaptcha()"
+style="
+width:55px;
+margin:0;
+padding:12px;
+">
+🔄
+</button>
+
+</div>
+
+<input
+type="number"
+id="captchaAnswer"
+placeholder="Enter Answer">
+
+</div>
+
 <div class="error" id="error"></div>
 
 <button onclick="signup()">
@@ -262,6 +310,23 @@ Already have account? Login
 </div>
 
 <script>
+
+let captchaResult = 0;
+
+function generateCaptcha(){
+
+    let a = Math.floor(Math.random()*10)+1;
+
+    let b = Math.floor(Math.random()*10)+1;
+
+    captchaResult = a + b;
+
+    document.getElementById("captchaBox").innerHTML =
+    a + " + " + b;
+
+    document.getElementById("captchaAnswer").value = "";
+
+}
 
 /* GOOGLE SHEET API */
 
@@ -284,32 +349,73 @@ async function signup(){
     .value
     .trim();
 
+    let confirmPass =
+    document
+    .getElementById("confirmPassword")
+    .value
+    .trim();
+
+let captcha =
+document.getElementById("captchaAnswer")
+.value
+.trim();
+
     let error =
     document
     .getElementById("error");
 
     error.innerText = "";
 
-    /* VALIDATION */
+ /* VALIDATION */
 
-    if(user.length < 3){
+if(user.length < 3){
 
-        error.innerText =
-        "Username must be at least 3 characters";
+    error.innerText =
+    "Username must be at least 3 characters";
 
-        return;
-    }
+    return;
+}
 
-    if(pass.length < 6){
+// 👇 અહીં નવો Password Validation
 
-        error.innerText =
-        "Password must be at least 6 characters";
+let letters = (pass.match(/[A-Za-z]/g) || []).length;
+let numbers = (pass.match(/[0-9]/g) || []).length;
+let symbols = (pass.match(/[^A-Za-z0-9]/g) || []).length;
 
-        return;
-    }
+if(letters < 5){
+
+    error.innerText =
+    "Password must contain at least 5 letters";
+
+    return;
+}
+
+if(numbers < 5){
+
+    error.innerText =
+    "Password must contain at least 5 numbers";
+
+    return;
+}
+
+if(symbols < 1){
+
+    error.innerText =
+    "Password must contain at least 1 special symbol";
+
+    return;
+}
+
+if(pass !== confirmPass){
+
+    error.innerText =
+    "Passwords do not match";
+
+    return;
+}
 
     try{
-
+        showLoader();
         await fetch(API_URL,{
 
             method:"POST",
@@ -322,19 +428,35 @@ async function signup(){
             })
         });
 
-        alert("Account Created ✅");
+        hideLoader();
+
+alert("✅ Account Created Successfully");
+
+document.getElementById("username").value="";
+document.getElementById("password").value="";
+document.getElementById("confirmPassword").value="";
+document.getElementById("captchaAnswer").value="";
+
+        generateCaptcha();
+
 
         window.location.href =
         "login.html";
 
-    }catch(err){
+}catch(err){
 
-        console.log(err);
+    hideLoader();
 
-        error.innerText =
-        "Server Error ❌";
-    }
+    console.log(err);
+
+    error.innerText="Server Error ❌";
+
 }
+}
+document.getElementById("username").value="";
+document.getElementById("password").value="";
+document.getElementById("confirmPassword").value="";
+document.getElementById("captchaAnswer").value="";
 
 /* ENTER KEY SIGNUP */
 
@@ -413,7 +535,54 @@ document.addEventListener(
 e => e.preventDefault()
 );
 
-</script>
+generateCaptcha();
 
+function showLoader(){
+
+document.getElementById("loader").style.display="flex";
+
+    document.querySelector("button").disabled=true;
+
+
+}
+
+function hideLoader(){
+
+document.getElementById("loader").style.display="none";
+
+    document.querySelector("button").disabled=true;
+
+
+}
+
+</script>
+<div id="loader" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(255,255,255,.9);
+justify-content:center;
+align-items:center;
+z-index:99999;
+flex-direction:column;
+">
+
+<div style="
+width:65px;
+height:65px;
+border:8px solid #dbeafe;
+border-top:8px solid #0d6efd;
+border-radius:50%;
+animation:spin 1s linear infinite;
+"></div>
+
+<h3 style="margin-top:20px;color:#0d6efd;">
+Creating Account...
+</h3>
+
+</div>
 </body>
 </html>
