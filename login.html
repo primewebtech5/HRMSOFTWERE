@@ -750,9 +750,13 @@ window.addEventListener("DOMContentLoaded", () => {
 
 // Load Users in Dropdown
 
+let allUsers = [];
+
 fetch(API_URL)
 .then(res => res.json())
 .then(data => {
+
+    allUsers = data;
 
     let dropdown = document.getElementById("username");
 
@@ -868,12 +872,7 @@ if(user==""){
         /* FETCH DATA — no-store so a changed/removed password is never
            checked against a stale cached response */
 
-        let response = await fetch(API_URL,{
-            cache:"no-store"
-        });
-
-        let data =
-        await response.json();
+           let data = allUsers;
 
         /* CHECK USER */
 let found = data.find(d =>
