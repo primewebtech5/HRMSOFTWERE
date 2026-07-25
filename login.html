@@ -682,8 +682,6 @@ button:hover{
 
 <option value="">Select Account</option>
 
-<option value="ADMIN">ADMIN</option>
-
 </select>
                 <div class="input-box">
 
@@ -717,7 +715,7 @@ button:hover{
 /* GOOGLE SHEET WEB APP URL */
 
 const API_URL =
-"https://script.google.com/macros/s/AKfycbye7Y5dbCH3M8Ep2NvDCk1P2AJ3natbDzpQ_U9oG0WZR-AX7aNxYedCTWYIsyK3Yb9i/exec";
+"https://script.google.com/macros/s/AKfycbzhNBboPhv615uUMO2OSPuRvhqwp-feYkVEVuQD7uYzIU_Ad5TAwO-XWp4q_2w0s5tE/exec";
 
 function showLoader(){
     const el = document.getElementById("loader");
@@ -748,6 +746,25 @@ window.addEventListener("DOMContentLoaded", () => {
         document.getElementById("username").value = rememberedUser;
         document.getElementById("rememberMe").checked = true;
     }
+});
+
+// Load Users in Dropdown
+
+fetch(API_URL)
+.then(res => res.json())
+.then(data => {
+
+    let dropdown = document.getElementById("username");
+
+    data.forEach(user => {
+
+        dropdown.innerHTML +=
+        `<option value="${user.username}">
+            ${user.username}
+        </option>`;
+
+    });
+
 });
 
 /* SLIDESHOW — auto-rotates every 4s, dots also clickable */
@@ -859,12 +876,11 @@ if(user==""){
         await response.json();
 
         /* CHECK USER */
-let found =
-data.find(d=>
+let found = data.find(d =>
 
-    d.username.toUpperCase()=="ADMIN" &&
+    d.username.toUpperCase() == user.toUpperCase() &&
 
-    d.password==pass
+    d.password == pass
 
 );
 
@@ -888,12 +904,33 @@ data.find(d=>
                 localStorage.removeItem("rememberedUser");
             }
 
-            setTimeout(()=>{
+setTimeout(()=>{
 
-                window.location.href =
-                "dashboard.html";
+    if(found.role == "ADMIN"){
 
-            },1000);
+        window.location.href = "dashboard.html";
+
+    }
+
+    else if(found.role == "HR"){
+
+        window.location.href = "hr_dashboard.html";
+
+    }
+
+    else if(found.role == "Uniform"){
+
+        window.location.href = "uniform.html";
+
+    }
+
+    else{
+
+        window.location.href = "user_dashboard.html";
+
+    }
+
+},1000);
 
         }else{
 
