@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Employee Document Upload</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:Arial,sans-serif;
+}
+
+body{
+
+background:#f1f5f9;
+
+padding:30px;
+
+}
+
+.container{
+
+max-width:900px;
+
+margin:auto;
+
+background:#fff;
+
+padding:30px;
+
+border-radius:20px;
+
+box-shadow:0 10px 30px rgba(0,0,0,.15);
+
+}
+
+h2{
+
+color:#2563eb;
+
+margin-bottom:25px;
+
+}
+
+.form-group{
+
+margin-bottom:20px;
+
+}
+
+label{
+
+display:block;
+
+font-weight:bold;
+
+margin-bottom:8px;
+
+}
+
+input,
+select{
+
+width:100%;
+
+padding:13px;
+
+border:1px solid #cbd5e1;
+
+border-radius:10px;
+
+font-size:15px;
+
+}
+
+input:focus,
+select:focus{
+
+outline:none;
+
+border-color:#2563eb;
+
+}
+
+.preview{
+
+margin-top:15px;
+
+width:180px;
+
+height:180px;
+
+border:2px dashed #cbd5e1;
+
+display:flex;
+
+justify-content:center;
+
+align-items:center;
+
+overflow:hidden;
+
+border-radius:12px;
+
+background:#f8fafc;
+
+}
+
+.preview img{
+
+width:100%;
+
+height:100%;
+
+object-fit:cover;
+
+display:none;
+
+}
+
+button{
+
+margin-top:25px;
+
+padding:14px;
+
+width:100%;
+
+background:#2563eb;
+
+color:white;
+
+border:none;
+
+border-radius:10px;
+
+font-size:16px;
+
+cursor:pointer;
+
+}
+
+button:hover{
+
+background:#1d4ed8;
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>📁 Employee Document Upload</h2>
+
+<div class="form-group">
+
+<label>Employee Name</label>
+
+<input
+type="text"
+id="employee"
+placeholder="Enter Employee Name">
+
+</div>
+
+<div class="form-group">
+
+<label>Document Type</label>
+
+<select id="documentType">
+
+<option>Aadhaar Card</option>
+
+<option>PAN Card</option>
+
+<option>Passport</option>
+
+<option>Driving License</option>
+
+<option>Photo</option>
+
+<option>Bank Passbook</option>
+
+<option>Salary Slip</option>
+
+<option>Offer Letter</option>
+
+<option>Other</option>
+
+</select>
+
+</div>
+
+<div class="form-group">
+
+<label>Select Image</label>
+
+<input
+type="file"
+id="image"
+accept="image/*"
+onchange="previewImage(event)">
+
+</div>
+
+<div class="preview">
+
+<img id="previewImg">
+
+<span id="placeholder">
+
+No Image
+
+</span>
+
+</div>
+
+<button onclick="uploadImage()">
+
+📤 Upload Document
+
+</button>
+
+</div>
+
+<script>
+
+const API_URL =
+"https://script.google.com/macros/s/AKfycbzJWrNWeILd5iwRoEeb3wu26HPJDo2VJULbFOJH12iE14v576pNtRyhVDGyE-OQ8pV2tQ/exec";
+
+/* IMAGE PREVIEW */
+
+function previewImage(e){
+
+    let file = e.target.files[0];
+
+    if(!file) return;
+
+    let reader = new FileReader();
+
+    reader.onload = function(){
+
+        document.getElementById("previewImg").src = reader.result;
+
+        document.getElementById("previewImg").style.display = "block";
+
+        document.getElementById("placeholder").style.display = "none";
+
+    }
+
+    reader.readAsDataURL(file);
+
+}
+
+
+/* IMAGE UPLOAD */
+
+async function uploadImage(){
+
+    let employee =
+    document.getElementById("employee").value.trim();
+
+    let type =
+    document.getElementById("documentType").value;
+
+    let file =
+    document.getElementById("image").files[0];
+
+    if(employee==""){
+
+        alert("Enter Employee Name");
+
+        return;
+
+    }
+
+    if(!file){
+
+        alert("Please Select Image");
+
+        return;
+
+    }
+
+    let reader = new FileReader();
+
+    reader.onload = async function(){
+
+        let base64 =
+        reader.result.split(",")[1];
+
+        try{
+
+            let response = await fetch(API_URL,{
+
+                method:"POST",
+
+                body:JSON.stringify({
+
+                    employee:employee,
+
+                    document:type,
+
+                    fileName:file.name,
+
+                    mimeType:file.type,
+
+                    image:base64
+
+                })
+
+            });
+
+            let result = await response.json();
+
+            console.log(result);
+
+            alert(JSON.stringify(result));
+
+            if(result.status=="Success"){
+
+                alert("✅ Image Uploaded Successfully");
+
+                console.log(result.url);
+
+                document.getElementById("employee").value="";
+
+                document.getElementById("documentType").selectedIndex=0;
+
+                document.getElementById("image").value="";
+
+                document.getElementById("previewImg").style.display="none";
+
+                document.getElementById("placeholder").style.display="block";
+
+            }else{
+
+                alert("❌ Upload Failed");
+
+                console.log(result);
+
+            }
+
+        }catch(err){
+
+            console.log(err);
+
+            alert("❌ Server Error");
+
+        }
+
+    }
+
+    reader.readAsDataURL(file);
+
+}
+
+</script>
+
+</body>
+</html>
