@@ -291,6 +291,42 @@ button:hover{
     transform:scale(1.02);
 }
 
+/* REMEMBER ME */
+
+.remember-row{
+
+    width:100%;
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin-top:4px;
+
+    font-size:14px;
+
+    color:#334155;
+
+    cursor:pointer;
+
+    user-select:none;
+}
+
+.remember-row input[type="checkbox"]{
+
+    width:16px;
+
+    height:16px;
+
+    margin:0;
+
+    cursor:pointer;
+
+    accent-color:#0d6efd;
+}
+
 /* LINK */
 
 .link{
@@ -542,18 +578,29 @@ button:hover{
 
             <h2>Welcome Back</h2>
 
-            <div class="input-box">
+            <form id="loginForm" autocomplete="on">
 
-                <input type="text" id="username" placeholder="Username">
+                <div class="input-box">
 
-                <input type="password" id="password" placeholder="Password">
+                    <input type="text" id="username" name="username"
+                    autocomplete="username" placeholder="Username">
 
-                <button onclick="login()">Login</button>
+                    <input type="password" id="password" name="password"
+                    autocomplete="current-password" placeholder="Password">
 
-                <div id="error"></div>
-                <div id="success"></div>
+                    <label class="remember-row">
+                        <input type="checkbox" id="rememberMe">
+                        Remember Me
+                    </label>
 
-            </div>
+                    <button type="button" onclick="login()">Login</button>
+
+                    <div id="error"></div>
+                    <div id="success"></div>
+
+                </div>
+
+            </form>
 
             <div class="link">
                 <a href="signup.html">Create Account</a>
@@ -581,6 +628,27 @@ function hideLoader(){
     const el = document.getElementById("loader");
     if(el) el.style.display = "none";
 }
+
+/* REMEMBER ME
+   ------------------------------------------------------------
+   We only remember the USERNAME here (auto-fills it on return
+   visits) — never the password. The actual password itself is
+   remembered by the browser's own built-in password manager
+   (Chrome's "Save password?" prompt below, which syncs with your
+   Google account if you're signed into Chrome) — that's the
+   secure, standard way to do this, instead of storing a plain
+   password ourselves where anyone with access to this browser's
+   dev tools could read it back out. */
+
+window.addEventListener("DOMContentLoaded", () => {
+
+    const rememberedUser = localStorage.getItem("rememberedUser");
+
+    if(rememberedUser){
+        document.getElementById("username").value = rememberedUser;
+        document.getElementById("rememberMe").checked = true;
+    }
+});
 
 /* SLIDESHOW — auto-rotates every 4s, dots also clickable */
 
@@ -686,6 +754,13 @@ async function login(){
                 user
             );
 
+            /* Remember Me — only the username, never the password */
+            if(document.getElementById("rememberMe").checked){
+                localStorage.setItem("rememberedUser", user);
+            } else {
+                localStorage.removeItem("rememberedUser");
+            }
+
             setTimeout(()=>{
 
                 window.location.href =
@@ -712,18 +787,18 @@ async function login(){
     }
 }
 
-/* ENTER KEY LOGIN */
+/* FORM SUBMIT — handles both the Login button and pressing Enter.
+   preventDefault() stops the page from reloading, but the form
+   submission itself still happens (browsers see it), which is what
+   makes Chrome offer "Save password?" after a successful login. */
 
 document
-.getElementById("password")
-.addEventListener(
-"keypress",
-function(e){
+.getElementById("loginForm")
+.addEventListener("submit", function(e){
 
-    if(e.key === "Enter"){
+    e.preventDefault();
 
-        login();
-    }
+    login();
 });
 
 /* 🚫 DISABLE COPY */
