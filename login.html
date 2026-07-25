@@ -678,11 +678,19 @@ button:hover{
     Account Login
 </div>
 
+
 <select id="username">
 
-<option value="">Select Account</option>
+    <option value="">Select Account</option>
+
+    <option value="Admin">Admin</option>
+
+    <option value="Uniform">Uniform</option>
 
 </select>
+
+
+
                 <div class="input-box">
 
   
@@ -750,26 +758,7 @@ window.addEventListener("DOMContentLoaded", () => {
 
 // Load Users in Dropdown
 
-let allUsers = [];
 
-fetch(API_URL)
-.then(res => res.json())
-.then(data => {
-
-    allUsers = data;
-
-    let dropdown = document.getElementById("username");
-
-    data.forEach(user => {
-
-        dropdown.innerHTML +=
-        `<option value="${user.username}">
-            ${user.username}
-        </option>`;
-
-    });
-
-});
 
 /* SLIDESHOW — auto-rotates every 4s, dots also clickable */
 
@@ -872,7 +861,11 @@ if(user==""){
         /* FETCH DATA — no-store so a changed/removed password is never
            checked against a stale cached response */
 
-           let data = allUsers;
+           let response = await fetch(API_URL,{
+    cache:"no-store"
+});
+
+let data = await response.json();
 
         /* CHECK USER */
 let found = data.find(d =>
