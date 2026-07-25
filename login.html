@@ -29,29 +29,181 @@ body{
 
     min-height:100vh;
 
-    padding:20px;
+    padding:0;
+}
+
+/* MAIN CONTAINER */
+
+.container{
+
+    width:100vw;
+    height:100vh;
+    max-width:none;
+
+    display:flex;
+
+    background:white;
+
+    border-radius:0;
+
+    overflow:hidden;
+
+    box-shadow:0 15px 40px rgba(0,0,0,.25);
+
+}
+
+/* LEFT SIDE — full photo slideshow (all images below are free-license,
+   non-copyrighted stock photos, safe for commercial use) */
+
+.left{
+
+    width:55%;
+
+    position:relative;
+
+    overflow:hidden;
+
+}
+
+.left-brand{
+
+    position:absolute;
+    top:28px;
+    left:0;
+    right:0;
+
+    text-align:center;
+
+    z-index:3;
+}
+
+.left-brand h1{
+
+    font-size:24px;
+    letter-spacing:0.5px;
+    color:white;
+    text-shadow:0 2px 10px rgba(0,0,0,0.4);
+}
+
+/* SLIDESHOW */
+
+.slideshow{
+
+    position:absolute;
+    inset:0;
+}
+
+.slide{
+
+    position:absolute;
+    inset:0;
+
+    opacity:0;
+
+    transition:opacity 1.2s ease-in-out;
+}
+
+.slide.active{
+
+    opacity:1;
+}
+
+.slide img{
+
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.slide-overlay{
+
+    position:absolute;
+    inset:0;
+
+    background:linear-gradient(135deg,rgba(15,23,42,0.85),rgba(2,132,199,0.55));
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+
+    padding:50px;
+
+    color:white;
+}
+
+.slide-overlay h3{
+
+    font-size:22px;
+    margin-bottom:12px;
+}
+
+.slide-overlay p{
+
+    font-size:15px;
+    color:#e2e8f0;
+    max-width:340px;
+    line-height:1.6;
+}
+
+.slide-dots{
+
+    position:absolute;
+    bottom:26px;
+    left:0;
+    right:0;
+
+    display:flex;
+    justify-content:center;
+    gap:8px;
+
+    z-index:3;
+}
+
+.slide-dots span{
+
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.4);
+    transition:0.3s;
+    cursor:pointer;
+}
+
+.slide-dots span.active{
+
+    background:white;
+    width:22px;
+    border-radius:5px;
+}
+
+/* RIGHT SIDE */
+
+.right{
+
+    width:45%;
+
+    padding:60px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
 }
 
 /* LOGIN BOX */
 
 .box{
 
-    background:white;
-
-    padding:35px;
-
-    border-radius:18px;
-
     width:100%;
 
     max-width:380px;
 
-    box-shadow:
-    0 10px 30px rgba(0,0,0,0.3);
+    animation:fade 0.4s ease;
 
-    text-align:center;
-
-    animation:fade 0.5s ease;
 }
 
 /* TITLE */
@@ -186,6 +338,24 @@ button:hover{
 
 /* MOBILE RESPONSIVE */
 
+@media(max-width:850px){
+
+    .container{
+        flex-direction:column;
+    }
+
+    .left{
+        width:100%;
+        padding:30px;
+        min-height:220px;
+    }
+
+    .right{
+        width:100%;
+        padding:35px 20px;
+    }
+}
+
 @media(max-width:500px){
 
     .box{
@@ -238,6 +408,7 @@ button:hover{
         transform:translateY(0);
     }
 }
+
 /* LOGIN LOADER */
 
 #loader{
@@ -289,99 +460,108 @@ button:hover{
     }
 
 }
-    /* LOGIN LOADER */
 
-#loader{
-
-    position:fixed;
-    inset:0;
-
-    background:rgba(255,255,255,.9);
-
-    display:none;
-
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-
-    z-index:99999;
-}
-
-.spinner{
-
-    width:70px;
-    height:70px;
-
-    border:8px solid #dbeafe;
-    border-top:8px solid #0d6efd;
-
-    border-radius:50%;
-
-    animation:spin 1s linear infinite;
-}
-
-.loader-text{
-
-    margin-top:18px;
-
-    font-size:18px;
-
-    font-weight:bold;
-
-    color:#0d6efd;
-}
-
-@keyframes spin{
-
-    100%{
-
-        transform:rotate(360deg);
-
-    }
-
-}
 </style>
 </head>
 
 <body oncontextmenu="return false">
 
-<div class="box">
+<!-- LOADER — placed before the closing body/script so it exists in the
+     DOM before any script runs (fixes "loader is not defined" crashes) -->
 
-<h2>🔐 Secure Login</h2>
+<div id="loader">
 
-<div class="input-box">
+    <div class="spinner"></div>
 
-<input
-type="text"
-id="username"
-placeholder="Username"
-autocomplete="off">
-
-<input
-type="password"
-id="password"
-placeholder="Password"
-autocomplete="new-password">
-
-<button onclick="login()">
-Login
-</button>
-
-<div id="error"></div>
-
-<div id="success"></div>
+    <div class="loader-text">
+        Logging In...
+    </div>
 
 </div>
 
-<div class="link">
+<div class="container">
 
-<a href="signup.html">
+    <div class="left">
 
-Create Account
+        <div class="left-brand">
+            <h1>👔 Prime Uniform System</h1>
+        </div>
 
-</a>
+        <div class="slideshow" id="slideshow">
 
-</div>
+            <!-- SLIDE 1 -->
+            <div class="slide active">
+                <img src="https://picsum.photos/seed/primeuniform1/1000/1200" alt="">
+                <div class="slide-overlay">
+                    <h3>Employee Uniform Tracking</h3>
+                    <p>Issue, track and manage uniforms for every employee with due-date reminders.</p>
+                </div>
+            </div>
+
+            <!-- SLIDE 2 -->
+            <div class="slide">
+                <img src="https://picsum.photos/seed/primeuniform2/1000/1200" alt="">
+                <div class="slide-overlay">
+                    <h3>Real-Time Stock Management</h3>
+                    <p>Keep material stock levels, purchases, and low-stock alerts always up to date.</p>
+                </div>
+            </div>
+
+            <!-- SLIDE 3 -->
+            <div class="slide">
+                <img src="https://picsum.photos/seed/primeuniform3/1000/1200" alt="">
+                <div class="slide-overlay">
+                    <h3>Vendor Bill Records</h3>
+                    <p>Save vendor bills with photos, amounts, and GST details — all searchable in one place.</p>
+                </div>
+            </div>
+
+            <!-- SLIDE 4 -->
+            <div class="slide">
+                <img src="https://picsum.photos/seed/primeuniform4/1000/1200" alt="">
+                <div class="slide-overlay">
+                    <h3>Live Dashboard Overview</h3>
+                    <p>See total uniforms, stock value, and due-date alerts at a glance — updated instantly.</p>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="slide-dots" id="slideDots">
+            <span class="active" onclick="goToSlide(0)"></span>
+            <span onclick="goToSlide(1)"></span>
+            <span onclick="goToSlide(2)"></span>
+            <span onclick="goToSlide(3)"></span>
+        </div>
+
+    </div>
+
+    <div class="right">
+
+        <div class="box">
+
+            <h2>Welcome Back</h2>
+
+            <div class="input-box">
+
+                <input type="text" id="username" placeholder="Username">
+
+                <input type="password" id="password" placeholder="Password">
+
+                <button onclick="login()">Login</button>
+
+                <div id="error"></div>
+                <div id="success"></div>
+
+            </div>
+
+            <div class="link">
+                <a href="signup.html">Create Account</a>
+            </div>
+
+        </div>
+
+    </div>
 
 </div>
 
@@ -391,6 +571,46 @@ Create Account
 
 const API_URL =
 "https://script.google.com/macros/s/AKfycbye7Y5dbCH3M8Ep2NvDCk1P2AJ3natbDzpQ_U9oG0WZR-AX7aNxYedCTWYIsyK3Yb9i/exec";
+
+function showLoader(){
+    const el = document.getElementById("loader");
+    if(el) el.style.display = "flex";
+}
+
+function hideLoader(){
+    const el = document.getElementById("loader");
+    if(el) el.style.display = "none";
+}
+
+/* SLIDESHOW — auto-rotates every 4s, dots also clickable */
+
+const slides = document.querySelectorAll(".slide");
+const dots = document.querySelectorAll("#slideDots span");
+let slideIndex = 0;
+let slideTimer = null;
+
+function showSlide(i){
+
+    slides.forEach(s => s.classList.remove("active"));
+    dots.forEach(d => d.classList.remove("active"));
+
+    slideIndex = (i + slides.length) % slides.length;
+
+    slides[slideIndex].classList.add("active");
+    dots[slideIndex].classList.add("active");
+}
+
+function goToSlide(i){
+    showSlide(i);
+    resetSlideTimer();
+}
+
+function resetSlideTimer(){
+    clearInterval(slideTimer);
+    slideTimer = setInterval(() => showSlide(slideIndex + 1), 4000);
+}
+
+resetSlideTimer();
 
 /* LOGIN FUNCTION */
 
@@ -430,20 +650,19 @@ async function login(){
         return;
     }
 
-showLoader();
+    showLoader();
 
     try{
 
-        /* FETCH DATA */
+        /* FETCH DATA — no-store so a changed/removed password is never
+           checked against a stale cached response */
 
-let response = await fetch(API_URL,{
-    cache:"force-cache"
-});
+        let response = await fetch(API_URL,{
+            cache:"no-store"
+        });
 
         let data =
         await response.json();
-
-        console.log(data);
 
         /* CHECK USER */
 
@@ -535,7 +754,7 @@ document.addEventListener(
 e => e.preventDefault()
 );
 
-/* 🚫 DISABLE DEVTOOLS */
+/* 🚫 DISABLE DEVTOOLS (basic deterrent only — not real protection) */
 
 document.onkeydown = function(e){
 
@@ -569,26 +788,8 @@ document.addEventListener(
 "dragstart",
 e => e.preventDefault()
 );
-function showLoader(){
 
-    loader.style.display="flex";
-
-}
-
-function hideLoader(){
-
-    loader.style.display="none";
-
-}
 </script>
-<div id="loader">
 
-    <div class="spinner"></div>
-
-    <div class="loader-text">
-        Logging In...
-    </div>
-
-</div>
 </body>
 </html>
