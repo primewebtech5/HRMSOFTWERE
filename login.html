@@ -259,6 +259,72 @@ input:focus{
     0 0 8px #0d6efd;
 }
 
+select{
+
+width:100%;
+
+padding:14px;
+
+margin:12px 0;
+
+border-radius:10px;
+
+border:1px solid #ccc;
+
+outline:none;
+
+font-size:15px;
+
+transition:.3s;
+
+}
+
+select:focus{
+
+border-color:#0d6efd;
+
+box-shadow:0 0 8px #0d6efd;
+
+}
+
+input:focus{
+
+    border-color:#0d6efd;
+
+    box-shadow:
+    0 0 8px #0d6efd;
+}
+
+.form-title{
+
+    text-align:center;
+
+    margin:20px 0 15px;
+
+}
+
+.form-title h4{
+
+    font-size:20px;
+
+    color:#1e293b;
+
+    font-weight:700;
+
+    letter-spacing:0.5px;
+
+    margin-bottom:5px;
+
+}
+
+.form-title p{
+
+    font-size:14px;
+
+    color:#64748b;
+
+}
+
 /* BUTTON */
 
 button{
@@ -582,10 +648,20 @@ button:hover{
 
             <form id="loginForm" autocomplete="on">
 
+<div class="input-box">
+
+<label>SELECT ACCOUNT</label>
+
+<select id="username">
+
+<option value="">Select Account</option>
+
+<option value="ADMIN">ADMIN</option>
+
+</select>
                 <div class="input-box">
 
-                    <input type="text" id="username" name="username"
-                    autocomplete="username" placeholder="Username">
+  
 
                     <input type="password" id="password" name="password"
                     autocomplete="current-password" placeholder="Password">
@@ -603,10 +679,6 @@ button:hover{
                 </div>
 
             </form>
-
-            <div class="link">
-                <a href="signup.html">Create Account</a>
-            </div>
 
         </div>
 
@@ -686,6 +758,26 @@ resetSlideTimer();
 
 async function login(){
 
+function selectUser(){
+
+    let user =
+    document.getElementById("userType").value;
+
+    if(user=="admin"){
+
+        document.getElementById("username").value =
+        "admin";
+
+    }else{
+
+        document.getElementById("username").value =
+        "";
+
+    }
+
+}
+
+
     let user =
     document
     .getElementById("username")
@@ -711,7 +803,13 @@ async function login(){
     success.innerText = "";
 
     /* VALIDATION */
+if(user==""){
 
+    error.innerText="Please Select User";
+
+    return;
+
+}
     if(user === "" || pass === ""){
 
         error.innerText =
@@ -735,14 +833,15 @@ async function login(){
         await response.json();
 
         /* CHECK USER */
+let found =
+data.find(d=>
 
-        let found =
-        data.find(d =>
+    d.username.toUpperCase()=="ADMIN" &&
 
-            d.username == user &&
+    d.password==pass
 
-            d.password == pass
-        );
+);
+
 
         if(found){
 
