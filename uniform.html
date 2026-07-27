@@ -424,7 +424,7 @@ body{
 
                 <h2>₹ <span id="grandTotal">0</span></h2>
 
-                <p>Total Investment</p>
+                <p>Total Investment (with GST)</p>
 
             </div>
 
@@ -463,82 +463,102 @@ body{
 const API_URL =
 "https://script.google.com/macros/s/AKfycbyNxwv4nONHJ4vqRxNqkSDcqb70esqPB52-RVwzT5AbBunwQxct1AbiSjmvz0nllFkM/exec";
 
-/* FORMAT DATE */
+const DASHBOARD_CACHE_KEY = "uniformDashboardCache_v1";
 
-function formatDate(d){
+/* ============================================================
+   SPEED FIX
+   ------------------------------------------------------------
+   OLD FLOW: browser downloaded the ENTIRE raw Employee_Entry +
+   Stock_Entry + Material_Master sheets on every page load, then
+   did all the alert/stock/investment math in JavaScript. Slow
+   both on the network (big payload) and on the CPU (looping
+   through everything client-side).
 
-    if(!d) return "";
-
-    return new Date(d).toISOString().split("T")[0];
-}
-/* LOAD */
+   NEW FLOW:
+   1. All that math now happens on the SERVER (Apps Script),
+      which also caches the result for 60 seconds — so repeat
+      loads are near-instant, no sheet re-read at all.
+   2. The browser only ever receives small, already-computed
+      numbers (totals + a short alerts list), never raw sheets.
+   3. INSTANT PAINT: the last successful result is kept in this
+      browser's localStorage. On page open, it's shown IMMEDIATELY
+      (0 network wait) while a fresh copy loads quietly in the
+      background and silently updates the screen when it arrives.
+      So in front of a client, the dashboard never looks "stuck
+      loading" — it always shows *something* right away.
+   ============================================================ */
 
 async function loadDashboard(){
 
-    const data = await fetch(API_URL + "?action=dashboard")
-        .then(r => r.json());
+    // 1) Instant paint from whatever we last saw, before any network call
+    try{
+        const cachedRaw = localStorage.getItem(DASHBOARD_CACHE_KEY);
+        if(cachedRaw){
+            renderDashboard(JSON.parse(cachedRaw));
+        }
+    }catch(e){
+        // ignore corrupt cache, just proceed to fetch fresh
+    }
 
-    loadAlerts(data.entry);
+    // 2) Fetch the real, fresh (or server-cached) summary in the background
+    try{
 
-    loadSummary(
-        data.entry,
-        data.stock,
-        data.material
-    );
+        const res = await fetch(API_URL + "?action=dashboardSummary",{cache:"no-store"});
+        const json = await res.json();
+
+        if(json && json.error){
+            console.error("Dashboard backend error:", json.message);
+            return;
+        }
+
+        renderDashboard(json);
+
+        try{
+            localStorage.setItem(DASHBOARD_CACHE_KEY, JSON.stringify(json));
+        }catch(e){
+            // storage full/unavailable — not critical, just skip caching
+        }
+
+    }catch(err){
+        console.error("loadDashboard failed:", err);
+    }
 }
 
-/* ALERTS */
+function renderDashboard(summary){
 
-function loadAlerts(entry){
+    loadAlerts(summary.alerts || []);
+
+    document.getElementById("totalUniform").innerText = summary.totalUniform || 0;
+    document.getElementById("totalStock").innerText = summary.totalStock || 0;
+    document.getElementById("grandTotal").innerText =
+        Number(summary.totalInvestment || 0).toLocaleString();
+
+    loadMaterialGrid(summary.material || {});
+}
+
+/* ALERTS — now just renders a small pre-computed list from the server,
+   no date math or looping over raw entry rows in the browser. */
+
+function loadAlerts(alerts){
 
     let html = "";
-    let count = 0;
 
-    const now = Date.now();
+    alerts.forEach(a => {
 
-    entry.slice(1).forEach(d => {
+        const isOverdue = a.status === "overdue";
 
-        const name = d[3];
-        const due = d[8];
-
-        if(!due) return;
-
-        const diff =
-        (new Date(due).getTime() - now) / 86400000;
-
-        if(diff < 0){
-
-            count++;
-
-            html += `
-            <div class="alert-item overdue">
-                <div class="alert-name">
-                    ❌ ${name}
-                </div>
-                <div class="alert-date">
-                    Due: ${formatDate(due)}
-                </div>
-            </div>`;
-        }
-
-        else if(diff <= 30){
-
-            count++;
-
-            html += `
-            <div class="alert-item">
-                <div class="alert-name">
-                    ⚠ ${name}
-                </div>
-                <div class="alert-date">
-                    Due: ${formatDate(due)}
-                </div>
-            </div>`;
-        }
-
+        html += `
+        <div class="alert-item ${isOverdue ? "overdue" : ""}">
+            <div class="alert-name">
+                ${isOverdue ? "❌" : "⚠"} ${a.name}
+            </div>
+            <div class="alert-date">
+                Due: ${a.due}
+            </div>
+        </div>`;
     });
 
-    if(count === 0){
+    if(alerts.length === 0){
 
         html = `
         <div class="alert-item">
@@ -551,101 +571,31 @@ function loadAlerts(entry){
         </div>`;
     }
 
-    alerts.innerHTML = html;
-    alertCount.innerText = count + " Alert";
+    document.getElementById("alerts").innerHTML = html;
+    document.getElementById("alertCount").innerText = alerts.length + " Alert";
 }
 
-/* SUMMARY */
+/* MATERIAL GRID — server already computed the final per-material
+   quantities, browser just renders them. */
 
-function loadSummary(entry,stock,mat){
+function loadMaterialGrid(material){
 
-    document.getElementById("totalUniform")
-    .innerText = entry.length - 1;
-
-    let material = {};
-
-    mat.slice(1).forEach(x=>{
-
-        material[x[0]] = 0;
-    });
-
-    /* ADD STOCK */
-
-    stock.slice(1).forEach(x=>{
-
-        let matName = x[0];
-
-        let qty = Number(x[2] || 0);
-
-        if(material[matName] != undefined){
-
-            material[matName] += qty;
-        }
-    });
-
-    /* MINUS ENTRY */
-
-    entry.slice(1).forEach(x=>{
-
-        let matName = x[7];
-
-        let qty = Number(x[6] || 0);
-
-        if(material[matName] != undefined){
-
-            material[matName] -= qty;
-        }
-    });
-
-    materialGrid.innerHTML = "";
     let grid = "";
 
-    let totalStock = 0;
+    for(const m in material){
 
-    for(let m in material){
-
-        totalStock += material[m];
-
-        let lowClass =
-        material[m] <= 5
-        ? "low-stock"
-        : "";
+        const qty = material[m];
+        const lowClass = qty <= 5 ? "low-stock" : "";
 
         grid += `
-
         <div class="material-box ${lowClass}">
-
-            <div class="material-name">
-                ${m}
-            </div>
-
-            <div class="material-qty">
-                ${material[m]}
-            </div>
-
+            <div class="material-name">${m}</div>
+            <div class="material-qty">${qty}</div>
         </div>
         `;
     }
 
-    materialGrid.innerHTML = grid;
-
-    document.getElementById("totalStock")
-    .innerText = totalStock;
-
-    /* TOTAL INVESTMENT */
-
-    let total = 0;
-
-    stock.slice(1).forEach(x=>{
-
-        total +=
-        Number(x[1] || 0)
-        *
-        Number(x[2] || 0);
-    });
-
-    document.getElementById("grandTotal")
-    .innerText = total.toLocaleString();
+    document.getElementById("materialGrid").innerHTML = grid;
 }
 
 /* INIT */
