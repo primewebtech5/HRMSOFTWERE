@@ -220,6 +220,50 @@ select:focus{
     font-weight:600;
 }
 
+.bill-preview{
+    margin-top:12px;
+    width:100px;
+    height:100px;
+    border-radius:12px;
+    object-fit:cover;
+    border:2px solid #dbeafe;
+    display:none;
+}
+
+.bill-preview[src]:not([src=""]){
+    display:block;
+}
+
+.bill-img{
+    width:50px;
+    height:50px;
+    object-fit:cover;
+    border-radius:8px;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.bill-img:hover{
+    transform:scale(1.1);
+}
+
+.img-modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,0.85);
+    justify-content:center;
+    align-items:center;
+    z-index:100000;
+}
+
+.img-modal img{
+    max-width:90%;
+    max-height:90%;
+    border-radius:16px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
 /* ================= BUTTON ================= */
 
 .btn-area{
@@ -266,7 +310,7 @@ select:focus{
 
 table{
     width:100%;
-    min-width:1100px;
+    min-width:1400px;
     border-collapse:collapse;
 }
 
@@ -297,6 +341,11 @@ tr:hover{
     cursor:pointer;
     font-size:13px;
     font-weight:600;
+}
+
+.edit-btn{
+    background:#2563eb;
+    color:white;
 }
 
 .delete-btn{
@@ -497,6 +546,16 @@ tr:hover{
             </div>
 
             <div class="input-group">
+                <label>Vendor Name</label>
+                <input type="text" id="vendorName" placeholder="Enter Vendor Name">
+            </div>
+
+            <div class="input-group">
+                <label>Invoice Number</label>
+                <input type="text" id="invoiceNumber" placeholder="Enter Invoice Number">
+            </div>
+
+            <div class="input-group">
                 <label>Price (Base, without GST)</label>
                 <input type="number" id="price" placeholder="Enter Price" oninput="updateGstPreview()">
             </div>
@@ -512,18 +571,24 @@ tr:hover{
             </div>
 
             <div class="input-group">
-                <label>CGST %</label>
-                <input type="number" id="cgst" placeholder="e.g. 9" oninput="updateGstPreview()">
+                <label>CGST % (fixed)</label>
+                <input type="number" id="cgst" value="2.5" readonly style="background:#e2e8f0;color:#64748b;">
             </div>
 
             <div class="input-group">
-                <label>SGST %</label>
-                <input type="number" id="sgst" placeholder="e.g. 9" oninput="updateGstPreview()">
+                <label>SGST % (fixed)</label>
+                <input type="number" id="sgst" value="2.5" readonly style="background:#e2e8f0;color:#64748b;">
             </div>
 
             <div class="input-group" style="grid-column:span 2;">
                 <label>Remarks</label>
                 <input type="text" id="remarks" placeholder="Enter Remarks">
+            </div>
+
+            <div class="input-group" style="grid-column:span 2;">
+                <label>Bill Image</label>
+                <input type="file" accept="image/*" onchange="uploadStockImage(event)">
+                <img id="stockPreview" class="bill-preview">
             </div>
 
             <div class="gst-preview" id="gstPreview">
@@ -534,7 +599,7 @@ tr:hover{
 
         <div class="btn-area">
 
-            <button class="btn" onclick="addStock()">
+            <button class="btn" id="saveBtn" onclick="saveStock()">
                 ➕ Add Stock
             </button>
 
@@ -574,11 +639,14 @@ tr:hover{
 
                         <th>SR</th>
                         <th>Material</th>
+                        <th>Vendor</th>
+                        <th>Invoice No</th>
                         <th>Price</th>
                         <th>Pair</th>
                         <th>CGST %</th>
                         <th>SGST %</th>
                         <th>Price with GST</th>
+                        <th>Bill</th>
                         <th>Date</th>
                         <th>Remarks</th>
                         <th>Action</th>
@@ -595,6 +663,12 @@ tr:hover{
 
     </div>
 
+</div>
+
+<!-- IMAGE VIEW MODAL -->
+
+<div class="img-modal" id="imgModal" onclick="closeImgModal()">
+    <img id="bigImg">
 </div>
 
 <!-- LOADER -->
@@ -632,6 +706,59 @@ function hideLoader(){
 
 let stockData = [];
 let materials = [];
+let stockImageData = "";  // base64 of freshly chosen bill image
+let editRow = null;
+let editImageUrl = "";    // existing Drive URL kept when editing without changing the image
+
+/* EDIT — fills the form with an existing row's data so it can be
+   updated instead of creating a new entry */
+function editData(i){
+
+    let d = stockData[i];
+
+    material.value = d.material;
+    vendorName.value = d.vendorName || "";
+    invoiceNumber.value = d.invoiceNumber || "";
+    price.value = d.price;
+    pair.value = d.pair;
+    pdate.value = d.date;
+    remarks.value = d.remarks || "";
+
+    stockPreview.src = d.image || "";
+
+    stockImageData = "";           // no NEW file chosen yet
+    editImageUrl = d.image || "";  // keep existing Drive URL unless replaced
+
+    updateGstPreview();
+
+    editRow = d.row;
+
+    document.getElementById("saveBtn").innerHTML = "✅ Update Stock";
+}
+
+function uploadStockImage(e){
+
+    let file = e.target.files[0];
+    if(!file) return;
+
+    let reader = new FileReader();
+
+    reader.onload = function(){
+        stockImageData = reader.result;
+        stockPreview.src = stockImageData;
+    }
+
+    reader.readAsDataURL(file);
+}
+
+function showImage(src){
+    imgModal.style.display = "flex";
+    bigImg.src = src;
+}
+
+function closeImgModal(){
+    imgModal.style.display = "none";
+}
 
 /* ============================================================
    SPEED FIX
@@ -713,53 +840,97 @@ function updateGstPreview(){
         `<b>Price with GST: ₹${r.total.toFixed(2)}</b>`;
 }
 
-/* ADD STOCK */
+/* ADD / UPDATE STOCK — one function handles both, based on editRow */
 
-async function addStock(){
+async function saveStock(){
 
     showLoader();
 
-    let obj = {
+    try{
 
-        sheet:"Stock_Entry",
+        let isUpdate = editRow != null;
 
-        material:material.value,
+        let obj = {
 
-        price:price.value,
+            sheet:"Stock_Entry",
 
-        pair:pair.value,
+            material:material.value,
 
-        date:pdate.value,
+            vendorName:vendorName.value,
 
-        remarks:remarks.value,
+            invoiceNumber:invoiceNumber.value,
 
-        cgst:cgst.value,
+            price:price.value,
 
-        sgst:sgst.value
+            pair:pair.value,
 
-    };
+            date:pdate.value,
 
-    await fetch(API_URL,{
+            remarks:remarks.value,
 
-        method:"POST",
+            cgst:cgst.value,
 
-        body:JSON.stringify(obj)
-    });
+            sgst:sgst.value,
 
+            // Send a FRESH base64 image if one was just picked, otherwise
+            // send back the existing Drive URL unchanged (so update doesn't
+            // wipe out the bill photo when the user didn't touch it).
+            image: stockImageData || editImageUrl || ""
+
+        };
+
+        if(isUpdate){
+            obj.action = "update";
+            obj.row = editRow;
+        }
+
+        const res = await fetch(API_URL,{
+
+            method:"POST",
+
+            body:JSON.stringify(obj)
+        });
+
+        const result = await res.json();
+
+        if(result && result.status === "error"){
+            alert("Save karva ma error aavi: " + result.message);
+            return;
+        }
+
+        clearStockForm();
+
+        await loadAll();
+
+        alert(isUpdate ? "Stock Updated Successfully" : "Stock Added Successfully");
+
+    } catch(err){
+
+        console.error("saveStock failed:", err);
+        alert("Save karva ma problem aavi, ferithi try karo.");
+
+    } finally {
+        hideLoader();
+    }
+}
+
+function clearStockForm(){
+
+    material.selectedIndex = 0;
+    vendorName.value = "";
+    invoiceNumber.value = "";
     price.value = "";
     pair.value = "";
     pdate.value = "";
     remarks.value = "";
-    cgst.value = "";
-    sgst.value = "";
+    stockImageData = "";
+    stockPreview.src = "";
+    editImageUrl = "";
+    editRow = null;
+
+    document.getElementById("saveBtn").innerHTML = "➕ Add Stock";
 
     updateGstPreview();
-
-    await loadAll();
-
-    hideLoader();
-
-    alert("Stock Added Successfully");
 }
 
 /* RENDER — builds rows into an array and sets innerHTML ONCE
@@ -785,6 +956,9 @@ function renderStock(stock, entry){
             cgst:d[5],
             sgst:d[6],
             priceWithGst:d[7],
+            image:d[8],
+            invoiceNumber:d[9],
+            vendorName:d[10],
             row:i+1
         };
 
@@ -801,14 +975,18 @@ function renderStock(stock, entry){
         <tr>
             <td>${idx+1}</td>
             <td>${obj.material}</td>
+            <td>${obj.vendorName || "-"}</td>
+            <td>${obj.invoiceNumber || "-"}</td>
             <td>₹ ${obj.price}</td>
             <td>${obj.pair}</td>
             <td>${obj.cgst || 0}%</td>
             <td>${obj.sgst || 0}%</td>
             <td><b>₹ ${priceWithGstDisplay}</b></td>
+            <td>${obj.image ? `<img src="${obj.image}" class="bill-img" onclick="showImage('${obj.image}')">` : "No Image"}</td>
             <td>${obj.date}</td>
             <td>${obj.remarks || "-"}</td>
             <td>
+                <button class="action-btn edit-btn" onclick="editData(${idx})">Edit</button>
                 <button class="action-btn delete-btn" onclick="deleteRow(${idx})">Delete</button>
             </td>
         </tr>
@@ -878,6 +1056,10 @@ async function deleteRow(i){
 
         showLoader();
 
+        if(editRow === stockData[i].row){
+            clearStockForm();
+        }
+
         await fetch(API_URL,{
 
             method:"POST",
@@ -927,17 +1109,26 @@ function searchData(){
 function exportExcel(){
 
     let csv =
-    "SR,Material,Price,Pair,CGST%,SGST%,Price with GST,Date,Remarks\n";
+    "SR,Material,Vendor,Invoice No,Price,Pair,CGST%,SGST%,Price with GST,Date,Remarks\n";
+
+    let grandTotal = 0;
 
     stockData.forEach((d,i)=>{
 
         let pwg = (d.priceWithGst !== undefined && d.priceWithGst !== "")
-            ? d.priceWithGst
-            : calcGst(d.price, d.pair, d.cgst, d.sgst).total.toFixed(2);
+            ? Number(d.priceWithGst)
+            : calcGst(d.price, d.pair, d.cgst, d.sgst).total;
+
+        grandTotal += pwg;
 
         csv +=
-`${i+1},${d.material},${d.price},${d.pair},${d.cgst||0},${d.sgst||0},${pwg},${d.date},${d.remarks}\n`;
+`${i+1},${d.material},${d.vendorName||""},${d.invoiceNumber||""},${d.price},${d.pair},${d.cgst||0},${d.sgst||0},${pwg.toFixed(2)},${d.date},${d.remarks}\n`;
     });
+
+    /* TOTAL ROW — sums the "Price with GST" column so the full
+       account is visible right at the bottom of the sheet.
+       Columns: SR,Material,Vendor,InvoiceNo,Price,Pair,CGST%,SGST%,PriceWithGST,Date,Remarks */
+    csv += ["","","","","","","","Total", grandTotal.toFixed(2), "", ""].join(",") + "\n";
 
     let blob = new Blob([csv]);
 
