@@ -470,9 +470,9 @@ tr:hover{
 
                 <select id="company">
 
-                    <option>Equity Motors (Rajkot) Pvt Ltd</option>
+                    <option>Equity Hyundai</option>
 
-                    <option>Entity Motors Pvt Ltd</option>
+                    <option>Entity Renault</option>
 
                 </select>
             </div>
@@ -557,6 +557,30 @@ tr:hover{
                 <label>Next Uniform Date</label>
 
                 <input type="date" id="nextDate">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Shirt (Qty)</label>
+
+                <input type="number" id="shirt" placeholder="How many shirts">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Pant (Qty)</label>
+
+                <input type="number" id="pant" placeholder="How many pants">
+
+            </div>
+
+            <div class="form-group">
+
+                <label>Price of Pair</label>
+
+                <input type="number" id="pricePerPair" placeholder="Price per pair">
 
             </div>
 
@@ -838,6 +862,9 @@ function renderTable(sheetData){
             due:row[8],
             remarks:row[9],
             nextDate:row[10],
+            shirt:row[11],
+            pant:row[12],
+            pricePerPair:row[13],
             rowNumber:i+1
         };
 
@@ -901,6 +928,12 @@ due.value = toInputDate(d.due);
 remarks.value = d.remarks;
 
 nextDate.value = "";
+
+shirt.value = d.shirt || "";
+
+pant.value = d.pant || "";
+
+pricePerPair.value = d.pricePerPair || "";
 
     document.getElementById("saveBtn").innerHTML = "✅ Update Entry";
 
@@ -1002,6 +1035,9 @@ function showDetails(i){
                     <p><b>⏰ Due Date :</b> ${formatDate(row[8])}</p>
                     <p><b>👕 Material :</b> ${row[7]}</p>
                     <p><b>📦 Pair :</b> ${row[6]}</p>
+                    <p><b>👔 Shirt :</b> ${row[11] || 0}</p>
+                    <p><b>👖 Pant :</b> ${row[12] || 0}</p>
+                    <p><b>💰 Price of Pair :</b> ₹${row[13] || 0}</p>
                     <p><b>📝 Remarks :</b> ${row[9]}</p>
                 </div>
             `);
@@ -1078,7 +1114,13 @@ async function saveOrUpdate(){
 
         remarks:remarks.value,
         
-        nextDate:nextDate.value
+        nextDate:nextDate.value,
+
+        shirt:shirt.value,
+
+        pant:pant.value,
+
+        pricePerPair:pricePerPair.value
 
     };
 
@@ -1146,7 +1188,7 @@ function searchData(){
 function exportExcel(){
 
     let csv =
-"SR,Employee,Company,Department,Material,Pair,Given,Due,Next Uniform\n";
+"SR,Employee,Company,Department,Material,Pair,Shirt,Pant,Price of Pair,Given,Due,Next Uniform\n";
 
     data.forEach((d,i)=>{
 
@@ -1157,6 +1199,9 @@ function exportExcel(){
         ${d.department},
         ${d.material},
         ${d.pair},
+        ${d.shirt||0},
+        ${d.pant||0},
+        ${d.pricePerPair||0},
         ${d.given},
         ${d.due},
         ${d.nextDate}\n`;
