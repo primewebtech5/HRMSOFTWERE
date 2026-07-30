@@ -13,392 +13,280 @@
 
 <style>
 
-/* ================= BODY ================= */
-
 *{
     margin:0;
     padding:0;
     box-sizing:border-box;
 }
 
+html,body{
+    height:100%;
+}
+
 body{
 
     font-family:'Poppins',sans-serif;
 
-    background:linear-gradient(
-        -45deg,
-        #020617,
-        #0f172a,
-        #1e3a8a,
-        #38bdf8
-    );
+    display:flex;
 
-    background-size:400% 400%;
-
-    animation:bgMove 8s ease infinite;
+    flex-direction:column;
 
     min-height:100vh;
 
-    color:white;
+    color:#1e293b;
 
-    overflow-x:hidden;
+    background:#eef4ff;
 }
 
-/* ================= BACKGROUND ANIMATION ================= */
+/* ================= TITLE BAR (very first line) ================= */
 
-@keyframes bgMove{
-
-    0%{
-        background-position:0% 50%;
-    }
-
-    50%{
-        background-position:100% 50%;
-    }
-
-    100%{
-        background-position:0% 50%;
-    }
-}
-
-/* ================= HEADER ================= */
-
-.header{
+.title-bar{
 
     width:100%;
 
-    padding:18px 35px;
+    background:#ffffff;
+
+    color:#0f172a;
+
+    text-align:center;
+
+    padding:3px 10px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+    letter-spacing:0.5px;
+
+    border-bottom:1px solid #e2e8f0;
+
+    line-height:1.4;
+}
+
+/* ================= INFO BAR (clock / date / day / logout) ================= */
+
+.info-bar{
+
+    width:100%;
+
+    background:#0f172a;
 
     display:flex;
 
-    justify-content:space-between;
-
     align-items:center;
 
-    background:rgba(255,255,255,0.08);
+    justify-content:flex-end;
 
-    backdrop-filter:blur(14px);
+    gap:14px;
 
-    border-bottom:1px solid rgba(255,255,255,0.1);
+    padding:3px 15px;
 
-    position:sticky;
+    font-size:11px;
 
-    top:0;
+    color:#93c5fd;
 
-    z-index:999;
+    flex-wrap:wrap;
+
+    line-height:1.4;
 }
 
-.logo{
+.info-bar .logout-btn{
 
-    font-size:28px;
-
-    font-weight:700;
-
-    letter-spacing:1px;
-
-    color:white;
-}
-
-.logo span{
-
-    color:#38bdf8;
-}
-
-/* ================= BUTTON ================= */
-
-.menu button{
-
-    background:linear-gradient(
-        135deg,
-        #38bdf8,
-        #2563eb
-    );
+    background:linear-gradient(135deg,#ef4444,#b91c1c);
 
     border:none;
 
     color:white;
 
-    padding:10px 18px;
+    padding:2px 10px;
 
-    border-radius:10px;
+    border-radius:5px;
 
     cursor:pointer;
 
     font-weight:600;
 
+    font-size:11px;
+
     transition:0.3s;
-
-    box-shadow:0 5px 15px rgba(0,0,0,0.2);
 }
 
-.menu button:hover{
+.info-bar .logout-btn:hover{
 
-    transform:translateY(-3px) scale(1.03);
-
-    box-shadow:0 8px 20px rgba(56,189,248,0.4);
+    transform:translateY(-2px);
 }
 
-/* ================= WELCOME ================= */
+/* ================= TOOLBAR (icon buttons row, the "8 buttons") ================= */
 
-.top-title{
-
-    text-align:center;
-
-    margin-top:40px;
-
-    padding:0 20px;
-
-    animation:fadeUp 1s ease;
-}
-
-.top-title h1{
-
-    font-size:40px;
-
-    margin-bottom:10px;
-}
-
-.top-title p{
-
-    color:#dbeafe;
-
-    font-size:15px;
-}
-
-/* ================= GRID ================= */
-
-.container{
+.toolbar{
 
     width:100%;
 
-    padding:40px;
+    background:linear-gradient(180deg,#7dd3fc,#38bdf8);
 
-    display:grid;
+    display:flex;
 
-    grid-template-columns:
-    repeat(auto-fit,minmax(240px,1fr));
+    flex-wrap:wrap;
 
-    gap:25px;
+    padding:10px 15px;
+
+    gap:6px;
+
 }
 
-/* ================= CARD ================= */
+.tool-btn{
 
-.card{
+    display:flex;
 
-    position:relative;
+    flex-direction:column;
 
-    background:rgba(255,255,255,0.10);
+    align-items:center;
 
-    border:1px solid rgba(255,255,255,0.15);
+    justify-content:flex-start;
 
-    backdrop-filter:blur(12px);
+    width:95px;
 
-    border-radius:22px;
+    background:transparent;
 
-    padding:35px 25px;
-
-    text-align:center;
+    border:none;
 
     cursor:pointer;
 
-    overflow:hidden;
+    padding:6px 4px;
 
-    transition:0.4s;
+    border-radius:8px;
 
-    animation:fadeUp 0.8s ease;
+    transition:0.2s;
+
 }
 
-/* HOVER EFFECT */
+.tool-btn:hover{
 
-.card:hover{
-
-    transform:
-    translateY(-10px)
-    scale(1.03);
-
-    border-color:#38bdf8;
-
-    box-shadow:
-    0 10px 30px rgba(0,0,0,0.25),
-    0 0 20px rgba(56,189,248,0.35);
+    background:rgba(255,255,255,0.35);
 }
 
-/* LIGHT EFFECT */
+.tool-btn .dot{
 
-.card::before{
+    width:26px;
 
-    content:"";
-
-    position:absolute;
-
-    width:200px;
-
-    height:200px;
-
-    background:rgba(255,255,255,0.1);
+    height:26px;
 
     border-radius:50%;
 
-    top:-120px;
+    background:#0f172a;
 
-    right:-120px;
+    margin-bottom:6px;
 
-    transition:0.5s;
-}
+    display:flex;
 
-.card:hover::before{
+    align-items:center;
 
-    transform:scale(1.2);
-}
-
-/* ICON */
-
-.icon{
-
-    font-size:55px;
-
-    margin-bottom:18px;
-
-    animation:float 3s ease-in-out infinite;
-}
-
-/* TITLE */
-
-.title{
-
-    font-size:20px;
-
-    font-weight:600;
-
-    margin-bottom:8px;
-}
-
-/* SUBTITLE */
-
-.subtitle{
+    justify-content:center;
 
     font-size:13px;
 
-    color:#dbeafe;
-
-    line-height:1.6;
 }
 
-/* ================= FOOTER ================= */
+.tool-btn span.label{
 
-.footer{
+    font-size:11px;
 
-    margin-top:auto;
+    font-weight:600;
 
-    background:rgba(255,255,255,0.08);
-
-    backdrop-filter:blur(10px);
-
-    border-top:1px solid rgba(255,255,255,0.1);
+    color:#0f172a;
 
     text-align:center;
 
-    padding:16px;
-
-    font-size:14px;
-
-    color:#dbeafe;
+    line-height:1.2;
 }
 
-/* ================= ANIMATIONS ================= */
+/* ================= BLANK CANVAS (fully empty middle area) ================= */
 
-@keyframes fadeUp{
+.canvas{
 
-    from{
+    flex:1;
 
-        opacity:0;
+    width:100%;
 
-        transform:
-        translateY(40px);
-    }
+    background:linear-gradient(180deg,#dbeafe,#eef4ff 40%,#f8fafc);
 
-    to{
+    display:flex;
 
-        opacity:1;
+    align-items:flex-end;
 
-        transform:
-        translateY(0);
-    }
+    justify-content:center;
+
+    padding-bottom:60px;
+
 }
 
-@keyframes float{
+.brand-name{
 
-    0%{
-        transform:translateY(0px);
-    }
+    font-size:34px;
 
-    50%{
-        transform:translateY(-8px);
-    }
+    font-weight:700;
 
-    100%{
-        transform:translateY(0px);
-    }
+    color:#1d4ed8;
+
+    text-align:center;
+
+    letter-spacing:0.5px;
+}
+
+/* ================= STATUS BAR (bottom) ================= */
+
+.status-bar{
+
+    width:100%;
+
+    background:linear-gradient(180deg,#38bdf8,#7dd3fc);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:8px 20px;
+
+    font-size:13px;
+
+    flex-wrap:wrap;
+
+    gap:8px;
+
+}
+
+.status-bar .month{
+
+    color:#b91c1c;
+
+    font-weight:700;
+
+}
+
+.status-bar .welcome{
+
+    color:#0f172a;
+
+    font-weight:600;
+
 }
 
 /* ================= MOBILE ================= */
 
 @media(max-width:768px){
 
-    .header{
+    .tool-btn{
 
-        padding:15px 20px;
+        width:80px;
     }
 
-    .logo{
+    .brand-name{
 
         font-size:22px;
     }
 
-    .top-title h1{
-
-        font-size:28px;
-    }
-
-    .container{
-
-        padding:20px;
-    }
-
-    .card{
-
-        padding:28px 20px;
-    }
-
-    .icon{
-
-        font-size:45px;
-    }
-}
-
-@media(max-width:500px){
-
-    .header{
-
-        flex-direction:column;
-
-        gap:12px;
-    }
-
-    .top-title{
-
-        margin-top:25px;
-    }
-
-    .top-title h1{
-
-        font-size:24px;
-    }
-
-    .top-title p{
-
-        font-size:13px;
-    }
 }
 
 </style>
@@ -406,208 +294,92 @@ body{
 
 <body>
 
-<!-- HEADER -->
+<!-- TITLE BAR -->
 
-<div class="header">
+<div class="title-bar">
+    Prime E.M.S 1.0.0(a)
+</div>
 
-    <div class="logo">
-        Prime <span>Software</span>
-    </div>
+<!-- INFO BAR: clock, date, day, logout -->
 
-    <div class="menu">
+<div class="info-bar">
 
-        <button onclick="go('login.html')">
-            Log Out
-        </button>
+    <span id="clock"></span>
 
+    <span id="dateBox"></span>
+
+    <span id="dayBox"></span>
+
+    <button class="logout-btn" onclick="go('login.html')">
+        Logout
+    </button>
+
+</div>
+
+<!-- TOOLBAR: 8 icon buttons -->
+
+<div class="toolbar">
+
+    <button class="tool-btn" onclick="go('employeedashboard.html')">
+        <span class="dot">🧑🏻‍💼</span>
+        <span class="label">Employee<br>Management</span>
+    </button>
+
+    <button class="tool-btn" onclick="go('interview_detail.html')">
+        <span class="dot">👨🏻‍💼</span>
+        <span class="label">Candidate<br>Management</span>
+    </button>
+
+    <button class="tool-btn" onclick="go('uniform.html')">
+        <span class="dot">👔</span>
+        <span class="label">Uniform<br>Management</span>
+    </button>
+
+    <button class="tool-btn" onclick="go('attendance.html')">
+        <span class="dot">📅</span>
+        <span class="label">Attendance</span>
+    </button>
+
+    <button class="tool-btn" onclick="go('data.html')">
+        <span class="dot">📁</span>
+        <span class="label">Document<br>Center</span>
+    </button>
+
+    <button class="tool-btn" onclick="go('settingdashboard.html')">
+        <span class="dot">⚙️</span>
+        <span class="label">Settings</span>
+    </button>
+
+    <button class="tool-btn" onclick="go('notif.html')">
+        <span class="dot">🔔</span>
+        <span class="label">Notification</span>
+    </button>
+
+    <button class="tool-btn" onclick="go('error.html')">
+        <span class="dot">🛠️</span>
+        <span class="label">Technical<br>Support</span>
+    </button>
+
+</div>
+
+<!-- BLANK CANVAS -->
+
+<div class="canvas">
+
+    <div class="brand-name">
     </div>
 
 </div>
 
-<!-- TITLE -->
+<!-- STATUS BAR -->
 
-<div class="top-title">
+<div class="status-bar">
 
-    <h1>
-        Welcome To Prime HRM Dashboard
-    </h1>
+    <span class="month" id="monthBox"></span>
 
-    <p>
-        Smart Employee & Business Management System
-    </p>
-
-</div>
-
-<!-- DASHBOARD -->
-
-<div class="container">
-
-    <!-- EMPLOYEE -->
-
-    <div class="card"
-    onclick="go('employeedashboard.html')">
-
-        <div class="icon">
-            🧑🏻‍💼
-        </div>
-
-        <div class="title">
-            Employee Management
-        </div>
-
-        <div class="subtitle">
-            Manage employee details,
-            salary, attendance & records.
-        </div>
-
-    </div>
-
-    <!-- CANDIDATE -->
-
-    <div class="card"
-    onclick="go('interview_detail.html')">
-
-        <div class="icon">
-            👨🏻‍💼
-        </div>
-
-        <div class="title">
-            Candidate Management
-        </div>
-
-        <div class="subtitle">
-            Interview tracking,
-            hiring process & candidate data.
-        </div>
-
-    </div>
-
-    <!-- UNIFORM -->
-
-    <div class="card"
-    onclick="go('uniform.html')">
-
-        <div class="icon">
-            👔
-        </div>
-
-        <div class="title">
-            Uniform Management
-        </div>
-
-        <div class="subtitle">
-            Track uniform stock,
-            vendor & employee records.
-        </div>
-
-    </div>
-
-    <!-- REPORT -->
-
-    <div class="card"
-    onclick="go('attendance.html')">
-
-        <div class="icon">
-            📅
-        </div>
-
-        <div class="title">
-            Employee Attendance
-        </div>
-
-        <div class="subtitle">
-            View Employee Attendance reports,
-            Daily punching.
-        </div>
-
-    </div>
-
-    <!-- DOCUMENT -->
-
-    <div class="card"
-    onclick="go('data.html')">
-
-        <div class="icon">
-            📁
-        </div>
-
-        <div class="title">
-            Document Center
-        </div>
-
-        <div class="subtitle">
-            Store company files,
-            employee documents & forms.
-        </div>
-
-    </div>
-
-    <!-- SETTINGS -->
-
-    <div class="card"
-    onclick="go('settingdashboard.html')">
-
-        <div class="icon">
-            ⚙️
-        </div>
-
-        <div class="title">
-            Settings
-        </div>
-
-        <div class="subtitle">
-            Manage software settings,
-            permissions & controls.
-        </div>
-
-    </div>
-        <!-- NOTIFICATION-->
-
-    <div class="card"
-    onclick="go('notif.html')">
-
-        <div class="icon">
-            🔔
-        </div>
-
-        <div class="title">
-           Notification
-        </div>
-
-        <div class="subtitle">
-          Notification Is Just For Reminder.
-        </div>
-
-    </div>
-
-    
-    <!-- SUPPORT -->
-
-    <div class="card"
-    onclick="go('error.html')">
-
-        <div class="icon">
-            🛠️
-        </div>
-
-        <div class="title">
-            Technical Support
-        </div>
-
-        <div class="subtitle">
-            Report issues &
-            get instant software support.
-        </div>
-
-    </div>
-
-</div>
-
-<!-- FOOTER -->
-
-<div class="footer">
-
-    © 2022 - 2026 | Developed By PrimeWebTech
+    <span class="welcome">
+        Welcome : <b id="userName">ADMIN</b>
+    </span>
 
 </div>
 
@@ -616,6 +388,53 @@ body{
 function go(page){
 
     window.location.href = page;
+}
+
+/* live clock / date / day */
+
+function updateClock(){
+
+    let now = new Date();
+
+    let h = String(now.getHours()).padStart(2,"0");
+    let m = String(now.getMinutes()).padStart(2,"0");
+    let s = String(now.getSeconds()).padStart(2,"0");
+
+    document.getElementById("clock").textContent = `${h}:${m}:${s}`;
+
+    let days =
+    ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+    document.getElementById("dayBox").textContent = days[now.getDay()];
+
+    let dd = String(now.getDate()).padStart(2,"0");
+    let mm = String(now.getMonth()+1).padStart(2,"0");
+    let yyyy = now.getFullYear();
+
+    document.getElementById("dateBox").textContent = `${dd}/${mm}/${yyyy}`;
+
+    let months =
+    ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+
+    document.getElementById("monthBox").textContent =
+    `Current Month :: ${months[now.getMonth()]} ${yyyy}`;
+
+}
+
+updateClock();
+
+setInterval(updateClock, 1000);
+
+/* show logged in user if saved at login time */
+
+let savedUser =
+localStorage.getItem("loggedInUser") ||
+sessionStorage.getItem("loggedInUser");
+
+if(savedUser){
+
+    document.getElementById("userName").textContent = savedUser;
+
 }
 
 </script>
