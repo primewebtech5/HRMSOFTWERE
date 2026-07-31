@@ -252,30 +252,34 @@ tr:hover{
     color:#dc2626;
 }
 
-/* MODAL */
+/* ================= MODAL (Employee Details) — redesigned ================= */
 
 .modal{
     display:none;
     position:fixed;
     inset:0;
-    background:rgba(0,0,0,0.5);
+    background:rgba(15,23,42,0.6);
     z-index:1000;
     padding:15px;
 }
 
 .modal-content{
     background:white;
-    max-width:500px;
-    margin:60px auto;
-    border-radius:20px;
-    padding:25px;
+    max-width:560px;
+    margin:40px auto;
+    border-radius:22px;
     position:relative;
     animation:popup 0.3s ease;
+    max-height:88vh;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    box-shadow:0 25px 60px rgba(0,0,0,0.35);
 }
 
 @keyframes popup{
     from{
-        transform:scale(0.8);
+        transform:scale(0.9);
         opacity:0;
     }
 
@@ -287,20 +291,235 @@ tr:hover{
 
 .close{
     position:absolute;
-    right:18px;
+    right:15px;
     top:15px;
-    font-size:22px;
+    font-size:20px;
     cursor:pointer;
+    font-weight:bold;
+    color:white;
+    background:rgba(255,255,255,0.15);
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:10;
+    transition:0.2s;
+}
+
+.close:hover{
+    background:rgba(255,255,255,0.3);
+    transform:rotate(90deg);
+}
+
+/* Employee header banner inside the modal */
+
+.emp-header{
+    background:linear-gradient(135deg,#0f172a,#1e3a8a,#0284c7);
+    color:white;
+    padding:28px 25px 22px;
+    flex-shrink:0;
+}
+
+.emp-avatar-row{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.emp-avatar{
+    width:56px;
+    height:56px;
+    border-radius:50%;
+    background:rgba(255,255,255,0.15);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:26px;
+    flex-shrink:0;
+}
+
+.emp-name{
+    font-size:21px;
     font-weight:bold;
 }
 
-/* DETAIL BOX */
+.emp-sub{
+    font-size:13px;
+    opacity:0.85;
+    margin-top:2px;
+}
 
-.detail-row{
+.emp-stats{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:16px;
+}
+
+.stat-chip{
+    background:rgba(255,255,255,0.15);
+    padding:7px 13px;
+    border-radius:20px;
+    font-size:12.5px;
+    font-weight:600;
+    backdrop-filter:blur(4px);
+}
+
+/* Scrollable body */
+
+.modal-body{
+    padding:22px 25px 25px;
+    overflow-y:auto;
+}
+
+.section-title{
+    font-size:12.5px;
+    font-weight:800;
+    color:#64748b;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    margin:18px 0 10px;
+}
+
+.section-title:first-child{
+    margin-top:0;
+}
+
+/* Next uniform date chips (replaces the old broken dropdown) */
+
+.date-chips{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+}
+
+.date-chip{
+    padding:7px 13px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:700;
+}
+
+.date-chip.overdue{
+    background:#fee2e2;
+    color:#dc2626;
+}
+
+.date-chip.soon{
+    background:#fef3c7;
+    color:#b45309;
+}
+
+.date-chip.normal{
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+/* Issue history cards */
+
+.issue-card{
     background:#f8fafc;
-    padding:12px;
-    border-radius:10px;
-    margin-bottom:10px;
+    border-radius:14px;
+    padding:16px;
+    margin-bottom:12px;
+    border-left:5px solid #94a3b8;
+    transition:0.2s;
+}
+
+.issue-card:hover{
+    transform:translateX(2px);
+}
+
+.issue-card.overdue{
+    border-left-color:#dc2626;
+    background:#fef2f2;
+}
+
+.issue-card.soon{
+    border-left-color:#f59e0b;
+    background:#fffbeb;
+}
+
+.issue-card.ok{
+    border-left-color:#16a34a;
+    background:#f0fdf4;
+}
+
+.issue-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:12px;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.issue-title{
+    font-weight:700;
+    font-size:15px;
+    color:#0f172a;
+}
+
+.issue-badge{
+    font-size:10.5px;
+    font-weight:800;
+    padding:4px 11px;
+    border-radius:20px;
+    text-transform:uppercase;
+    letter-spacing:0.3px;
+    white-space:nowrap;
+}
+
+.issue-badge.overdue{
+    background:#dc2626;
+    color:white;
+}
+
+.issue-badge.soon{
+    background:#f59e0b;
+    color:white;
+}
+
+.issue-badge.ok{
+    background:#16a34a;
+    color:white;
+}
+
+.issue-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px 16px;
+}
+
+.issue-item b{
+    display:block;
+    color:#94a3b8;
+    font-size:10.5px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:0.3px;
+    margin-bottom:3px;
+}
+
+.issue-item span{
+    font-size:14px;
+    color:#1e293b;
+    font-weight:600;
+}
+
+.issue-remarks{
+    grid-column:span 2;
+    margin-top:4px;
+    padding-top:10px;
+    border-top:1px dashed #e2e8f0;
+}
+
+.empty-note{
+    color:#94a3b8;
+    font-size:13px;
+    font-style:italic;
 }
 
 /* FOOTER */
@@ -345,6 +564,14 @@ tr:hover{
 
     .btn{
         width:100%;
+    }
+
+    .issue-grid{
+        grid-template-columns:1fr;
+    }
+
+    .issue-remarks{
+        grid-column:span 1;
     }
 
 }
@@ -685,10 +912,6 @@ onclick="saveOrUpdate()">
 
         </span>
 
-        <h2 style="margin-bottom:20px;">
-            Employee Details
-        </h2>
-
         <div id="detailBox"></div>
 
     </div>
@@ -1003,68 +1226,133 @@ function toInputDate(date){
     return "";
 }
 
+/* ============================================================
+   EMPLOYEE DETAILS MODAL — redesigned
+   ------------------------------------------------------------
+   Old version used a native <select> dropdown for "Next Uniform
+   History" which looked broken/overlapping on many browsers.
+   New version: a gradient header with employee summary chips,
+   next-uniform-dates shown as color-coded pill badges (red =
+   overdue, orange = due within 30 days, blue = normal), and each
+   past issue shown as a clean card with a 2-column detail grid,
+   color-coded on the same overdue/soon/ok logic.
+   ============================================================ */
+
+function getDueStatus(dueRaw, todayDate){
+
+    if(!dueRaw) return "ok";
+
+    let d = new Date(String(dueRaw) + "T00:00:00");
+    if(isNaN(d.getTime())) return "ok";
+
+    let diffDays = Math.floor((d - todayDate) / (1000*60*60*24));
+
+    if(diffDays < 0) return "overdue";
+    if(diffDays <= 30) return "soon";
+    return "ok";
+}
+
 function showDetails(i){
 
     let employee = data[i].empName;
+    let company = data[i].company;
 
-    let historyHtml = [];
-    let nextDates = new Set();
+    let today = new Date();
+    today.setHours(0,0,0,0);
 
-    let count = 0;
+    let matches = [];
 
     for(let r=1;r<allRows.length;r++){
-
         let row = allRows[r];
-
         if(String(row[3]).toLowerCase() == employee.toLowerCase()){
-
-            count++;
-
-            if(row[10]){
-                String(row[10]).split(",").forEach(dt=>{
-                    dt = dt.trim();
-                    if(dt) nextDates.add(dt);
-                });
-            }
-
-            historyHtml.push(`
-                <div class="detail-row">
-                    <h3 style="color:#2563eb;margin-bottom:10px;">Uniform Issue ${count}</h3>
-                    <p><b>📅 Joining Date :</b> ${formatDate(row[4])}</p>
-                    <p><b>📅 Given Date :</b> ${formatDate(row[5])}</p>
-                    <p><b>⏰ Due Date :</b> ${formatDate(row[8])}</p>
-                    <p><b>👕 Material :</b> ${row[7]}</p>
-                    <p><b>📦 Pair :</b> ${row[6]}</p>
-                    <p><b>👔 Shirt :</b> ${row[11] || 0}</p>
-                    <p><b>👖 Pant :</b> ${row[12] || 0}</p>
-                    <p><b>💰 Price of Pair :</b> ₹${row[13] || 0}</p>
-                    <p><b>📝 Remarks :</b> ${row[9]}</p>
-                </div>
-            `);
+            matches.push(row);
         }
     }
 
-    let dropdownOptions = Array.from(nextDates)
-        .sort()
-        .map(d => `<option>${formatDate(d)}</option>`)
-        .join("");
+    // Latest issue first
+    matches.sort((a,b) => String(b[5]||"").localeCompare(String(a[5]||"")));
+
+    let nextDates = new Set();
+    let materialsUsed = new Set();
+    let totalInvestment = 0;
+    let count = 0;
+
+    let historyHtml = matches.map(row => {
+
+        count++;
+
+        if(row[7]) materialsUsed.add(row[7]);
+
+        let priceVal = Number(row[13]) || 0;
+        let pairVal = Number(row[6]) || 0;
+        totalInvestment += priceVal * pairVal;
+
+        if(row[10]){
+            String(row[10]).split(",").forEach(dt=>{
+                dt = dt.trim();
+                if(dt) nextDates.add(dt);
+            });
+        }
+
+        let status = getDueStatus(row[8], today);
+        let statusLabel = status === "overdue" ? "Overdue" : status === "soon" ? "Due Soon" : "On Track";
+
+        return `
+            <div class="issue-card ${status}">
+                <div class="issue-header">
+                    <div class="issue-title">👕 Issue #${count} — ${row[7] || "-"}</div>
+                    <div class="issue-badge ${status}">${statusLabel}</div>
+                </div>
+                <div class="issue-grid">
+                    <div class="issue-item"><b>Joining Date</b><span>${formatDate(row[4])}</span></div>
+                    <div class="issue-item"><b>Given Date</b><span>${formatDate(row[5])}</span></div>
+                    <div class="issue-item"><b>Due Date</b><span>${formatDate(row[8])}</span></div>
+                    <div class="issue-item"><b>Company</b><span>${row[0] || "-"}</span></div>
+                    <div class="issue-item"><b>Pair</b><span>${row[6] || 0}</span></div>
+                    <div class="issue-item"><b>Shirt</b><span>${row[11] || 0}</span></div>
+                    <div class="issue-item"><b>Pant</b><span>${row[12] || 0}</span></div>
+                    <div class="issue-item"><b>Price / Pair</b><span>₹${row[13] || 0}</span></div>
+                    ${row[9] ? `<div class="issue-item issue-remarks"><b>Remarks</b><span>${row[9]}</span></div>` : ""}
+                </div>
+            </div>
+        `;
+    }).join("");
+
+    let dateChipsHtml = Array.from(nextDates).sort().map(d => {
+        let status = getDueStatus(d, today);
+        return `<span class="date-chip ${status}">${formatDate(d)}</span>`;
+    }).join("");
 
     detailBox.innerHTML = `
 
-        <h2 style="margin-bottom:15px;">👤 ${employee}</h2>
-
-        <div style="background:#dbeafe;padding:12px;border-radius:10px;margin-bottom:20px;font-weight:bold;">
-            Total Uniform Issued : ${count}
+        <div class="emp-header">
+            <div class="emp-avatar-row">
+                <div class="emp-avatar">👤</div>
+                <div>
+                    <div class="emp-name">${employee}</div>
+                    <div class="emp-sub">${company || ""}</div>
+                </div>
+            </div>
+            <div class="emp-stats">
+                <div class="stat-chip">📦 ${count} Uniform${count === 1 ? "" : "s"} Issued</div>
+                <div class="stat-chip">👕 ${Array.from(materialsUsed).join(", ") || "-"}</div>
+                <div class="stat-chip">💰 ₹${totalInvestment.toLocaleString()}</div>
+            </div>
         </div>
 
-        <div style="background:#fff8dc;padding:12px;border-radius:10px;margin-bottom:20px;">
-            <b>📅 Next Uniform History</b>
-            <select style="width:100%;padding:10px;border-radius:8px;margin-top:10px;">
-                ${dropdownOptions}
-            </select>
-        </div>
+        <div class="modal-body">
 
-        ${historyHtml.join("")}
+            <div class="section-title">📅 Next Uniform Dates</div>
+            ${
+                dateChipsHtml
+                ? `<div class="date-chips">${dateChipsHtml}</div>`
+                : `<div class="empty-note">No upcoming date set yet.</div>`
+            }
+
+            <div class="section-title">📋 Issue History</div>
+            ${historyHtml || `<div class="empty-note">No records found.</div>`}
+
+        </div>
     `;
 
     modal.style.display = "block";
