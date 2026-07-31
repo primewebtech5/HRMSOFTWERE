@@ -417,103 +417,77 @@ tr:hover{
     color:#1d4ed8;
 }
 
-/* Issue history cards */
+/* Issue history table */
 
-.issue-card{
-    background:#f8fafc;
+.issue-table-wrapper{
+    overflow-x:auto;
     border-radius:14px;
-    padding:16px;
-    margin-bottom:12px;
-    border-left:5px solid #94a3b8;
-    transition:0.2s;
+    border:1px solid #e2e8f0;
 }
 
-.issue-card:hover{
-    transform:translateX(2px);
+.issue-table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:520px;
 }
 
-.issue-card.overdue{
-    border-left-color:#dc2626;
+.issue-table th{
+    background:#0f172a;
+    color:white;
+    padding:12px 10px;
+    font-size:12.5px;
+    text-transform:uppercase;
+    letter-spacing:0.3px;
+}
+
+.issue-table td{
+    padding:11px 10px;
+    text-align:center;
+    font-size:14px;
+    border-bottom:1px solid #e2e8f0;
+    font-weight:600;
+    color:#1e293b;
+}
+
+.issue-table tr:last-child td{
+    border-bottom:none;
+}
+
+.issue-table tr.overdue td{
     background:#fef2f2;
 }
 
-.issue-card.soon{
-    border-left-color:#f59e0b;
+.issue-table tr.soon td{
     background:#fffbeb;
 }
 
-.issue-card.ok{
-    border-left-color:#16a34a;
-    background:#f0fdf4;
+.issue-table tr:hover td{
+    background:#f1f5f9;
 }
 
-.issue-header{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:12px;
-    gap:10px;
-    flex-wrap:wrap;
-}
-
-.issue-title{
-    font-weight:700;
-    font-size:15px;
-    color:#0f172a;
-}
-
-.issue-badge{
+.issue-table .status-cell{
     font-size:10.5px;
     font-weight:800;
-    padding:4px 11px;
+    padding:4px 10px;
     border-radius:20px;
     text-transform:uppercase;
     letter-spacing:0.3px;
-    white-space:nowrap;
+    display:inline-block;
 }
 
-.issue-badge.overdue{
+.issue-table .status-cell.overdue{
     background:#dc2626;
     color:white;
 }
 
-.issue-badge.soon{
+.issue-table .status-cell.soon{
     background:#f59e0b;
     color:white;
 }
 
-.issue-badge.ok{
+.issue-table .status-cell.ok{
     background:#16a34a;
     color:white;
-}
-
-.issue-grid{
-    display:grid;
-    grid-template-columns:1fr 1fr;
-    gap:10px 16px;
-}
-
-.issue-item b{
-    display:block;
-    color:#94a3b8;
-    font-size:10.5px;
-    font-weight:700;
-    text-transform:uppercase;
-    letter-spacing:0.3px;
-    margin-bottom:3px;
-}
-
-.issue-item span{
-    font-size:14px;
-    color:#1e293b;
-    font-weight:600;
-}
-
-.issue-remarks{
-    grid-column:span 2;
-    margin-top:4px;
-    padding-top:10px;
-    border-top:1px dashed #e2e8f0;
 }
 
 .empty-note{
@@ -1269,15 +1243,16 @@ function showDetails(i){
         }
     }
 
-    // Latest issue first
-    matches.sort((a,b) => String(b[5]||"").localeCompare(String(a[5]||"")));
+    // Oldest first, so SR 1 = the very first save for this employee,
+    // SR 2 = second save, and so on
+    matches.sort((a,b) => String(a[5]||"").localeCompare(String(b[5]||"")));
 
     let nextDates = new Set();
     let materialsUsed = new Set();
     let totalInvestment = 0;
     let count = 0;
 
-    let historyHtml = matches.map(row => {
+    let tableRowsHtml = matches.map(row => {
 
         count++;
 
@@ -1285,7 +1260,8 @@ function showDetails(i){
 
         let priceVal = Number(row[13]) || 0;
         let pairVal = Number(row[6]) || 0;
-        totalInvestment += priceVal * pairVal;
+        let amount = priceVal * pairVal;
+        totalInvestment += amount;
 
         if(row[10]){
             String(row[10]).split(",").forEach(dt=>{
@@ -1295,28 +1271,43 @@ function showDetails(i){
         }
 
         let status = getDueStatus(row[8], today);
-        let statusLabel = status === "overdue" ? "Overdue" : status === "soon" ? "Due Soon" : "On Track";
+        let statusLabel = status === "overdue" ? "Overdue" : status === "soon" ? "Due Soon" : "OK";
 
         return `
-            <div class="issue-card ${status}">
-                <div class="issue-header">
-                    <div class="issue-title">👕 Issue #${count} — ${row[7] || "-"}</div>
-                    <div class="issue-badge ${status}">${statusLabel}</div>
-                </div>
-                <div class="issue-grid">
-                    <div class="issue-item"><b>Joining Date</b><span>${formatDate(row[4])}</span></div>
-                    <div class="issue-item"><b>Given Date</b><span>${formatDate(row[5])}</span></div>
-                    <div class="issue-item"><b>Due Date</b><span>${formatDate(row[8])}</span></div>
-                    <div class="issue-item"><b>Company</b><span>${row[0] || "-"}</span></div>
-                    <div class="issue-item"><b>Pair</b><span>${row[6] || 0}</span></div>
-                    <div class="issue-item"><b>Shirt</b><span>${row[11] || 0}</span></div>
-                    <div class="issue-item"><b>Pant</b><span>${row[12] || 0}</span></div>
-                    <div class="issue-item"><b>Price / Pair</b><span>₹${row[13] || 0}</span></div>
-                    ${row[9] ? `<div class="issue-item issue-remarks"><b>Remarks</b><span>${row[9]}</span></div>` : ""}
-                </div>
-            </div>
+            <tr class="${status}">
+                <td>${count}</td>
+                <td>${formatDate(row[5])}</td>
+                <td>${row[6] || 0}</td>
+                <td>${row[11] || 0}</td>
+                <td>${row[12] || 0}</td>
+                <td>₹${amount.toLocaleString()}</td>
+                <td><span class="status-cell ${status}">${statusLabel}</span></td>
+            </tr>
         `;
     }).join("");
+
+    let historyHtml = matches.length
+        ? `
+        <div class="issue-table-wrapper">
+            <table class="issue-table">
+                <thead>
+                    <tr>
+                        <th>SR</th>
+                        <th>Date</th>
+                        <th>Pair</th>
+                        <th>Shirt</th>
+                        <th>Pant</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${tableRowsHtml}
+                </tbody>
+            </table>
+        </div>
+        `
+        : "";
 
     let dateChipsHtml = Array.from(nextDates).sort().map(d => {
         let status = getDueStatus(d, today);
