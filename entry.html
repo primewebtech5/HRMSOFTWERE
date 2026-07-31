@@ -367,11 +367,15 @@ tr:hover{
     backdrop-filter:blur(4px);
 }
 
-/* Scrollable body */
+/* Scrollable body — flex:1 + min-height:0 is required so this
+   child actually scrolls instead of the whole modal getting
+   clipped by modal-content's overflow:hidden */
 
 .modal-body{
     padding:22px 25px 25px;
     overflow-y:auto;
+    flex:1;
+    min-height:0;
 }
 
 .section-title{
@@ -387,40 +391,64 @@ tr:hover{
     margin-top:0;
 }
 
-/* Next uniform date chips (replaces the old broken dropdown) */
+/* Quick-add entry form (inline inside the modal) */
 
-.date-chips{
+.quick-add-form{
+    background:#eff6ff;
+    border:1px dashed #93c5fd;
+    border-radius:14px;
+    padding:16px;
+}
+
+.quick-add-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(110px,1fr));
+    gap:10px;
+    margin-bottom:14px;
+}
+
+.qa-group{
     display:flex;
-    flex-wrap:wrap;
-    gap:8px;
+    flex-direction:column;
 }
 
-.date-chip{
-    padding:7px 13px;
-    border-radius:20px;
-    font-size:13px;
+.qa-group label{
+    font-size:11px;
     font-weight:700;
+    color:#1e3a8a;
+    margin-bottom:5px;
+    text-transform:uppercase;
+    letter-spacing:0.3px;
 }
 
-.date-chip.overdue{
-    background:#fee2e2;
-    color:#dc2626;
+.qa-group input,
+.qa-group select{
+    padding:9px 10px;
+    border-radius:8px;
+    border:1px solid #bfdbfe;
+    font-size:13px;
+    background:white;
 }
 
-.date-chip.soon{
-    background:#fef3c7;
-    color:#b45309;
+.qa-group input:focus,
+.qa-group select:focus{
+    outline:none;
+    border-color:#2563eb;
+    box-shadow:0 0 0 3px rgba(37,99,235,0.15);
 }
 
-.date-chip.normal{
-    background:#dbeafe;
-    color:#1d4ed8;
+.qa-btn{
+    width:100%;
+    padding:11px;
+    font-size:14px;
 }
 
 /* Issue history table */
 
 .issue-table-wrapper{
     overflow-x:auto;
+    overflow-y:auto;
+    max-height:260px;
     border-radius:14px;
     border:1px solid #e2e8f0;
 }
@@ -438,6 +466,9 @@ tr:hover{
     font-size:12.5px;
     text-transform:uppercase;
     letter-spacing:0.3px;
+    position:sticky;
+    top:0;
+    z-index:2;
 }
 
 .issue-table td{
@@ -932,6 +963,13 @@ const API_URL =
 let data = [];
 let allRows = [];
 
+/* Uniform_History rows (quick-add entries made from inside the
+   Employee Details modal). Kept separate from allRows/Employee_Entry
+   on purpose — these should NEVER show up as extra rows in the main
+   Entry table (image 2), they should ONLY appear inside the
+   employee's own "Issue History" list inside the modal. */
+let historyRows = [];
+
 /* ============================================================
    SPEED FIX
    ------------------------------------------------------------
@@ -941,10 +979,11 @@ let allRows = [];
    1-2 second (kayi vaar vadhu) le chhe, etle 4 calls = slow.
 
    NEW FLOW: page load par FAKT EK j call (?action=entryPage) —
-   backend thi branch+department+material+entry badhu ek sathe
-   male chhe. Add/Edit/Delete pachi refresh mate hajuye fakt
+   backend thi branch+department+material+entry+history badhu ek
+   sathe male chhe. Add/Edit/Delete pachi refresh mate hajuye fakt
    Employee_Entry j mangavay chhe (masters vaaramvaar mangva ni
-   jarur nathi, te badalta nathi).
+   jarur nathi, te badalta nathi). Quick-add pachi fakt
+   Uniform_History j re-fetch thay chhe (refreshHistory()).
    ============================================================ */
 
 function fillSelect(elementId, rows){
@@ -983,6 +1022,8 @@ async function initPage(){
 
         renderTable(json.entry || []);
 
+        historyRows = json.history || [];
+
     } catch(err){
 
         console.error("initPage failed:",err);
@@ -1017,7 +1058,9 @@ function autoDueDate(){
     due.value = `${y}-${m}-${day}`;
 }
 
-/* RENDER (re-fetches only Employee_Entry — used after save/delete) */
+/* RENDER (re-fetches only Employee_Entry — used after save/delete of
+   the MAIN form. Quick-add entries never touch Employee_Entry so
+   this never needs to change for that flow.) */
 
 async function render(){
 
@@ -1028,6 +1071,19 @@ async function render(){
     const sheetData = await res.json();
 
     renderTable(sheetData);
+}
+
+/* Re-fetches only Uniform_History — used after a quick-add inside
+   the modal, so the new row shows up in the Issue History list
+   without needing to reload the whole page or touch the main table. */
+
+async function refreshHistory(){
+
+    const res = await fetch(API_URL + "?sheet=Uniform_History",{
+        cache:"no-store"
+    });
+
+    historyRows = await res.json();
 }
 
 /* RENDER TABLE — builds rows into an array and sets innerHTML ONCE
@@ -1203,13 +1259,14 @@ function toInputDate(date){
 /* ============================================================
    EMPLOYEE DETAILS MODAL — redesigned
    ------------------------------------------------------------
-   Old version used a native <select> dropdown for "Next Uniform
-   History" which looked broken/overlapping on many browsers.
-   New version: a gradient header with employee summary chips,
-   next-uniform-dates shown as color-coded pill badges (red =
-   overdue, orange = due within 30 days, blue = normal), and each
-   past issue shown as a clean card with a 2-column detail grid,
-   color-coded on the same overdue/soon/ok logic.
+   Issue History have BE sources mathi combine thay chhe:
+     1) Employee_Entry ma e employee nu main/original entry(s)
+     2) Uniform_History ma save thayela badha quick-add entries
+   Banne ne date pramane sort kari, ek j table ma batavay chhe.
+   Table potani j max-height + scroll rakhe chhe (issue-table-wrapper),
+   etle list gamey tetli lambi thay to pan modal fatvano/bhagvano
+   nathi — andar j scroll thay chhe ane quick-add form/stats
+   hammesha upar dekhata rahe chhe.
    ============================================================ */
 
 function getDueStatus(dueRaw, todayDate){
@@ -1236,50 +1293,66 @@ function showDetails(i){
 
     let matches = [];
 
+    // 1) Main entry (Employee_Entry) rows for this employee
     for(let r=1;r<allRows.length;r++){
         let row = allRows[r];
         if(String(row[3]).toLowerCase() == employee.toLowerCase()){
-            matches.push(row);
+            matches.push({
+                date: row[5],
+                material: row[7],
+                pair: row[6],
+                shirt: row[11],
+                pant: row[12],
+                pricePerPair: row[13]
+            });
         }
     }
 
-    // Oldest first, so SR 1 = the very first save for this employee,
-    // SR 2 = second save, and so on
-    matches.sort((a,b) => String(a[5]||"").localeCompare(String(b[5]||"")));
+    // 2) Quick-add (Uniform_History) rows for this employee
+    for(let h=1;h<historyRows.length;h++){
+        let row = historyRows[h];
+        if(String(row[0]).toLowerCase() == employee.toLowerCase()){
+            matches.push({
+                date: row[1],
+                material: row[2],
+                pair: row[3],
+                shirt: row[4],
+                pant: row[5],
+                pricePerPair: row[6]
+            });
+        }
+    }
 
-    let nextDates = new Set();
+    // Oldest first, so SR 1 = the very first issue for this employee,
+    // SR 2 = second issue, and so on
+    matches.sort((a,b) => String(a.date||"").localeCompare(String(b.date||"")));
+
     let materialsUsed = new Set();
     let totalInvestment = 0;
     let count = 0;
 
-    let tableRowsHtml = matches.map(row => {
+    let tableRowsHtml = matches.map(m => {
 
         count++;
 
-        if(row[7]) materialsUsed.add(row[7]);
+        if(m.material) materialsUsed.add(m.material);
 
-        let priceVal = Number(row[13]) || 0;
-        let pairVal = Number(row[6]) || 0;
+        let priceVal = Number(m.pricePerPair) || 0;
+        let pairVal = Number(m.pair) || 0;
         let amount = priceVal * pairVal;
         totalInvestment += amount;
 
-        if(row[10]){
-            String(row[10]).split(",").forEach(dt=>{
-                dt = dt.trim();
-                if(dt) nextDates.add(dt);
-            });
-        }
-
-        let status = getDueStatus(row[8], today);
+        let due = calcQuickDueDate(m.date);
+        let status = getDueStatus(due, today);
         let statusLabel = status === "overdue" ? "Overdue" : status === "soon" ? "Due Soon" : "OK";
 
         return `
             <tr class="${status}">
                 <td>${count}</td>
-                <td>${formatDate(row[5])}</td>
-                <td>${row[6] || 0}</td>
-                <td>${row[11] || 0}</td>
-                <td>${row[12] || 0}</td>
+                <td>${formatDate(m.date)}</td>
+                <td>${m.pair || 0}</td>
+                <td>${m.shirt || 0}</td>
+                <td>${m.pant || 0}</td>
                 <td>₹${amount.toLocaleString()}</td>
                 <td><span class="status-cell ${status}">${statusLabel}</span></td>
             </tr>
@@ -1309,10 +1382,13 @@ function showDetails(i){
         `
         : "";
 
-    let dateChipsHtml = Array.from(nextDates).sort().map(d => {
-        let status = getDueStatus(d, today);
-        return `<span class="date-chip ${status}">${formatDate(d)}</span>`;
-    }).join("");
+    // Remember which employee the modal is open for, so the
+    // quick-add form below knows who to save the new entry against.
+    currentModalEmployee = employee;
+
+    // Reuse the same Material options already loaded into the main
+    // form's dropdown, so both stay in sync automatically.
+    let materialOptionsHtml = document.getElementById("material").innerHTML;
 
     detailBox.innerHTML = `
 
@@ -1333,12 +1409,39 @@ function showDetails(i){
 
         <div class="modal-body">
 
-            <div class="section-title">📅 Next Uniform Dates</div>
-            ${
-                dateChipsHtml
-                ? `<div class="date-chips">${dateChipsHtml}</div>`
-                : `<div class="empty-note">No upcoming date set yet.</div>`
-            }
+            <div class="section-title">➕ Add New Uniform Entry</div>
+
+            <div class="quick-add-form">
+                <div class="quick-add-grid">
+                    <div class="qa-group">
+                        <label>Date</label>
+                        <input type="date" id="qaDate">
+                    </div>
+                    <div class="qa-group">
+                        <label>Material</label>
+                        <select id="qaMaterial">${materialOptionsHtml}</select>
+                    </div>
+                    <div class="qa-group">
+                        <label>Pair</label>
+                        <input type="number" id="qaPair" placeholder="0">
+                    </div>
+                    <div class="qa-group">
+                        <label>Shirt</label>
+                        <input type="number" id="qaShirt" placeholder="0">
+                    </div>
+                    <div class="qa-group">
+                        <label>Pant</label>
+                        <input type="number" id="qaPant" placeholder="0">
+                    </div>
+                    <div class="qa-group">
+                        <label>Price / Pair</label>
+                        <input type="number" id="qaPrice" placeholder="₹0">
+                    </div>
+                </div>
+                <button class="btn primary-btn qa-btn" onclick="addQuickEntry()">
+                    ➕ Add Entry
+                </button>
+            </div>
 
             <div class="section-title">📋 Issue History</div>
             ${historyHtml || `<div class="empty-note">No records found.</div>`}
@@ -1350,8 +1453,97 @@ function showDetails(i){
 
 }
 
+let currentModalEmployee = null;
 
-/* CLOSE */
+/* QUICK ADD — saves a brand new uniform entry for the employee
+   currently open in the modal, WITHOUT closing the modal, and
+   WITHOUT ever touching Employee_Entry (that's the main table on
+   this page — image 2 — and it must stay exactly as-is). This now
+   correctly saves into the separate Uniform_History sheet, so:
+     - Main Entry table (image 2) never gets extra/duplicate rows
+     - The new row shows up ONLY inside this employee's modal,
+       in the Issue History list below
+   After saving, only Uniform_History is re-fetched (refreshHistory)
+   and the modal re-opens itself with the new row included. */
+
+function calcQuickDueDate(givenStr){
+
+    if(!givenStr) return "";
+
+    let d = new Date(givenStr + "T00:00:00");
+    d.setFullYear(d.getFullYear()+1);
+
+    let y = d.getFullYear();
+    let m = String(d.getMonth()+1).padStart(2,"0");
+    let day = String(d.getDate()).padStart(2,"0");
+
+    return `${y}-${m}-${day}`;
+}
+
+async function addQuickEntry(){
+
+    let empName = currentModalEmployee;
+    if(!empName) return;
+
+    let dateVal = document.getElementById("qaDate").value;
+    let materialVal = document.getElementById("qaMaterial").value;
+    let pairVal = document.getElementById("qaPair").value;
+    let shirtVal = document.getElementById("qaShirt").value;
+    let pantVal = document.getElementById("qaPant").value;
+    let priceVal = document.getElementById("qaPrice").value;
+
+    if(!dateVal || !pairVal){
+        alert("Date ane Pair bharvu jaruri chhe.");
+        return;
+    }
+
+    showLoader();
+
+    let obj = {
+        sheet:"Uniform_History",
+        action:"add",
+        empName: empName,
+        date: dateVal,
+        material: materialVal,
+        pair: pairVal,
+        shirt: shirtVal,
+        pant: pantVal,
+        pricePerPair: priceVal
+    };
+
+    try{
+
+        const res = await fetch(API_URL, {
+            method:"POST",
+            body: JSON.stringify(obj)
+        });
+
+        const result = await res.json();
+
+        if(result && (result.status === "error" || result.error)){
+            alert("Save karva ma error aavi: " + (result.message || "Unknown error"));
+            return;
+        }
+
+        await refreshHistory(); // refreshes ONLY Uniform_History, main table untouched
+
+        let idx = data.findIndex(d => d.empName.toLowerCase() === empName.toLowerCase());
+
+        if(idx !== -1){
+            showDetails(idx); // re-open modal with the new row included
+        }
+
+        alert("Entry Added Successfully");
+
+    } catch(err){
+
+        console.error("addQuickEntry failed:", err);
+        alert("Entry add karva ma problem aavi, ferithi try karo.");
+
+    } finally {
+        hideLoader();
+    }
+}
 
 function closeModal(){
 
