@@ -241,6 +241,7 @@ select:focus{
     border-radius:8px;
     cursor:pointer;
     transition:0.3s;
+    background:#f1f5f9;
 }
 
 .bill-img:hover{
@@ -691,6 +692,10 @@ tr:hover{
 
 <script>
 
+/* ⚠️ IMPORTANT: aa niche EK j URL hovi joie — same URL je tame
+   entry.html, dashboard.html, setting.html, vendor.html ma pan
+   nakhi chhe (tamara latest deployed Apps Script "Web app" URL).
+   Jo aa URL alag hoy to Stock_Entry sheet nahi malshe. */
 const API_URL =
 "https://script.google.com/macros/s/AKfycbx_k3-Eb1N5e6P8fu1NgQgaCqwRkVhkiAWjkrLkJiSZtOoq724Sb6VkB4UCHJabXI2ndw/exec";
 
@@ -982,7 +987,7 @@ function renderStock(stock, entry){
             <td>${obj.cgst || 0}%</td>
             <td>${obj.sgst || 0}%</td>
             <td><b>₹ ${priceWithGstDisplay}</b></td>
-            <td>${obj.image ? `<img src="${obj.image}" class="bill-img" onclick="showImage('${obj.image}')">` : "No Image"}</td>
+            <td>${obj.image ? `<img src="${obj.image}" class="bill-img" onclick="showImage('${obj.image}')" loading="lazy" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('No Image'))">` : "No Image"}</td>
             <td>${obj.date}</td>
             <td>${obj.remarks || "-"}</td>
             <td>
