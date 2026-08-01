@@ -163,7 +163,7 @@ a:focus-visible{
     box-shadow:0 6px 16px -6px rgba(226,83,77,0.6);
 }
 
-/* ================= TOOLBAR — badge grid ================= */
+/* ================= TOOLBAR — bold badge grid ================= */
 
 .toolbar{
     width:100%;
@@ -174,6 +174,7 @@ a:focus-visible{
     gap:14px;
     justify-content:center;
     position:relative;
+    overflow:hidden;
 }
 
 .toolbar::before{
@@ -197,29 +198,30 @@ a:focus-visible{
     width:128px;
     height:112px;
     background:var(--panel);
-    border:1px solid var(--hair);
+    border:2px solid var(--hair);
     border-radius:10px;
     cursor:pointer;
     padding:12px 14px;
     text-align:left;
-    transition:border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    transition:border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
     overflow:hidden;
     opacity:0;
-    animation:badge-in 0.5s ease forwards;
+    animation:badge-in 0.55s cubic-bezier(.2,.7,.3,1) forwards;
 }
 
-.tool-btn:nth-child(1){ animation-delay:0.05s; }
-.tool-btn:nth-child(2){ animation-delay:0.1s; }
-.tool-btn:nth-child(3){ animation-delay:0.15s; }
-.tool-btn:nth-child(4){ animation-delay:0.2s; }
-.tool-btn:nth-child(5){ animation-delay:0.25s; }
-.tool-btn:nth-child(6){ animation-delay:0.3s; }
-.tool-btn:nth-child(7){ animation-delay:0.35s; }
-.tool-btn:nth-child(8){ animation-delay:0.4s; }
+/* right-to-left staggered entrance: rightmost card moves first */
+.tool-btn:nth-child(1){ animation-delay:0.42s; }
+.tool-btn:nth-child(2){ animation-delay:0.36s; }
+.tool-btn:nth-child(3){ animation-delay:0.30s; }
+.tool-btn:nth-child(4){ animation-delay:0.24s; }
+.tool-btn:nth-child(5){ animation-delay:0.18s; }
+.tool-btn:nth-child(6){ animation-delay:0.12s; }
+.tool-btn:nth-child(7){ animation-delay:0.06s; }
+.tool-btn:nth-child(8){ animation-delay:0s; }
 
 @keyframes badge-in{
-    from{ opacity:0; transform:translateY(10px); }
-    to{ opacity:1; transform:translateY(0); }
+    from{ opacity:0; transform:translateX(90px); }
+    to{ opacity:1; transform:translateX(0); }
 }
 
 .tool-btn::after{
@@ -229,7 +231,7 @@ a:focus-visible{
     left:-60%;
     width:40%;
     height:100%;
-    background:linear-gradient(120deg,transparent,rgba(242,169,59,0.16),transparent);
+    background:linear-gradient(120deg,transparent,rgba(242,169,59,0.2),transparent);
     transform:skewX(-20deg);
     transition:left 0.6s ease;
     pointer-events:none;
@@ -243,25 +245,30 @@ a:focus-visible{
 .tool-btn::before{
     content:"";
     position:absolute;
-    top:-7px;
+    top:-8px;
     left:50%;
     transform:translateX(-50%);
-    width:20px;
+    width:22px;
     height:14px;
     background:var(--ink);
-    border:1px solid var(--hair);
+    border:2px solid var(--hair);
     border-top:none;
     border-radius:0 0 8px 8px;
 }
 
 .tool-btn:hover{
-    border-color:var(--amber-deep);
-    transform:translateY(-3px);
-    box-shadow:0 12px 24px -12px rgba(242,169,59,0.35);
+    border-color:var(--amber);
+    background:var(--panel-2);
+    transform:translateY(-4px) scale(1.03);
+    box-shadow:0 14px 28px -12px rgba(242,169,59,0.45);
+}
+
+.tool-btn:hover::before{
+    border-color:var(--amber);
 }
 
 .tool-btn:hover .icon{
-    transform:scale(1.15) rotate(-4deg);
+    transform:scale(1.2) rotate(-4deg);
 }
 
 .tool-btn:hover .label{
@@ -271,13 +278,13 @@ a:focus-visible{
 .tool-btn .code{
     font-family:'JetBrains Mono',monospace;
     font-size:10px;
-    font-weight:600;
+    font-weight:700;
     letter-spacing:1.5px;
     color:var(--amber);
 }
 
 .tool-btn .icon{
-    font-size:22px;
+    font-size:23px;
     line-height:1;
     display:inline-block;
     transition:transform 0.25s ease;
@@ -285,8 +292,8 @@ a:focus-visible{
 
 .tool-btn span.label{
     font-family:'Space Grotesk',sans-serif;
-    font-size:13px;
-    font-weight:600;
+    font-size:13.5px;
+    font-weight:700;
     color:#e7ecf6;
     line-height:1.25;
     transition:color 0.2s ease;
@@ -327,17 +334,17 @@ a:focus-visible{
 
 .canvas .scanline{
     position:absolute;
-    left:0;
-    right:0;
-    height:2px;
-    background:linear-gradient(90deg,transparent,var(--amber) 50%,transparent);
+    top:0;
+    bottom:0;
+    width:2px;
+    background:linear-gradient(180deg,transparent,var(--amber) 50%,transparent);
     opacity:0.55;
     animation:sweep 5s linear infinite;
 }
 
 @keyframes sweep{
-    0%{ top:0%; }
-    100%{ top:100%; }
+    0%{ left:100%; }
+    100%{ left:0%; }
 }
 
 .brand-wrap{
