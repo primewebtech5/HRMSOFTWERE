@@ -774,7 +774,8 @@ function closeImgModal(){
    levano hoy chhe, etle 3 calls = slow.
 
    NEW FLOW: FAKT EK j call (?action=stockPage) — backend thi
-   material + stock + entry badhu ek sathe male chhe.
+   material + stock + entry + history (Uniform_History, quick-add
+   modal entries) badhu ek sathe male chhe.
    ============================================================ */
 
 async function loadAll(){
@@ -793,7 +794,7 @@ async function loadAll(){
         }
 
         fillMaterialSelect(json.material || []);
-        renderStock(json.stock || [], json.entry || []);
+        renderStock(json.stock || [], json.entry || [], json.history || []);
 
     } catch(err){
 
@@ -940,9 +941,15 @@ function clearStockForm(){
 
 /* RENDER — builds rows into an array and sets innerHTML ONCE
    (instead of tbody.innerHTML += "..." inside the loop, which
-   gets slow as records grow). */
+   gets slow as records grow).
 
-function renderStock(stock, entry){
+   "entry" = Employee_Entry rows (main form issue records)
+   "history" = Uniform_History rows (modal quick-add issue records)
+   BOTH must be subtracted from purchased stock, otherwise pairs
+   issued via the modal's quick-add never reduce the live stock
+   count shown here. */
+
+function renderStock(stock, entry, history){
 
     stockData = [];
 
@@ -1011,9 +1018,21 @@ function renderStock(stock, entry){
         }
     });
 
+    // Subtract main-form issues (Employee_Entry)
     for(let i=1;i<entry.length;i++){
         let mat = entry[i][7];
         let p = Number(entry[i][6] || 0);
+        if(count[mat] !== undefined){
+            count[mat] -= p;
+        }
+    }
+
+    // Subtract modal quick-add issues (Uniform_History) — this is the
+    // part that was missing before. Uniform_History columns are:
+    // [0]EmpName [1]Date [2]Material [3]Pair [4]Shirt [5]Pant [6]PricePerPair
+    for(let h=1;h<history.length;h++){
+        let mat = history[h][2];
+        let p = Number(history[h][3] || 0);
         if(count[mat] !== undefined){
             count[mat] -= p;
         }
