@@ -3,15 +3,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prime Software Dashboard</title>
+<title>Prime E.M.S — Console</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
+
+:root{
+    --ink:#0c1220;
+    --panel:#121a2b;
+    --panel-2:#182338;
+    --hair:#25314a;
+    --steel:#8592ab;
+    --paper:#f3f5f9;
+    --paper-line:#dfe4ee;
+    --ink-text:#101726;
+    --amber:#f2a93b;
+    --amber-deep:#c9821f;
+    --danger:#e2534d;
+    --danger-deep:#b73a35;
+}
 
 *{
     margin:0;
@@ -24,269 +37,445 @@ html,body{
 }
 
 body{
-
-    font-family:'Poppins',sans-serif;
-
+    font-family:'Inter',sans-serif;
     display:flex;
-
     flex-direction:column;
-
     min-height:100vh;
-
-    color:#1e293b;
-
-    background:#eef4ff;
+    color:var(--ink-text);
+    background:var(--paper);
 }
 
-/* ================= TITLE BAR (very first line) ================= */
+button{
+    font-family:inherit;
+}
+
+button:focus-visible,
+a:focus-visible{
+    outline:2px solid var(--amber);
+    outline-offset:2px;
+}
+
+/* ================= TITLE BAR ================= */
 
 .title-bar{
-
     width:100%;
-
-    background:#ffffff;
-
-    color:#0f172a;
-
+    background:var(--ink);
+    color:var(--steel);
     text-align:center;
-
-    padding:3px 10px;
-
-    font-size:12px;
-
-    font-weight:600;
-
-    letter-spacing:0.5px;
-
-    border-bottom:1px solid #e2e8f0;
-
-    line-height:1.4;
+    padding:6px 10px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    border-bottom:1px solid var(--hair);
 }
 
-/* ================= INFO BAR (clock / date / day / logout) ================= */
+.title-bar b{
+    color:var(--amber);
+    font-weight:600;
+}
+
+.title-bar .live-dot{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-left:14px;
+    color:#6fe08a;
+}
+
+.live-dot::before{
+    content:"";
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#6fe08a;
+    box-shadow:0 0 0 0 rgba(111,224,138,0.6);
+    animation:pulse-dot 1.8s ease-out infinite;
+}
+
+@keyframes pulse-dot{
+    0%{ box-shadow:0 0 0 0 rgba(111,224,138,0.55); }
+    70%{ box-shadow:0 0 0 7px rgba(111,224,138,0); }
+    100%{ box-shadow:0 0 0 0 rgba(111,224,138,0); }
+}
+
+/* ================= INFO BAR ================= */
 
 .info-bar{
-
     width:100%;
-
-    background:#0f172a;
-
+    background:var(--panel);
     display:flex;
-
     align-items:center;
-
     justify-content:flex-end;
-
-    gap:14px;
-
-    padding:3px 15px;
-
-    font-size:11px;
-
-    color:#93c5fd;
-
+    gap:22px;
+    padding:8px 20px;
     flex-wrap:wrap;
-
-    line-height:1.4;
+    border-bottom:1px solid var(--hair);
 }
 
-.info-bar .logout-btn{
+.info-stat{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    line-height:1.25;
+}
 
-    background:linear-gradient(135deg,#ef4444,#b91c1c);
-
-    border:none;
-
-    color:white;
-
-    padding:2px 10px;
-
-    border-radius:5px;
-
-    cursor:pointer;
-
+.info-stat .val{
+    font-family:'JetBrains Mono',monospace;
+    font-size:15px;
     font-weight:600;
+    color:#e7ecf6;
+    letter-spacing:1px;
+}
 
+#clock{
+    color:var(--amber);
+    text-shadow:0 0 12px rgba(242,169,59,0.45);
+}
+
+.info-stat .lbl{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;
+    font-weight:500;
+    color:var(--steel);
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+}
+
+.logout-btn{
+    background:linear-gradient(135deg,var(--danger),var(--danger-deep));
+    border:none;
+    color:white;
+    padding:8px 16px;
+    border-radius:4px;
+    cursor:pointer;
+    font-weight:600;
     font-size:11px;
-
-    transition:0.3s;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    font-family:'JetBrains Mono',monospace;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.info-bar .logout-btn:hover{
-
-    transform:translateY(-2px);
+.logout-btn:hover{
+    transform:translateY(-1px);
+    box-shadow:0 6px 16px -6px rgba(226,83,77,0.6);
 }
 
-/* ================= TOOLBAR (icon buttons row, the "8 buttons") ================= */
+/* ================= TOOLBAR — badge grid ================= */
 
 .toolbar{
-
     width:100%;
-
-    background:linear-gradient(180deg,#7dd3fc,#38bdf8);
-
+    background:var(--ink);
     display:flex;
-
     flex-wrap:wrap;
+    padding:22px 20px 26px;
+    gap:14px;
+    justify-content:center;
+    position:relative;
+}
 
-    padding:10px 15px;
-
-    gap:6px;
-
+.toolbar::before{
+    content:"ACCESS MODULES";
+    position:absolute;
+    top:6px;
+    left:20px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;
+    letter-spacing:2px;
+    color:var(--steel);
+    text-transform:uppercase;
 }
 
 .tool-btn{
-
+    position:relative;
     display:flex;
-
     flex-direction:column;
-
-    align-items:center;
-
-    justify-content:flex-start;
-
-    width:95px;
-
-    background:transparent;
-
-    border:none;
-
+    align-items:flex-start;
+    justify-content:space-between;
+    width:128px;
+    height:112px;
+    background:var(--panel);
+    border:1px solid var(--hair);
+    border-radius:10px;
     cursor:pointer;
+    padding:12px 14px;
+    text-align:left;
+    transition:border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    overflow:hidden;
+    opacity:0;
+    animation:badge-in 0.5s ease forwards;
+}
 
-    padding:6px 4px;
+.tool-btn:nth-child(1){ animation-delay:0.05s; }
+.tool-btn:nth-child(2){ animation-delay:0.1s; }
+.tool-btn:nth-child(3){ animation-delay:0.15s; }
+.tool-btn:nth-child(4){ animation-delay:0.2s; }
+.tool-btn:nth-child(5){ animation-delay:0.25s; }
+.tool-btn:nth-child(6){ animation-delay:0.3s; }
+.tool-btn:nth-child(7){ animation-delay:0.35s; }
+.tool-btn:nth-child(8){ animation-delay:0.4s; }
 
-    border-radius:8px;
+@keyframes badge-in{
+    from{ opacity:0; transform:translateY(10px); }
+    to{ opacity:1; transform:translateY(0); }
+}
 
-    transition:0.2s;
+.tool-btn::after{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-60%;
+    width:40%;
+    height:100%;
+    background:linear-gradient(120deg,transparent,rgba(242,169,59,0.16),transparent);
+    transform:skewX(-20deg);
+    transition:left 0.6s ease;
+    pointer-events:none;
+}
 
+.tool-btn:hover::after{
+    left:130%;
+}
+
+/* badge lanyard notch */
+.tool-btn::before{
+    content:"";
+    position:absolute;
+    top:-7px;
+    left:50%;
+    transform:translateX(-50%);
+    width:20px;
+    height:14px;
+    background:var(--ink);
+    border:1px solid var(--hair);
+    border-top:none;
+    border-radius:0 0 8px 8px;
 }
 
 .tool-btn:hover{
-
-    background:rgba(255,255,255,0.35);
+    border-color:var(--amber-deep);
+    transform:translateY(-3px);
+    box-shadow:0 12px 24px -12px rgba(242,169,59,0.35);
 }
 
-.tool-btn .dot{
+.tool-btn:hover .icon{
+    transform:scale(1.15) rotate(-4deg);
+}
 
-    width:26px;
+.tool-btn:hover .label{
+    color:var(--amber);
+}
 
-    height:26px;
+.tool-btn .code{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    font-weight:600;
+    letter-spacing:1.5px;
+    color:var(--amber);
+}
 
-    border-radius:50%;
-
-    background:#0f172a;
-
-    margin-bottom:6px;
-
-    display:flex;
-
-    align-items:center;
-
-    justify-content:center;
-
-    font-size:13px;
-
+.tool-btn .icon{
+    font-size:22px;
+    line-height:1;
+    display:inline-block;
+    transition:transform 0.25s ease;
 }
 
 .tool-btn span.label{
-
-    font-size:11px;
-
+    font-family:'Space Grotesk',sans-serif;
+    font-size:13px;
     font-weight:600;
-
-    color:#0f172a;
-
-    text-align:center;
-
-    line-height:1.2;
+    color:#e7ecf6;
+    line-height:1.25;
+    transition:color 0.2s ease;
 }
 
-/* ================= BLANK CANVAS (fully empty middle area) ================= */
+/* ================= CANVAS ================= */
 
 .canvas{
-
     flex:1;
-
     width:100%;
-
-    background:linear-gradient(180deg,#dbeafe,#eef4ff 40%,#f8fafc);
-
+    background:
+        linear-gradient(180deg,var(--paper) 0%,#eef1f7 100%);
     display:flex;
-
-    align-items:flex-end;
-
+    align-items:center;
     justify-content:center;
+    position:relative;
+    overflow:hidden;
+    min-height:220px;
+}
 
-    padding-bottom:60px;
+.canvas::before{
+    content:"";
+    position:absolute;
+    inset:-42px;
+    background-image:
+        linear-gradient(var(--paper-line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--paper-line) 1px, transparent 1px);
+    background-size:42px 42px;
+    opacity:0.6;
+    mask-image:radial-gradient(circle at 50% 50%, black 0%, transparent 75%);
+    animation:grid-drift 14s linear infinite;
+}
 
+@keyframes grid-drift{
+    from{ background-position:0 0, 0 0; }
+    to{ background-position:42px 42px, 42px 42px; }
+}
+
+.canvas .scanline{
+    position:absolute;
+    left:0;
+    right:0;
+    height:2px;
+    background:linear-gradient(90deg,transparent,var(--amber) 50%,transparent);
+    opacity:0.55;
+    animation:sweep 5s linear infinite;
+}
+
+@keyframes sweep{
+    0%{ top:0%; }
+    100%{ top:100%; }
+}
+
+.brand-wrap{
+    position:relative;
+    text-align:center;
 }
 
 .brand-name{
-
-    font-size:34px;
-
+    font-family:'Space Grotesk',sans-serif;
+    font-size:clamp(30px,6vw,52px);
     font-weight:700;
-
-    color:#1d4ed8;
-
-    text-align:center;
-
-    letter-spacing:0.5px;
+    letter-spacing:10px;
+    color:var(--ink-text);
+    opacity:0.9;
+    animation:brand-glow 4s ease-in-out infinite;
 }
 
-/* ================= STATUS BAR (bottom) ================= */
+@keyframes brand-glow{
+    0%,100%{ text-shadow:0 0 0 rgba(242,169,59,0); }
+    50%{ text-shadow:0 0 26px rgba(242,169,59,0.28); }
+}
+
+.brand-sub{
+    margin-top:8px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:3px;
+    color:#5b6478;
+    text-transform:uppercase;
+}
+
+.brand-ticker{
+    margin-top:16px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:1.5px;
+    color:#8592ab;
+}
+
+.brand-ticker b{
+    color:var(--amber-deep);
+    font-weight:700;
+}
+
+/* ================= STATUS BAR ================= */
 
 .status-bar{
-
     width:100%;
-
-    background:linear-gradient(180deg,#38bdf8,#7dd3fc);
-
+    background:var(--ink);
+    border-top:1px solid var(--hair);
     display:flex;
-
     align-items:center;
-
     justify-content:space-between;
-
-    padding:8px 20px;
-
-    font-size:13px;
-
+    padding:10px 20px;
     flex-wrap:wrap;
-
-    gap:8px;
-
+    gap:10px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
 }
 
 .status-bar .month{
-
-    color:#b91c1c;
-
-    font-weight:700;
-
+    color:var(--amber);
+    font-weight:600;
+    letter-spacing:1px;
 }
 
 .status-bar .welcome{
+    color:#c8d0e0;
+    font-weight:500;
+    letter-spacing:0.5px;
+}
 
-    color:#0f172a;
+.status-bar .welcome b{
+    color:#e7ecf6;
+    font-weight:700;
+}
 
-    font-weight:600;
+/* ================= REDUCED MOTION ================= */
 
+@media (prefers-reduced-motion: reduce){
+    .canvas .scanline,
+    .canvas::before,
+    .brand-name,
+    .live-dot::before{
+        animation:none;
+        display:none;
+    }
+    .tool-btn{
+        opacity:1;
+        animation:none;
+    }
+    .tool-btn,
+    .logout-btn,
+    .tool-btn .icon,
+    .tool-btn span.label{
+        transition:none;
+    }
 }
 
 /* ================= MOBILE ================= */
 
 @media(max-width:768px){
 
-    .tool-btn{
+    .info-bar{
+        justify-content:space-between;
+    }
 
-        width:80px;
+    .info-stat{
+        align-items:flex-start;
+    }
+
+    .tool-btn{
+        width:calc(50% - 7px);
     }
 
     .brand-name{
-
-        font-size:22px;
+        letter-spacing:6px;
     }
 
+}
+
+@media(max-width:420px){
+    .tool-btn{
+        width:100%;
+        flex-direction:row;
+        align-items:center;
+        height:auto;
+        padding:12px 14px;
+        gap:12px;
+    }
+    .tool-btn::before{
+        display:none;
+    }
+    .tool-btn .code{
+        position:absolute;
+        top:8px;
+        right:12px;
+    }
 }
 
 </style>
@@ -297,18 +486,23 @@ body{
 <!-- TITLE BAR -->
 
 <div class="title-bar">
-    Prime E.M.S 1.0.0(a)
+    Prime E.M.S <b>1.0.0(a)</b>
+    <span class="live-dot">SYSTEM LIVE</span>
 </div>
 
 <!-- INFO BAR: clock, date, day, logout -->
 
 <div class="info-bar">
 
-    <span id="clock"></span>
+    <div class="info-stat">
+        <span class="val" id="clock"></span>
+        <span class="lbl">Time</span>
+    </div>
 
-    <span id="dateBox"></span>
-
-    <span id="dayBox"></span>
+    <div class="info-stat">
+        <span class="val" id="dateBox"></span>
+        <span class="lbl" id="dayBox"></span>
+    </div>
 
     <button class="logout-btn" onclick="go('login.html')">
         Logout
@@ -316,59 +510,69 @@ body{
 
 </div>
 
-<!-- TOOLBAR: 8 icon buttons -->
+<!-- TOOLBAR: 8 access-badge buttons -->
 
 <div class="toolbar">
 
     <button class="tool-btn" onclick="go('employeedashboard.html')">
-        <span class="dot">🧑🏻‍💼</span>
-        <span class="label">Employee<br>Management</span>
+        <span class="code">EM · 01</span>
+        <span class="icon">🧑🏻‍💼</span>
+        <span class="label">Employee Management</span>
     </button>
 
     <button class="tool-btn" onclick="go('interview_detail.html')">
-        <span class="dot">👨🏻‍💼</span>
-        <span class="label">Candidate<br>Management</span>
+        <span class="code">CM · 02</span>
+        <span class="icon">👨🏻‍💼</span>
+        <span class="label">Candidate Management</span>
     </button>
 
     <button class="tool-btn" onclick="go('uniform.html')">
-        <span class="dot">👔</span>
-        <span class="label">Uniform<br>Management</span>
+        <span class="code">UM · 03</span>
+        <span class="icon">👔</span>
+        <span class="label">Uniform Management</span>
     </button>
 
     <button class="tool-btn" onclick="go('attendance.html')">
-        <span class="dot">📅</span>
+        <span class="code">AT · 04</span>
+        <span class="icon">📅</span>
         <span class="label">Attendance</span>
     </button>
 
     <button class="tool-btn" onclick="go('data.html')">
-        <span class="dot">📁</span>
-        <span class="label">Document<br>Center</span>
+        <span class="code">DC · 05</span>
+        <span class="icon">📁</span>
+        <span class="label">Document Center</span>
     </button>
 
     <button class="tool-btn" onclick="go('settingdashboard.html')">
-        <span class="dot">⚙️</span>
+        <span class="code">ST · 06</span>
+        <span class="icon">⚙️</span>
         <span class="label">Settings</span>
     </button>
 
     <button class="tool-btn" onclick="go('notif.html')">
-        <span class="dot">🔔</span>
+        <span class="code">NT · 07</span>
+        <span class="icon">🔔</span>
         <span class="label">Notification</span>
     </button>
 
     <button class="tool-btn" onclick="go('error.html')">
-        <span class="dot">🛠️</span>
-        <span class="label">Technical<br>Support</span>
+        <span class="code">TS · 08</span>
+        <span class="icon">🛠️</span>
+        <span class="label">Technical Support</span>
     </button>
 
 </div>
 
-<!-- BLANK CANVAS -->
+<!-- CANVAS -->
 
 <div class="canvas">
-
-    <div class="brand-name">
+    <div class="scanline"></div>
+    <div class="brand-wrap">
+        <div class="brand-name">PRIME</div>
+        <div class="brand-sub">Employee Management System</div>
+        <div class="brand-ticker">Session uptime — <b id="uptime">00:00:00</b></div>
     </div>
-
 </div>
 
 <!-- STATUS BAR -->
@@ -386,7 +590,6 @@ body{
 <script>
 
 function go(page){
-
     window.location.href = page;
 }
 
@@ -422,8 +625,27 @@ function updateClock(){
 }
 
 updateClock();
-
 setInterval(updateClock, 1000);
+
+/* live session uptime ticker */
+
+let uptimeSeconds = 0;
+
+function updateUptime(){
+
+    uptimeSeconds++;
+
+    let h = String(Math.floor(uptimeSeconds/3600)).padStart(2,"0");
+    let m = String(Math.floor((uptimeSeconds%3600)/60)).padStart(2,"0");
+    let s = String(uptimeSeconds%60).padStart(2,"0");
+
+    let box = document.getElementById("uptime");
+    if(box){
+        box.textContent = `${h}:${m}:${s}`;
+    }
+}
+
+setInterval(updateUptime, 1000);
 
 /* show logged in user if saved at login time */
 
@@ -432,9 +654,7 @@ localStorage.getItem("loggedInUser") ||
 sessionStorage.getItem("loggedInUser");
 
 if(savedUser){
-
     document.getElementById("userName").textContent = savedUser;
-
 }
 
 </script>
