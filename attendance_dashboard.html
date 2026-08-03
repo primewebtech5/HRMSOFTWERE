@@ -126,17 +126,45 @@ button, a{
 }
 
 .refresh-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
     font-family:'JetBrains Mono',monospace;
     font-size:11px;
     letter-spacing:1px;
     background:linear-gradient(135deg,var(--amber),var(--amber-deep));
     border:none;
     color:#1a1200;
-    padding:8px 16px;
-    border-radius:6px;
+    padding:9px 18px;
+    border-radius:20px;
     cursor:pointer;
     font-weight:700;
     text-transform:uppercase;
+    box-shadow:0 6px 16px -8px rgba(242,169,59,0.55);
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.refresh-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 22px -8px rgba(242,169,59,0.7);
+}
+
+.refresh-btn:active{
+    transform:translateY(0) scale(0.96);
+}
+
+.refresh-btn .ric{
+    display:inline-block;
+    font-size:13px;
+    transition:transform 0.5s ease;
+}
+
+.refresh-btn.spinning .ric{
+    animation:spin-ric 0.7s linear infinite;
+}
+
+@keyframes spin-ric{
+    to{ transform:rotate(360deg); }
 }
 
 .live-tag{
@@ -370,6 +398,29 @@ button, a{
     margin-bottom:6px;
 }
 
+.punch-card .address{
+    font-family:'Inter',sans-serif;
+    font-size:11.5px;
+    color:#c8d0e0;
+    line-height:1.4;
+    margin-bottom:8px;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+}
+
+.punch-card .address b{
+    color:var(--steel);
+    font-weight:600;
+    font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    display:block;
+    margin-bottom:2px;
+}
+
 .punch-card a.map-link{
     display:inline-block;
     font-family:'JetBrains Mono',monospace;
@@ -498,7 +549,7 @@ button, a{
     <div class="title">Prime <span>Attendance</span></div>
     <div class="top-actions">
         <span class="live-tag">AUTO-REFRESH</span>
-        <button class="refresh-btn" onclick="loadPunches()">Refresh</button>
+        <button class="refresh-btn" id="refreshBtn" onclick="loadPunches()"><span class="ric">⟳</span> Refresh</button>
     </div>
 </div>
 
@@ -516,7 +567,7 @@ button, a{
     </button>
 
     <div class="sidebar-label">Navigate</div>
-    <a class="side-item" href="dashboard.html">
+    <a class="side-item" href="index.html">
         <span class="ic">🏠</span> Main Dashboard
     </a>
 
@@ -578,12 +629,15 @@ async function loadPunches(){
     const gallerySub = document.getElementById("gallerySub");
     const reportGrid = document.getElementById("reportGrid");
     const galleryGrid = document.getElementById("galleryGrid");
+    const refreshBtn = document.getElementById("refreshBtn");
 
     if(API_URL.indexOf("PASTE_YOUR") === 0){
         reportSub.textContent = "Backend URL not set yet.";
         reportSub.className = "view-sub error";
         return;
     }
+
+    refreshBtn.classList.add("spinning");
 
     try{
         const res = await fetch(API_URL + "?action=list");
@@ -594,6 +648,7 @@ async function loadPunches(){
             gallerySub.textContent = "No images yet.";
             reportGrid.innerHTML = "";
             galleryGrid.innerHTML = "";
+            refreshBtn.classList.remove("spinning");
             return;
         }
 
@@ -608,6 +663,8 @@ async function loadPunches(){
         reportSub.textContent = "Could not load data. Check the backend URL and try again.";
         reportSub.className = "view-sub error";
     }
+
+    refreshBtn.classList.remove("spinning");
 }
 
 function renderReport(data){
@@ -623,7 +680,11 @@ function renderReport(data){
                     <span>${escapeHtml(entry.date)}</span>
                     <span>${escapeHtml(entry.time)}</span>
                 </div>
-                <a class="map-link" href="${entry.mapsLink}" target="_blank" rel="noopener">📍 View punch location</a>
+                <div class="address">
+                    <b>Punched in from</b>
+                    ${entry.address ? escapeHtml(entry.address) : "Location unavailable"}
+                </div>
+                <a class="map-link" href="${entry.mapsLink}" target="_blank" rel="noopener">📍 See Location</a>
             </div>
         </div>
     `).join("");
