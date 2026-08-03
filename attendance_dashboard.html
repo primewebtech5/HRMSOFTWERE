@@ -34,19 +34,60 @@ body{
     background:var(--ink);
     color:#e7ecf6;
     min-height:100vh;
+    overflow-x:hidden;
 }
+
+button, a{
+    font-family:inherit;
+}
+
+/* ============ HAMBURGER ============ */
+
+.hamburger{
+    width:38px;
+    height:38px;
+    background:transparent;
+    border:1px solid var(--hair);
+    border-radius:7px;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    flex-shrink:0;
+    transition:border-color 0.2s ease;
+}
+
+.hamburger:hover{
+    border-color:var(--amber);
+}
+
+.hamburger span{
+    width:16px;
+    height:2px;
+    background:#e7ecf6;
+    border-radius:1px;
+    transition:transform 0.25s ease, opacity 0.2s ease;
+}
+
+.hamburger.open span:nth-child(1){ transform:translateY(6px) rotate(45deg); }
+.hamburger.open span:nth-child(2){ opacity:0; }
+.hamburger.open span:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
 
 /* ============ HEADER ============ */
 
 .top-bar{
     background:var(--panel);
     border-bottom:1px solid var(--hair);
-    padding:14px 22px;
+    padding:14px 18px;
     display:flex;
     align-items:center;
-    justify-content:space-between;
+    gap:14px;
     flex-wrap:wrap;
-    gap:12px;
+    position:sticky;
+    top:0;
+    z-index:20;
 }
 
 .top-bar .title{
@@ -64,6 +105,7 @@ body{
     display:flex;
     align-items:center;
     gap:14px;
+    margin-left:auto;
 }
 
 .back-link{
@@ -122,12 +164,140 @@ body{
     100%{ box-shadow:0 0 0 0 rgba(111,224,138,0); }
 }
 
+/* ============ SIDEBAR ============ */
+
+.sidebar-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(4,7,14,0.6);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.25s ease;
+    z-index:29;
+}
+
+.sidebar-overlay.active{
+    opacity:1;
+    pointer-events:auto;
+}
+
+.sidebar{
+    position:fixed;
+    top:0;
+    left:0;
+    bottom:0;
+    width:260px;
+    background:var(--panel);
+    border-right:1px solid var(--hair);
+    transform:translateX(-100%);
+    transition:transform 0.28s cubic-bezier(.2,.7,.3,1);
+    z-index:30;
+    display:flex;
+    flex-direction:column;
+    padding:20px 0;
+}
+
+.sidebar.active{
+    transform:translateX(0);
+}
+
+.sidebar-brand{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:18px;
+    font-weight:700;
+    letter-spacing:3px;
+    padding:0 22px 22px;
+    border-bottom:1px solid var(--hair);
+    margin-bottom:12px;
+}
+
+.sidebar-brand span{
+    color:var(--amber);
+}
+
+.sidebar-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    color:var(--steel);
+    padding:8px 22px;
+}
+
+.side-item{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    background:none;
+    border:none;
+    color:#c8d0e0;
+    text-decoration:none;
+    padding:12px 22px;
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    text-align:left;
+    border-left:3px solid transparent;
+    transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.side-item .ic{
+    font-size:16px;
+    width:20px;
+    text-align:center;
+}
+
+.side-item:hover{
+    background:var(--panel-2);
+    color:#e7ecf6;
+}
+
+.side-item.active{
+    background:var(--panel-2);
+    color:var(--amber);
+    border-left-color:var(--amber);
+}
+
+.sidebar-footer{
+    margin-top:auto;
+    padding:14px 22px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;
+    color:var(--steel);
+    letter-spacing:1px;
+    border-top:1px solid var(--hair);
+}
+
 /* ============ CONTENT ============ */
 
 .content{
     padding:22px;
     max-width:1100px;
     margin:0 auto;
+}
+
+.view{
+    display:none;
+}
+
+.view.active{
+    display:block;
+}
+
+.view-heading{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:20px;
+    font-weight:700;
+    margin-bottom:4px;
+}
+
+.view-sub{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--steel);
+    letter-spacing:1px;
+    margin-bottom:20px;
 }
 
 .state-msg{
@@ -142,7 +312,7 @@ body{
     color:var(--danger);
 }
 
-/* card grid for mobile-friendly view */
+/* ---- report grid ---- */
 
 .punch-grid{
     display:grid;
@@ -169,6 +339,7 @@ body{
     object-fit:cover;
     background:var(--panel-2);
     display:block;
+    cursor:pointer;
 }
 
 .punch-card .body{
@@ -216,23 +387,162 @@ body{
     color:var(--amber);
 }
 
+/* ---- gallery grid ---- */
+
+.gallery-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+    gap:10px;
+}
+
+.gallery-item{
+    position:relative;
+    aspect-ratio:1/1;
+    border-radius:8px;
+    overflow:hidden;
+    cursor:pointer;
+    border:1px solid var(--hair);
+}
+
+.gallery-item img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    transition:transform 0.3s ease;
+}
+
+.gallery-item:hover img{
+    transform:scale(1.08);
+}
+
+.gallery-item .tag{
+    position:absolute;
+    left:0;
+    right:0;
+    bottom:0;
+    background:linear-gradient(0deg,rgba(0,0,0,0.75),transparent);
+    color:#fff;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    padding:14px 8px 6px;
+    letter-spacing:0.5px;
+}
+
+/* ---- lightbox ---- */
+
+.lightbox{
+    position:fixed;
+    inset:0;
+    background:rgba(4,7,14,0.9);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    z-index:50;
+    padding:24px;
+}
+
+.lightbox.active{
+    display:flex;
+}
+
+.lightbox img{
+    max-width:min(500px,90vw);
+    max-height:80vh;
+    border-radius:12px;
+    border:2px solid var(--hair);
+}
+
+.lightbox-close{
+    position:absolute;
+    top:20px;
+    right:24px;
+    background:none;
+    border:none;
+    color:#e7ecf6;
+    font-size:28px;
+    cursor:pointer;
+    line-height:1;
+}
+
+.lightbox-caption{
+    position:absolute;
+    bottom:30px;
+    left:0;
+    right:0;
+    text-align:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--steel);
+}
+
+.lightbox-caption b{
+    color:var(--amber);
+}
+
+@media (prefers-reduced-motion: reduce){
+    .sidebar, .sidebar-overlay, .hamburger span, .gallery-item img{
+        transition:none;
+    }
+}
+
 </style>
 </head>
 
 <body>
 
 <div class="top-bar">
+    <button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Open menu">
+        <span></span><span></span><span></span>
+    </button>
     <div class="title">Prime <span>Attendance</span></div>
     <div class="top-actions">
         <span class="live-tag">AUTO-REFRESH</span>
         <button class="refresh-btn" onclick="loadPunches()">Refresh</button>
-        <a class="back-link" href="index.html">← Dashboard</a>
     </div>
 </div>
 
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">PRIME <span>E.M.S</span></div>
+
+    <div class="sidebar-label">Attendance</div>
+    <button class="side-item active" data-view="view-report" onclick="switchView('view-report', this)">
+        <span class="ic">📋</span> Employee Punch-In Report
+    </button>
+    <button class="side-item" data-view="view-gallery" onclick="switchView('view-gallery', this)">
+        <span class="ic">🖼️</span> Images
+    </button>
+
+    <div class="sidebar-label">Navigate</div>
+    <a class="side-item" href="dashboard.html">
+        <span class="ic">🏠</span> Main Dashboard
+    </a>
+
+    <div class="sidebar-footer">Prime E.M.S · 1.0.0(a)</div>
+</div>
+
 <div class="content">
-    <div id="stateMsg" class="state-msg">Loading punch entries...</div>
-    <div id="punchGrid" class="punch-grid"></div>
+
+    <div class="view active" id="view-report">
+        <div class="view-heading">Employee Punch-In Report</div>
+        <div class="view-sub" id="reportSub">Loading punch entries...</div>
+        <div id="reportGrid" class="punch-grid"></div>
+    </div>
+
+    <div class="view" id="view-gallery">
+        <div class="view-heading">Selfie Images</div>
+        <div class="view-sub" id="gallerySub">Loading images...</div>
+        <div id="galleryGrid" class="gallery-grid"></div>
+    </div>
+
+</div>
+
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <button class="lightbox-close" onclick="closeLightbox(event)">&times;</button>
+    <img id="lightboxImg" src="" alt="Selfie preview">
+    <div class="lightbox-caption" id="lightboxCaption"></div>
 </div>
 
 <script>
@@ -241,13 +551,37 @@ body{
 const API_URL = "https://script.google.com/macros/s/AKfycbyFQFl8Mf68sdWJzMvAh4pNT4jmHAbsy-K8PrTvyAaEzTSXmj-W26W_qZRqWtuTbwRP6A/exec";
 /* ======================================================================================== */
 
+let latestData = [];
+
+/* ---------------- SIDEBAR ---------------- */
+
+function toggleSidebar(){
+    document.getElementById("sidebar").classList.toggle("active");
+    document.getElementById("sidebarOverlay").classList.toggle("active");
+    document.getElementById("hamburgerBtn").classList.toggle("open");
+}
+
+function switchView(viewId, btn){
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    document.getElementById(viewId).classList.add("active");
+
+    document.querySelectorAll(".side-item[data-view]").forEach(i => i.classList.remove("active"));
+    if(btn) btn.classList.add("active");
+
+    toggleSidebar();
+}
+
+/* ---------------- DATA LOAD ---------------- */
+
 async function loadPunches(){
-    const stateMsg = document.getElementById("stateMsg");
-    const grid = document.getElementById("punchGrid");
+    const reportSub = document.getElementById("reportSub");
+    const gallerySub = document.getElementById("gallerySub");
+    const reportGrid = document.getElementById("reportGrid");
+    const galleryGrid = document.getElementById("galleryGrid");
 
     if(API_URL.indexOf("PASTE_YOUR") === 0){
-        stateMsg.textContent = "Backend URL not set yet — paste your Apps Script Web App URL into attendance.html.";
-        stateMsg.className = "state-msg error";
+        reportSub.textContent = "Backend URL not set yet.";
+        reportSub.className = "view-sub error";
         return;
     }
 
@@ -256,32 +590,71 @@ async function loadPunches(){
         const data = await res.json();
 
         if(!Array.isArray(data) || data.length === 0){
-            stateMsg.textContent = "No punch entries yet.";
-            stateMsg.style.display = "block";
-            grid.innerHTML = "";
+            reportSub.textContent = "No punch entries yet.";
+            gallerySub.textContent = "No images yet.";
+            reportGrid.innerHTML = "";
+            galleryGrid.innerHTML = "";
             return;
         }
 
-        stateMsg.style.display = "none";
-        grid.innerHTML = data.map(entry => `
-            <div class="punch-card">
-                <img class="photo" src="${entry.photoUrl}" alt="Selfie of ${escapeHtml(entry.name)}" loading="lazy">
-                <div class="body">
-                    <div class="name">${escapeHtml(entry.name)}</div>
-                    <div class="id">${escapeHtml(entry.employeeId)}</div>
-                    <div class="meta">
-                        <span>${escapeHtml(entry.date)}</span>
-                        <span>${escapeHtml(entry.time)}</span>
-                    </div>
-                    <a class="map-link" href="${entry.mapsLink}" target="_blank" rel="noopener">📍 View punch location</a>
-                </div>
-            </div>
-        `).join("");
+        latestData = data;
+        reportSub.textContent = `${data.length} punch entr${data.length === 1 ? "y" : "ies"} recorded`;
+        gallerySub.textContent = `${data.length} selfie${data.length === 1 ? "" : "s"} captured`;
+
+        renderReport(data);
+        renderGallery(data);
 
     } catch(err){
-        stateMsg.textContent = "Could not load punch entries. Check the backend URL and try again.";
-        stateMsg.className = "state-msg error";
-        stateMsg.style.display = "block";
+        reportSub.textContent = "Could not load data. Check the backend URL and try again.";
+        reportSub.className = "view-sub error";
+    }
+}
+
+function renderReport(data){
+    const reportGrid = document.getElementById("reportGrid");
+
+    reportGrid.innerHTML = data.map((entry, i) => `
+        <div class="punch-card">
+            <img class="photo" src="${entry.photoUrl}" alt="Selfie of ${escapeHtml(entry.name)}" loading="lazy" onclick="openLightbox(${i})">
+            <div class="body">
+                <div class="name">${escapeHtml(entry.name)}</div>
+                <div class="id">${escapeHtml(entry.employeeId)}</div>
+                <div class="meta">
+                    <span>${escapeHtml(entry.date)}</span>
+                    <span>${escapeHtml(entry.time)}</span>
+                </div>
+                <a class="map-link" href="${entry.mapsLink}" target="_blank" rel="noopener">📍 View punch location</a>
+            </div>
+        </div>
+    `).join("");
+}
+
+function renderGallery(data){
+    const galleryGrid = document.getElementById("galleryGrid");
+
+    galleryGrid.innerHTML = data.map((entry, i) => `
+        <div class="gallery-item" onclick="openLightbox(${i})">
+            <img src="${entry.photoUrl}" alt="Selfie of ${escapeHtml(entry.name)}" loading="lazy">
+            <div class="tag">${escapeHtml(entry.name)} · ${escapeHtml(entry.time)}</div>
+        </div>
+    `).join("");
+}
+
+/* ---------------- LIGHTBOX ---------------- */
+
+function openLightbox(index){
+    const entry = latestData[index];
+    if(!entry) return;
+
+    document.getElementById("lightboxImg").src = entry.photoUrl;
+    document.getElementById("lightboxCaption").innerHTML =
+        `<b>${escapeHtml(entry.name)}</b> (${escapeHtml(entry.employeeId)}) — ${escapeHtml(entry.date)} ${escapeHtml(entry.time)}`;
+    document.getElementById("lightbox").classList.add("active");
+}
+
+function closeLightbox(e){
+    if(e.target.id === "lightbox" || e.target.classList.contains("lightbox-close")){
+        document.getElementById("lightbox").classList.remove("active");
     }
 }
 
