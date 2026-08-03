@@ -182,6 +182,111 @@ input:focus-visible{
 .status-msg.info{ color:var(--steel); }
 .status-msg.success{ color:var(--success); }
 
+/* ================= DASHBOARD ================= */
+
+.dash-card{
+    width:100%;
+    max-width:340px;
+    background:var(--panel);
+    border:1.5px solid var(--hair);
+    border-radius:16px;
+    padding:28px 24px;
+}
+
+.dash-name{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:2px;
+}
+
+.dash-id{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--amber);
+    letter-spacing:1.5px;
+    margin-bottom:22px;
+}
+
+.dash-clock{
+    font-family:'JetBrains Mono',monospace;
+    font-size:34px;
+    font-weight:600;
+    color:var(--amber);
+    letter-spacing:2px;
+    text-shadow:0 0 14px rgba(242,169,59,0.35);
+    margin-bottom:4px;
+}
+
+.dash-date{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:var(--steel);
+    letter-spacing:1px;
+    margin-bottom:26px;
+}
+
+.punch-cta{
+    width:100%;
+    background:linear-gradient(135deg,var(--amber),var(--amber-deep));
+    border:none;
+    color:#1a1200;
+    padding:16px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:700;
+    font-size:14.5px;
+    letter-spacing:0.5px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.punch-cta:hover{
+    transform:translateY(-2px);
+    box-shadow:0 12px 26px -10px rgba(242,169,59,0.5);
+}
+
+.punch-cta .cam-icon{
+    font-size:18px;
+}
+
+.logout-link{
+    margin-top:22px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:1px;
+    color:var(--steel);
+    background:none;
+    border:none;
+    cursor:pointer;
+    text-decoration:underline;
+    text-underline-offset:3px;
+}
+
+.logout-link:hover{
+    color:var(--danger);
+}
+
+.back-arrow{
+    align-self:flex-start;
+    background:none;
+    border:none;
+    color:var(--steel);
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:1px;
+    cursor:pointer;
+    margin-bottom:6px;
+    padding:6px 0;
+}
+
+.back-arrow:hover{
+    color:var(--amber);
+}
+
 /* ================= CAMERA SCREEN ================= */
 
 .welcome-line{
@@ -368,9 +473,31 @@ input:focus-visible{
 
 </div>
 
-<!-- ============ SCREEN 2: CAMERA ============ -->
+<!-- ============ SCREEN 2: DASHBOARD ============ -->
+
+<div class="screen" id="screen-dashboard">
+
+    <div class="dash-card">
+        <div class="dash-name" id="dashName"></div>
+        <div class="dash-id" id="dashId"></div>
+
+        <div class="dash-clock" id="dashClock">00:00:00</div>
+        <div class="dash-date" id="dashDate"></div>
+
+        <button class="punch-cta" onclick="openCamera()">
+            <span class="cam-icon">🤳</span> Take Selfie & Punch In
+        </button>
+    </div>
+
+    <button class="logout-link" onclick="handleLogout()">Logout</button>
+
+</div>
+
+<!-- ============ SCREEN 3: CAMERA ============ -->
 
 <div class="screen" id="screen-camera">
+
+    <button class="back-arrow" onclick="cancelCamera()">← Back to Dashboard</button>
 
     <div class="welcome-line">Welcome, <b id="welcomeName"></b></div>
 
@@ -394,7 +521,7 @@ input:focus-visible{
 
 </div>
 
-<!-- ============ SCREEN 3: SUCCESS ============ -->
+<!-- ============ SCREEN 4: SUCCESS ============ -->
 
 <div class="screen" id="screen-success">
 
@@ -403,20 +530,23 @@ input:focus-visible{
     <div class="success-time" id="successTime"></div>
     <div class="success-sub">Your entry has been recorded successfully</div>
 
-    <button class="secondary-btn" style="max-width:220px;" onclick="resetApp()">Punch Another</button>
+    <button class="secondary-btn" style="max-width:220px;" onclick="backToDashboard()">Back to Dashboard</button>
 
 </div>
 
 <script>
 
 /* ======= SET THIS AFTER DEPLOYING THE GOOGLE APPS SCRIPT WEB APP ======= */
-const API_URL = "https://script.google.com/macros/s/AKfycbyFQFl8Mf68sdWJzMvAh4pNT4jmHAbsy-K8PrTvyAaEzTSXmj-W26W_qZRqWtuTbwRP6A/exec";
+const API_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 /* ======================================================================= */
 
 let currentEmployee = null;
 let stream = null;
 let capturedDataUrl = null;
 let currentLocation = null;
+let dashClockTimer = null;
+
+const SESSION_KEY = "primeEmsPunchUser";
 
 function showScreen(id){
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
@@ -436,6 +566,29 @@ async function postToApi(payload){
         body: JSON.stringify(payload)
     });
     return res.json();
+}
+
+/* ---------------- SESSION ---------------- */
+
+function saveSession(emp){
+    localStorage.setItem(SESSION_KEY, JSON.stringify(emp));
+}
+
+function loadSession(){
+    const raw = localStorage.getItem(SESSION_KEY);
+    return raw ? JSON.parse(raw) : null;
+}
+
+function clearSession(){
+    localStorage.removeItem(SESSION_KEY);
+}
+
+function checkExistingSession(){
+    const saved = loadSession();
+    if(saved){
+        currentEmployee = saved;
+        enterDashboard();
+    }
 }
 
 /* ---------------- LOGIN ---------------- */
@@ -463,10 +616,11 @@ async function handleLogin(){
 
         if(data.success){
             currentEmployee = { id: data.employeeId, name: data.name };
-            document.getElementById("welcomeName").textContent = data.name;
+            saveSession(currentEmployee);
             setStatus("loginStatus", "", "");
-            showScreen("screen-camera");
-            startCamera();
+            document.getElementById("loginId").value = "";
+            document.getElementById("loginPass").value = "";
+            enterDashboard();
         } else {
             setStatus("loginStatus", data.message || "Login failed.", "error");
         }
@@ -475,6 +629,58 @@ async function handleLogin(){
     }
 
     btn.disabled = false;
+}
+
+function handleLogout(){
+    clearSession();
+    currentEmployee = null;
+    if(dashClockTimer){
+        clearInterval(dashClockTimer);
+        dashClockTimer = null;
+    }
+    showScreen("screen-login");
+}
+
+/* ---------------- DASHBOARD ---------------- */
+
+function enterDashboard(){
+    document.getElementById("dashName").textContent = currentEmployee.name;
+    document.getElementById("dashId").textContent = currentEmployee.id;
+    document.getElementById("welcomeName").textContent = currentEmployee.name;
+
+    showScreen("screen-dashboard");
+    updateDashClock();
+    if(dashClockTimer) clearInterval(dashClockTimer);
+    dashClockTimer = setInterval(updateDashClock, 1000);
+}
+
+function updateDashClock(){
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2,"0");
+    const m = String(now.getMinutes()).padStart(2,"0");
+    const s = String(now.getSeconds()).padStart(2,"0");
+    document.getElementById("dashClock").textContent = `${h}:${m}:${s}`;
+
+    const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+    const dd = String(now.getDate()).padStart(2,"0");
+    const mm = String(now.getMonth()+1).padStart(2,"0");
+    const yyyy = now.getFullYear();
+    document.getElementById("dashDate").textContent = `${days[now.getDay()]} · ${dd}/${mm}/${yyyy}`;
+}
+
+function openCamera(){
+    showScreen("screen-camera");
+    startCamera();
+}
+
+function cancelCamera(){
+    stopCamera();
+    retakePhoto();
+    showScreen("screen-dashboard");
+}
+
+function backToDashboard(){
+    showScreen("screen-dashboard");
 }
 
 /* ---------------- CAMERA ---------------- */
@@ -593,17 +799,7 @@ function stopCamera(){
     }
 }
 
-function resetApp(){
-    capturedDataUrl = null;
-    currentLocation = null;
-    document.getElementById("captured").style.display = "none";
-    document.getElementById("video").style.display = "block";
-    document.getElementById("shutterBtn").style.display = "block";
-    document.getElementById("confirmRow").style.display = "none";
-    setStatus("cameraStatus", "", "");
-    showScreen("screen-camera");
-    startCamera();
-}
+checkExistingSession();
 
 </script>
 
