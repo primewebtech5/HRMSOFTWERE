@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prime E.M.S — Attendance</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+    --ink:#0c1220;
+    --panel:#121a2b;
+    --panel-2:#182338;
+    --hair:#25314a;
+    --steel:#8592ab;
+    --amber:#f2a93b;
+    --amber-deep:#c9821f;
+    --danger:#e2534d;
+    --success:#3ecf7a;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:var(--ink);
+    color:#e7ecf6;
+    min-height:100vh;
+}
+
+/* ============ HEADER ============ */
+
+.top-bar{
+    background:var(--panel);
+    border-bottom:1px solid var(--hair);
+    padding:14px 22px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+}
+
+.top-bar .title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:18px;
+    font-weight:700;
+    letter-spacing:1px;
+}
+
+.top-bar .title span{
+    color:var(--amber);
+}
+
+.top-actions{
+    display:flex;
+    align-items:center;
+    gap:14px;
+}
+
+.back-link{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:1px;
+    color:var(--steel);
+    text-decoration:none;
+    border:1px solid var(--hair);
+    padding:8px 14px;
+    border-radius:6px;
+    transition:border-color 0.2s ease, color 0.2s ease;
+}
+
+.back-link:hover{
+    border-color:var(--amber);
+    color:var(--amber);
+}
+
+.refresh-btn{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:1px;
+    background:linear-gradient(135deg,var(--amber),var(--amber-deep));
+    border:none;
+    color:#1a1200;
+    padding:8px 16px;
+    border-radius:6px;
+    cursor:pointer;
+    font-weight:700;
+    text-transform:uppercase;
+}
+
+.live-tag{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    color:#6fe08a;
+    letter-spacing:1px;
+}
+
+.live-tag::before{
+    content:"";
+    width:6px;
+    height:6px;
+    border-radius:50%;
+    background:#6fe08a;
+    animation:pulse-dot 1.8s ease-out infinite;
+}
+
+@keyframes pulse-dot{
+    0%{ box-shadow:0 0 0 0 rgba(111,224,138,0.55); }
+    70%{ box-shadow:0 0 0 7px rgba(111,224,138,0); }
+    100%{ box-shadow:0 0 0 0 rgba(111,224,138,0); }
+}
+
+/* ============ CONTENT ============ */
+
+.content{
+    padding:22px;
+    max-width:1100px;
+    margin:0 auto;
+}
+
+.state-msg{
+    text-align:center;
+    font-family:'JetBrains Mono',monospace;
+    font-size:13px;
+    color:var(--steel);
+    padding:60px 20px;
+}
+
+.state-msg.error{
+    color:var(--danger);
+}
+
+/* card grid for mobile-friendly view */
+
+.punch-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+    gap:16px;
+}
+
+.punch-card{
+    background:var(--panel);
+    border:1px solid var(--hair);
+    border-radius:10px;
+    overflow:hidden;
+    transition:border-color 0.2s ease, transform 0.2s ease;
+}
+
+.punch-card:hover{
+    border-color:var(--amber-deep);
+    transform:translateY(-2px);
+}
+
+.punch-card .photo{
+    width:100%;
+    aspect-ratio:1/1;
+    object-fit:cover;
+    background:var(--panel-2);
+    display:block;
+}
+
+.punch-card .body{
+    padding:12px 14px;
+}
+
+.punch-card .name{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:14.5px;
+    font-weight:700;
+    margin-bottom:2px;
+}
+
+.punch-card .id{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    color:var(--amber);
+    letter-spacing:1px;
+    margin-bottom:8px;
+}
+
+.punch-card .meta{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--steel);
+    display:flex;
+    justify-content:space-between;
+    margin-bottom:6px;
+}
+
+.punch-card a.map-link{
+    display:inline-block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    color:var(--steel);
+    text-decoration:none;
+    border-top:1px dashed var(--hair);
+    padding-top:8px;
+    margin-top:2px;
+    width:100%;
+    transition:color 0.2s ease;
+}
+
+.punch-card a.map-link:hover{
+    color:var(--amber);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="top-bar">
+    <div class="title">Prime <span>Attendance</span></div>
+    <div class="top-actions">
+        <span class="live-tag">AUTO-REFRESH</span>
+        <button class="refresh-btn" onclick="loadPunches()">Refresh</button>
+        <a class="back-link" href="index.html">← Dashboard</a>
+    </div>
+</div>
+
+<div class="content">
+    <div id="stateMsg" class="state-msg">Loading punch entries...</div>
+    <div id="punchGrid" class="punch-grid"></div>
+</div>
+
+<script>
+
+/* ======= SET THIS TO THE SAME GOOGLE APPS SCRIPT WEB APP URL USED IN punch.html ======= */
+const API_URL = "https://script.google.com/macros/s/AKfycbyFQFl8Mf68sdWJzMvAh4pNT4jmHAbsy-K8PrTvyAaEzTSXmj-W26W_qZRqWtuTbwRP6A/exec";
+/* ======================================================================================== */
+
+async function loadPunches(){
+    const stateMsg = document.getElementById("stateMsg");
+    const grid = document.getElementById("punchGrid");
+
+    if(API_URL.indexOf("PASTE_YOUR") === 0){
+        stateMsg.textContent = "Backend URL not set yet — paste your Apps Script Web App URL into attendance.html.";
+        stateMsg.className = "state-msg error";
+        return;
+    }
+
+    try{
+        const res = await fetch(API_URL + "?action=list");
+        const data = await res.json();
+
+        if(!Array.isArray(data) || data.length === 0){
+            stateMsg.textContent = "No punch entries yet.";
+            stateMsg.style.display = "block";
+            grid.innerHTML = "";
+            return;
+        }
+
+        stateMsg.style.display = "none";
+        grid.innerHTML = data.map(entry => `
+            <div class="punch-card">
+                <img class="photo" src="${entry.photoUrl}" alt="Selfie of ${escapeHtml(entry.name)}" loading="lazy">
+                <div class="body">
+                    <div class="name">${escapeHtml(entry.name)}</div>
+                    <div class="id">${escapeHtml(entry.employeeId)}</div>
+                    <div class="meta">
+                        <span>${escapeHtml(entry.date)}</span>
+                        <span>${escapeHtml(entry.time)}</span>
+                    </div>
+                    <a class="map-link" href="${entry.mapsLink}" target="_blank" rel="noopener">📍 View punch location</a>
+                </div>
+            </div>
+        `).join("");
+
+    } catch(err){
+        stateMsg.textContent = "Could not load punch entries. Check the backend URL and try again.";
+        stateMsg.className = "state-msg error";
+        stateMsg.style.display = "block";
+    }
+}
+
+function escapeHtml(str){
+    const div = document.createElement("div");
+    div.textContent = str == null ? "" : String(str);
+    return div.innerHTML;
+}
+
+loadPunches();
+setInterval(loadPunches, 30000);
+
+</script>
+
+</body>
+</html>

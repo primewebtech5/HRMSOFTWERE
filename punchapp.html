@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Prime E.M.S — Punch In</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+:root{
+    --ink:#0c1220;
+    --panel:#121a2b;
+    --panel-2:#182338;
+    --hair:#25314a;
+    --steel:#8592ab;
+    --amber:#f2a93b;
+    --amber-deep:#c9821f;
+    --danger:#e2534d;
+    --danger-deep:#b73a35;
+    --success:#3ecf7a;
+}
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,body{
+    height:100%;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:var(--ink);
+    color:#e7ecf6;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+}
+
+button, input{
+    font-family:inherit;
+}
+
+button:focus-visible,
+input:focus-visible{
+    outline:2px solid var(--amber);
+    outline-offset:2px;
+}
+
+/* ================= TITLE STRIP ================= */
+
+.title-bar{
+    width:100%;
+    background:var(--panel);
+    color:var(--steel);
+    text-align:center;
+    padding:10px 10px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    font-weight:500;
+    letter-spacing:2px;
+    text-transform:uppercase;
+    border-bottom:1px solid var(--hair);
+}
+
+.title-bar b{
+    color:var(--amber);
+}
+
+/* ================= SCREEN WRAP ================= */
+
+.screen{
+    flex:1;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    padding:28px 20px;
+    text-align:center;
+}
+
+.screen.active{
+    display:flex;
+}
+
+/* ================= LOGIN ================= */
+
+.logo-mark{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:32px;
+    font-weight:700;
+    letter-spacing:6px;
+    color:#e7ecf6;
+    margin-bottom:4px;
+}
+
+.logo-sub{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    letter-spacing:3px;
+    color:var(--steel);
+    text-transform:uppercase;
+    margin-bottom:32px;
+}
+
+.field{
+    width:100%;
+    max-width:320px;
+    text-align:left;
+    margin-bottom:16px;
+}
+
+.field label{
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--steel);
+    margin-bottom:6px;
+}
+
+.field input{
+    width:100%;
+    background:var(--panel);
+    border:1.5px solid var(--hair);
+    border-radius:8px;
+    padding:13px 14px;
+    color:#e7ecf6;
+    font-size:15px;
+    transition:border-color 0.2s ease;
+}
+
+.field input:focus{
+    border-color:var(--amber);
+}
+
+.primary-btn{
+    width:100%;
+    max-width:320px;
+    background:linear-gradient(135deg,var(--amber),var(--amber-deep));
+    border:none;
+    color:#1a1200;
+    padding:14px 18px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:700;
+    font-size:14px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    margin-top:8px;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.primary-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 22px -10px rgba(242,169,59,0.5);
+}
+
+.primary-btn:disabled{
+    opacity:0.55;
+    cursor:not-allowed;
+    transform:none;
+    box-shadow:none;
+}
+
+.status-msg{
+    margin-top:16px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    min-height:16px;
+}
+
+.status-msg.error{ color:var(--danger); }
+.status-msg.info{ color:var(--steel); }
+.status-msg.success{ color:var(--success); }
+
+/* ================= CAMERA SCREEN ================= */
+
+.welcome-line{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    letter-spacing:1px;
+    color:var(--steel);
+    margin-bottom:18px;
+}
+
+.welcome-line b{
+    color:var(--amber);
+}
+
+.camera-frame{
+    position:relative;
+    width:min(320px,80vw);
+    height:min(320px,80vw);
+    border-radius:16px;
+    overflow:hidden;
+    background:var(--panel);
+    border:2px solid var(--hair);
+    margin-bottom:22px;
+}
+
+.camera-frame video,
+.camera-frame img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    transform:scaleX(-1);
+    display:block;
+}
+
+.camera-frame .corner{
+    position:absolute;
+    width:22px;
+    height:22px;
+    border-color:var(--amber);
+    opacity:0.85;
+}
+
+.corner.tl{ top:8px; left:8px; border-top:3px solid; border-left:3px solid; border-radius:4px 0 0 0; }
+.corner.tr{ top:8px; right:8px; border-top:3px solid; border-right:3px solid; border-radius:0 4px 0 0; }
+.corner.bl{ bottom:8px; left:8px; border-bottom:3px solid; border-left:3px solid; border-radius:0 0 0 4px; }
+.corner.br{ bottom:8px; right:8px; border-bottom:3px solid; border-right:3px solid; border-radius:0 0 4px 0; }
+
+.btn-row{
+    display:flex;
+    gap:12px;
+    width:100%;
+    max-width:320px;
+}
+
+.secondary-btn{
+    flex:1;
+    background:transparent;
+    border:1.5px solid var(--hair);
+    color:var(--steel);
+    padding:13px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+    font-size:13px;
+    letter-spacing:0.5px;
+    transition:border-color 0.2s ease, color 0.2s ease;
+}
+
+.secondary-btn:hover{
+    border-color:var(--amber);
+    color:var(--amber);
+}
+
+.shutter-btn{
+    width:74px;
+    height:74px;
+    border-radius:50%;
+    background:var(--amber);
+    border:4px solid var(--panel-2);
+    box-shadow:0 0 0 3px var(--amber);
+    cursor:pointer;
+    margin-bottom:22px;
+    transition:transform 0.15s ease;
+}
+
+.shutter-btn:active{
+    transform:scale(0.92);
+}
+
+/* ================= SUCCESS SCREEN ================= */
+
+.check-circle{
+    width:84px;
+    height:84px;
+    border-radius:50%;
+    background:rgba(62,207,122,0.12);
+    border:2px solid var(--success);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:38px;
+    color:var(--success);
+    margin-bottom:20px;
+    animation:pop 0.4s ease;
+}
+
+@keyframes pop{
+    from{ transform:scale(0.6); opacity:0; }
+    to{ transform:scale(1); opacity:1; }
+}
+
+.success-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:6px;
+}
+
+.success-time{
+    font-family:'JetBrains Mono',monospace;
+    font-size:14px;
+    color:var(--amber);
+    letter-spacing:1px;
+    margin-bottom:24px;
+}
+
+.success-sub{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    color:var(--steel);
+    letter-spacing:1px;
+    margin-bottom:28px;
+}
+
+/* ================= SPINNER ================= */
+
+.spinner{
+    width:18px;
+    height:18px;
+    border:2.5px solid rgba(231,236,246,0.25);
+    border-top-color:#1a1200;
+    border-radius:50%;
+    display:inline-block;
+    animation:spin 0.7s linear infinite;
+    vertical-align:middle;
+    margin-right:8px;
+}
+
+@keyframes spin{
+    to{ transform:rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce){
+    .check-circle, .spinner{ animation:none; }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="title-bar">Prime E.M.S <b>· Selfie Punch</b></div>
+
+<!-- ============ SCREEN 1: LOGIN ============ -->
+
+<div class="screen active" id="screen-login">
+
+    <div class="logo-mark">PRIME</div>
+    <div class="logo-sub">Employee Punch Terminal</div>
+
+    <div class="field">
+        <label for="loginId">Employee ID</label>
+        <input type="text" id="loginId" autocomplete="username" inputmode="text" placeholder="e.g. EMP1023">
+    </div>
+
+    <div class="field">
+        <label for="loginPass">Password</label>
+        <input type="password" id="loginPass" autocomplete="current-password" placeholder="••••••••">
+    </div>
+
+    <button class="primary-btn" id="loginBtn" onclick="handleLogin()">Login</button>
+
+    <div class="status-msg" id="loginStatus"></div>
+
+</div>
+
+<!-- ============ SCREEN 2: CAMERA ============ -->
+
+<div class="screen" id="screen-camera">
+
+    <div class="welcome-line">Welcome, <b id="welcomeName"></b></div>
+
+    <div class="camera-frame">
+        <video id="video" autoplay playsinline muted></video>
+        <img id="captured" style="display:none;">
+        <span class="corner tl"></span>
+        <span class="corner tr"></span>
+        <span class="corner bl"></span>
+        <span class="corner br"></span>
+    </div>
+
+    <button class="shutter-btn" id="shutterBtn" onclick="capturePhoto()" aria-label="Capture selfie"></button>
+
+    <div class="btn-row" id="confirmRow" style="display:none;">
+        <button class="secondary-btn" onclick="retakePhoto()">Retake</button>
+        <button class="primary-btn" id="punchBtn" onclick="handlePunch()">Punch In</button>
+    </div>
+
+    <div class="status-msg" id="cameraStatus"></div>
+
+</div>
+
+<!-- ============ SCREEN 3: SUCCESS ============ -->
+
+<div class="screen" id="screen-success">
+
+    <div class="check-circle">✓</div>
+    <div class="success-title">Punched In!</div>
+    <div class="success-time" id="successTime"></div>
+    <div class="success-sub">Your entry has been recorded successfully</div>
+
+    <button class="secondary-btn" style="max-width:220px;" onclick="resetApp()">Punch Another</button>
+
+</div>
+
+<script>
+
+/* ======= SET THIS AFTER DEPLOYING THE GOOGLE APPS SCRIPT WEB APP ======= */
+const API_URL = "https://script.google.com/macros/s/AKfycbyFQFl8Mf68sdWJzMvAh4pNT4jmHAbsy-K8PrTvyAaEzTSXmj-W26W_qZRqWtuTbwRP6A/exec";
+/* ======================================================================= */
+
+let currentEmployee = null;
+let stream = null;
+let capturedDataUrl = null;
+let currentLocation = null;
+
+function showScreen(id){
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+
+function setStatus(elId, msg, type){
+    const el = document.getElementById(elId);
+    el.textContent = msg;
+    el.className = "status-msg " + (type || "");
+}
+
+async function postToApi(payload){
+    const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify(payload)
+    });
+    return res.json();
+}
+
+/* ---------------- LOGIN ---------------- */
+
+async function handleLogin(){
+    const id = document.getElementById("loginId").value.trim();
+    const pass = document.getElementById("loginPass").value.trim();
+
+    if(!id || !pass){
+        setStatus("loginStatus", "Please enter both Employee ID and Password.", "error");
+        return;
+    }
+
+    if(API_URL.indexOf("PASTE_YOUR") === 0){
+        setStatus("loginStatus", "Backend URL not set yet — see setup notes.", "error");
+        return;
+    }
+
+    const btn = document.getElementById("loginBtn");
+    btn.disabled = true;
+    setStatus("loginStatus", "Checking credentials...", "info");
+
+    try{
+        const data = await postToApi({ action:"login", employeeId:id, password:pass });
+
+        if(data.success){
+            currentEmployee = { id: data.employeeId, name: data.name };
+            document.getElementById("welcomeName").textContent = data.name;
+            setStatus("loginStatus", "", "");
+            showScreen("screen-camera");
+            startCamera();
+        } else {
+            setStatus("loginStatus", data.message || "Login failed.", "error");
+        }
+    } catch(err){
+        setStatus("loginStatus", "Network error. Please try again.", "error");
+    }
+
+    btn.disabled = false;
+}
+
+/* ---------------- CAMERA ---------------- */
+
+async function startCamera(){
+    try{
+        stream = await navigator.mediaDevices.getUserMedia({
+            video:{ facingMode:"user", width:{ideal:640}, height:{ideal:640} },
+            audio:false
+        });
+        document.getElementById("video").srcObject = stream;
+    } catch(err){
+        setStatus("cameraStatus", "Camera permission denied. Please allow camera access.", "error");
+    }
+}
+
+function capturePhoto(){
+    const video = document.getElementById("video");
+    const canvas = document.createElement("canvas");
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 640;
+    const ctx = canvas.getContext("2d");
+
+    /* mirror the capture so it matches the on-screen preview */
+    ctx.translate(canvas.width, 0);
+    ctx.scale(-1, 1);
+    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    capturedDataUrl = canvas.toDataURL("image/jpeg", 0.85);
+
+    document.getElementById("captured").src = capturedDataUrl;
+    document.getElementById("captured").style.display = "block";
+    document.getElementById("video").style.display = "none";
+    document.getElementById("shutterBtn").style.display = "none";
+    document.getElementById("confirmRow").style.display = "flex";
+
+    setStatus("cameraStatus", "Fetching your location...", "info");
+    fetchLocation();
+}
+
+function retakePhoto(){
+    capturedDataUrl = null;
+    currentLocation = null;
+    document.getElementById("captured").style.display = "none";
+    document.getElementById("video").style.display = "block";
+    document.getElementById("shutterBtn").style.display = "block";
+    document.getElementById("confirmRow").style.display = "none";
+    setStatus("cameraStatus", "", "");
+}
+
+function fetchLocation(){
+    if(!navigator.geolocation){
+        setStatus("cameraStatus", "Location not supported on this device.", "error");
+        return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+        pos => {
+            currentLocation = {
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude
+            };
+            setStatus("cameraStatus", "Ready to punch in.", "success");
+        },
+        err => {
+            setStatus("cameraStatus", "Location permission denied — punch needs location access.", "error");
+        },
+        { enableHighAccuracy:true, timeout:10000 }
+    );
+}
+
+/* ---------------- PUNCH ---------------- */
+
+async function handlePunch(){
+    if(!capturedDataUrl){
+        setStatus("cameraStatus", "Please take a selfie first.", "error");
+        return;
+    }
+    if(!currentLocation){
+        setStatus("cameraStatus", "Waiting for location — please allow location access.", "error");
+        return;
+    }
+
+    const btn = document.getElementById("punchBtn");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Submitting...';
+
+    try{
+        const data = await postToApi({
+            action:"punch",
+            employeeId: currentEmployee.id,
+            name: currentEmployee.name,
+            lat: currentLocation.lat,
+            lng: currentLocation.lng,
+            photoBase64: capturedDataUrl
+        });
+
+        if(data.success){
+            document.getElementById("successTime").textContent = data.time + " · " + data.date;
+            stopCamera();
+            showScreen("screen-success");
+        } else {
+            setStatus("cameraStatus", data.message || "Could not save punch.", "error");
+        }
+    } catch(err){
+        setStatus("cameraStatus", "Network error while submitting.", "error");
+    }
+
+    btn.disabled = false;
+    btn.textContent = "Punch In";
+}
+
+function stopCamera(){
+    if(stream){
+        stream.getTracks().forEach(t => t.stop());
+    }
+}
+
+function resetApp(){
+    capturedDataUrl = null;
+    currentLocation = null;
+    document.getElementById("captured").style.display = "none";
+    document.getElementById("video").style.display = "block";
+    document.getElementById("shutterBtn").style.display = "block";
+    document.getElementById("confirmRow").style.display = "none";
+    setStatus("cameraStatus", "", "");
+    showScreen("screen-camera");
+    startCamera();
+}
+
+</script>
+
+</body>
+</html>
