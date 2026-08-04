@@ -74,6 +74,145 @@ input:focus-visible{
     color:var(--amber);
 }
 
+/* ================= HAMBURGER ================= */
+
+.hamburger{
+    position:fixed;
+    top:9px;
+    left:12px;
+    width:34px;
+    height:34px;
+    background:var(--panel-2);
+    border:1px solid var(--hair);
+    border-radius:7px;
+    cursor:pointer;
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    z-index:41;
+    transition:border-color 0.2s ease;
+}
+
+.hamburger.show{
+    display:flex;
+}
+
+.hamburger:hover{
+    border-color:var(--amber);
+}
+
+.hamburger span{
+    width:15px;
+    height:2px;
+    background:#e7ecf6;
+    border-radius:1px;
+    transition:transform 0.25s ease, opacity 0.2s ease;
+}
+
+.hamburger.open span:nth-child(1){ transform:translateY(6px) rotate(45deg); }
+.hamburger.open span:nth-child(2){ opacity:0; }
+.hamburger.open span:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
+
+.sidebar-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(4,7,14,0.6);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity 0.25s ease;
+    z-index:39;
+}
+
+.sidebar-overlay.active{
+    opacity:1;
+    pointer-events:auto;
+}
+
+.sidebar{
+    position:fixed;
+    top:0;
+    left:0;
+    bottom:0;
+    width:230px;
+    background:var(--panel);
+    border-right:1px solid var(--hair);
+    transform:translateX(-100%);
+    transition:transform 0.28s cubic-bezier(.2,.7,.3,1);
+    z-index:40;
+    display:flex;
+    flex-direction:column;
+    padding:20px 0;
+    text-align:left;
+}
+
+.sidebar.active{
+    transform:translateX(0);
+}
+
+.sidebar-brand{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:16px;
+    font-weight:700;
+    letter-spacing:2px;
+    padding:0 20px 18px;
+    border-bottom:1px solid var(--hair);
+    margin-bottom:10px;
+}
+
+.sidebar-brand span{
+    color:var(--amber);
+}
+
+.side-item{
+    display:flex;
+    align-items:center;
+    gap:11px;
+    width:100%;
+    background:none;
+    border:none;
+    color:#c8d0e0;
+    padding:12px 20px;
+    font-size:13px;
+    font-weight:600;
+    cursor:pointer;
+    text-align:left;
+    border-left:3px solid transparent;
+    transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.side-item .ic{
+    font-size:15px;
+    width:18px;
+    text-align:center;
+}
+
+.side-item:hover{
+    background:var(--panel-2);
+    color:#e7ecf6;
+}
+
+.side-item.active{
+    background:var(--panel-2);
+    color:var(--amber);
+    border-left-color:var(--amber);
+}
+
+.side-item.danger:hover{
+    color:var(--danger);
+}
+
+.sidebar-footer{
+    margin-top:auto;
+    padding:12px 20px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:9px;
+    color:var(--steel);
+    letter-spacing:1px;
+    border-top:1px solid var(--hair);
+}
+
 /* ================= SCREEN WRAP ================= */
 
 .screen{
@@ -443,12 +582,117 @@ input:focus-visible{
     .check-circle, .spinner{ animation:none; }
 }
 
+/* ================= LEAVE APPLY ================= */
+
+.field textarea{
+    width:100%;
+    background:var(--panel);
+    border:1.5px solid var(--hair);
+    border-radius:8px;
+    padding:12px 14px;
+    color:#e7ecf6;
+    font-size:14px;
+    font-family:inherit;
+    resize:vertical;
+    min-height:80px;
+    transition:border-color 0.2s ease;
+}
+
+.field textarea:focus{
+    border-color:var(--amber);
+    outline:none;
+}
+
+.date-row{
+    display:flex;
+    gap:12px;
+    width:100%;
+    max-width:320px;
+}
+
+.date-row .field{
+    flex:1;
+}
+
+/* ================= LEAVE LIST ================= */
+
+.leave-list{
+    width:100%;
+    max-width:340px;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    text-align:left;
+}
+
+.leave-card{
+    background:var(--panel);
+    border:1.5px solid var(--hair);
+    border-radius:12px;
+    padding:14px 16px;
+}
+
+.leave-card .range{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12.5px;
+    font-weight:600;
+    color:#e7ecf6;
+    margin-bottom:6px;
+}
+
+.leave-card .reason{
+    font-size:12.5px;
+    color:#c8d0e0;
+    line-height:1.4;
+    margin-bottom:10px;
+}
+
+.status-pill{
+    display:inline-block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;
+    font-weight:700;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    padding:4px 10px;
+    border-radius:20px;
+}
+
+.status-pill.pending{ background:rgba(242,169,59,0.15); color:var(--amber); }
+.status-pill.approved{ background:rgba(62,207,122,0.15); color:var(--success); }
+.status-pill.rejected{ background:rgba(226,83,77,0.15); color:var(--danger); }
+
 </style>
 </head>
 
 <body>
 
 <div class="title-bar">Prime E.M.S <b>· Selfie Punch</b></div>
+
+<button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Open menu">
+    <span></span><span></span><span></span>
+</button>
+
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-brand">PRIME <span>E.M.S</span></div>
+
+    <button class="side-item active" data-nav="dashboard" onclick="navTo('dashboard')">
+        <span class="ic">🕐</span> Punch Dashboard
+    </button>
+    <button class="side-item" data-nav="leave-apply" onclick="navTo('leave-apply')">
+        <span class="ic">🌴</span> Apply for Leave
+    </button>
+    <button class="side-item" data-nav="leave-status" onclick="navTo('leave-status')">
+        <span class="ic">📋</span> My Leave Requests
+    </button>
+    <button class="side-item danger" onclick="handleLogout()">
+        <span class="ic">🚪</span> Logout
+    </button>
+
+    <div class="sidebar-footer">Prime E.M.S · 1.0.0(a)</div>
+</div>
 
 <!-- ============ SCREEN 1: LOGIN ============ -->
 
@@ -534,10 +778,55 @@ input:focus-visible{
 
 </div>
 
+<!-- ============ SCREEN 5: APPLY LEAVE ============ -->
+
+<div class="screen" id="screen-leave-apply">
+
+    <button class="back-arrow" onclick="navTo('dashboard')">← Back to Dashboard</button>
+
+    <div class="logo-mark" style="font-size:24px;">Apply for Leave</div>
+    <div class="logo-sub" style="margin-bottom:24px;">Your manager will be notified</div>
+
+    <div class="date-row">
+        <div class="field">
+            <label for="leaveFrom">From Date</label>
+            <input type="date" id="leaveFrom">
+        </div>
+        <div class="field">
+            <label for="leaveTo">To Date</label>
+            <input type="date" id="leaveTo">
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="leaveReason">Reason</label>
+        <textarea id="leaveReason" placeholder="Briefly describe the reason for leave..."></textarea>
+    </div>
+
+    <button class="primary-btn" id="leaveSubmitBtn" onclick="handleApplyLeave()">Submit Leave Request</button>
+
+    <div class="status-msg" id="leaveApplyStatus"></div>
+
+</div>
+
+<!-- ============ SCREEN 6: MY LEAVE REQUESTS ============ -->
+
+<div class="screen" id="screen-leave-status">
+
+    <button class="back-arrow" onclick="navTo('dashboard')">← Back to Dashboard</button>
+
+    <div class="logo-mark" style="font-size:24px;">My Leave Requests</div>
+    <div class="logo-sub" style="margin-bottom:20px;">Live status from your manager</div>
+
+    <div class="status-msg" id="leaveListStatus">Loading...</div>
+    <div class="leave-list" id="leaveList"></div>
+
+</div>
+
 <script>
 
 /* ======= SET THIS AFTER DEPLOYING THE GOOGLE APPS SCRIPT WEB APP ======= */
-const API_URL = "https://script.google.com/macros/s/AKfycbyFQFl8Mf68sdWJzMvAh4pNT4jmHAbsy-K8PrTvyAaEzTSXmj-W26W_qZRqWtuTbwRP6A/exec";
+const API_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 /* ======================================================================= */
 
 let currentEmployee = null;
@@ -551,6 +840,42 @@ const SESSION_KEY = "primeEmsPunchUser";
 function showScreen(id){
     document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
     document.getElementById(id).classList.add("active");
+
+    const hb = document.getElementById("hamburgerBtn");
+    if(id === "screen-login"){
+        hb.classList.remove("show");
+    } else {
+        hb.classList.add("show");
+    }
+}
+
+function toggleSidebar(){
+    document.getElementById("sidebar").classList.toggle("active");
+    document.getElementById("sidebarOverlay").classList.toggle("active");
+    document.getElementById("hamburgerBtn").classList.toggle("open");
+}
+
+function closeSidebarIfOpen(){
+    document.getElementById("sidebar").classList.remove("active");
+    document.getElementById("sidebarOverlay").classList.remove("active");
+    document.getElementById("hamburgerBtn").classList.remove("open");
+}
+
+function navTo(section){
+    document.querySelectorAll(".side-item[data-nav]").forEach(i => i.classList.remove("active"));
+    const btn = document.querySelector(`.side-item[data-nav="${section}"]`);
+    if(btn) btn.classList.add("active");
+
+    closeSidebarIfOpen();
+
+    if(section === "dashboard"){
+        showScreen("screen-dashboard");
+    } else if(section === "leave-apply"){
+        showScreen("screen-leave-apply");
+    } else if(section === "leave-status"){
+        showScreen("screen-leave-status");
+        loadMyLeaves();
+    }
 }
 
 function setStatus(elId, msg, type){
@@ -638,6 +963,7 @@ function handleLogout(){
         clearInterval(dashClockTimer);
         dashClockTimer = null;
     }
+    closeSidebarIfOpen();
     showScreen("screen-login");
 }
 
@@ -647,6 +973,10 @@ function enterDashboard(){
     document.getElementById("dashName").textContent = currentEmployee.name;
     document.getElementById("dashId").textContent = currentEmployee.id;
     document.getElementById("welcomeName").textContent = currentEmployee.name;
+
+    document.querySelectorAll(".side-item[data-nav]").forEach(i => i.classList.remove("active"));
+    const dashBtn = document.querySelector('.side-item[data-nav="dashboard"]');
+    if(dashBtn) dashBtn.classList.add("active");
 
     showScreen("screen-dashboard");
     updateDashClock();
@@ -676,11 +1006,11 @@ function openCamera(){
 function cancelCamera(){
     stopCamera();
     retakePhoto();
-    showScreen("screen-dashboard");
+    navTo('dashboard');
 }
 
 function backToDashboard(){
-    showScreen("screen-dashboard");
+    navTo('dashboard');
 }
 
 /* ---------------- CAMERA ---------------- */
@@ -797,6 +1127,94 @@ function stopCamera(){
     if(stream){
         stream.getTracks().forEach(t => t.stop());
     }
+}
+
+/* ---------------- LEAVE ---------------- */
+
+async function handleApplyLeave(){
+    const from = document.getElementById("leaveFrom").value;
+    const to = document.getElementById("leaveTo").value;
+    const reason = document.getElementById("leaveReason").value.trim();
+
+    if(!from || !to){
+        setStatus("leaveApplyStatus", "Please select both From and To dates.", "error");
+        return;
+    }
+    if(new Date(to) < new Date(from)){
+        setStatus("leaveApplyStatus", "'To' date cannot be before 'From' date.", "error");
+        return;
+    }
+    if(!reason){
+        setStatus("leaveApplyStatus", "Please enter a reason for leave.", "error");
+        return;
+    }
+
+    const btn = document.getElementById("leaveSubmitBtn");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Submitting...';
+    setStatus("leaveApplyStatus", "", "");
+
+    try{
+        const data = await postToApi({
+            action:"applyLeave",
+            employeeId: currentEmployee.id,
+            name: currentEmployee.name,
+            fromDate: from,
+            toDate: to,
+            reason: reason
+        });
+
+        if(data.success){
+            setStatus("leaveApplyStatus", "Leave request sent to your manager.", "success");
+            document.getElementById("leaveFrom").value = "";
+            document.getElementById("leaveTo").value = "";
+            document.getElementById("leaveReason").value = "";
+        } else {
+            setStatus("leaveApplyStatus", data.message || "Could not submit leave request.", "error");
+        }
+    } catch(err){
+        setStatus("leaveApplyStatus", "Network error while submitting.", "error");
+    }
+
+    btn.disabled = false;
+    btn.textContent = "Submit Leave Request";
+}
+
+async function loadMyLeaves(){
+    const listStatus = document.getElementById("leaveListStatus");
+    const list = document.getElementById("leaveList");
+
+    listStatus.textContent = "Loading...";
+    listStatus.style.display = "block";
+    list.innerHTML = "";
+
+    try{
+        const res = await fetch(API_URL + "?action=myLeaves&employeeId=" + encodeURIComponent(currentEmployee.id));
+        const data = await res.json();
+
+        if(!Array.isArray(data) || data.length === 0){
+            listStatus.textContent = "You haven't applied for any leave yet.";
+            return;
+        }
+
+        listStatus.style.display = "none";
+        list.innerHTML = data.map(l => `
+            <div class="leave-card">
+                <div class="range">${escapeHtmlPunch(l.fromDate)} → ${escapeHtmlPunch(l.toDate)}</div>
+                <div class="reason">${escapeHtmlPunch(l.reason)}</div>
+                <span class="status-pill ${l.status.toLowerCase()}">${escapeHtmlPunch(l.status)}</span>
+            </div>
+        `).join("");
+
+    } catch(err){
+        listStatus.textContent = "Could not load your leave requests.";
+    }
+}
+
+function escapeHtmlPunch(str){
+    const div = document.createElement("div");
+    div.textContent = str == null ? "" : String(str);
+    return div.innerHTML;
 }
 
 checkExistingSession();
