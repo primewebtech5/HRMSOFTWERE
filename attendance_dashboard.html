@@ -287,6 +287,17 @@ button, a{
     border-left-color:var(--amber);
 }
 
+.pending-badge{
+    margin-left:auto;
+    background:var(--amber);
+    color:#1a1200;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    font-weight:700;
+    padding:1px 7px;
+    border-radius:10px;
+}
+
 .sidebar-footer{
     margin-top:auto;
     padding:14px 22px;
@@ -438,6 +449,115 @@ button, a{
     color:var(--amber);
 }
 
+/* ---- leave requests ---- */
+
+.leave-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+    gap:16px;
+}
+
+.leave-card{
+    background:var(--panel);
+    border:1px solid var(--hair);
+    border-radius:10px;
+    padding:16px 18px;
+    transition:border-color 0.2s ease;
+}
+
+.leave-card:hover{
+    border-color:var(--amber-deep);
+}
+
+.leave-card .top-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom:10px;
+}
+
+.leave-card .name{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:14.5px;
+    font-weight:700;
+}
+
+.leave-card .id{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    color:var(--amber);
+    letter-spacing:1px;
+}
+
+.leave-card .range{
+    font-family:'JetBrains Mono',monospace;
+    font-size:12px;
+    color:#c8d0e0;
+    margin-bottom:8px;
+}
+
+.leave-card .reason{
+    font-size:12.5px;
+    color:var(--steel);
+    line-height:1.4;
+    margin-bottom:14px;
+}
+
+.status-pill{
+    display:inline-block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;
+    font-weight:700;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    padding:4px 10px;
+    border-radius:20px;
+    flex-shrink:0;
+}
+
+.status-pill.pending{ background:rgba(242,169,59,0.15); color:var(--amber); }
+.status-pill.approved{ background:rgba(62,207,122,0.15); color:var(--success); }
+.status-pill.rejected{ background:rgba(226,83,77,0.15); color:var(--danger); }
+
+.leave-actions{
+    display:flex;
+    gap:10px;
+}
+
+.leave-actions button{
+    flex:1;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    padding:9px 10px;
+    border-radius:6px;
+    cursor:pointer;
+    border:1px solid var(--hair);
+    background:transparent;
+    transition:background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.leave-actions .approve-btn{
+    color:var(--success);
+}
+
+.leave-actions .approve-btn:hover{
+    background:rgba(62,207,122,0.12);
+    border-color:var(--success);
+}
+
+.leave-actions .reject-btn{
+    color:var(--danger);
+}
+
+.leave-actions .reject-btn:hover{
+    background:rgba(226,83,77,0.12);
+    border-color:var(--danger);
+}
+
 /* ---- gallery grid ---- */
 
 .gallery-grid{
@@ -565,9 +685,13 @@ button, a{
     <button class="side-item" data-view="view-gallery" onclick="switchView('view-gallery', this)">
         <span class="ic">🖼️</span> Images
     </button>
+    <button class="side-item" data-view="view-leaves" onclick="switchView('view-leaves', this)">
+        <span class="ic">🌴</span> Leave Requests
+        <span class="pending-badge" id="pendingBadge" style="display:none;"></span>
+    </button>
 
     <div class="sidebar-label">Navigate</div>
-    <a class="side-item" href="dashboard.html">
+    <a class="side-item" href="index.html">
         <span class="ic">🏠</span> Main Dashboard
     </a>
 
@@ -586,6 +710,12 @@ button, a{
         <div class="view-heading">Selfie Images</div>
         <div class="view-sub" id="gallerySub">Loading images...</div>
         <div id="galleryGrid" class="gallery-grid"></div>
+    </div>
+
+    <div class="view" id="view-leaves">
+        <div class="view-heading">Leave Requests</div>
+        <div class="view-sub" id="leavesSub">Loading leave requests...</div>
+        <div id="leavesGrid" class="leave-grid"></div>
     </div>
 
 </div>
@@ -701,6 +831,83 @@ function renderGallery(data){
     `).join("");
 }
 
+/* ---------------- LEAVE REQUESTS ---------------- */
+
+async function loadLeaves(){
+    const leavesSub = document.getElementById("leavesSub");
+    const leavesGrid = document.getElementById("leavesGrid");
+    const pendingBadge = document.getElementById("pendingBadge");
+
+    try{
+        const res = await fetch(API_URL + "?action=listLeaves");
+        const data = await res.json();
+
+        if(!Array.isArray(data) || data.length === 0){
+            leavesSub.textContent = "No leave requests yet.";
+            leavesGrid.innerHTML = "";
+            pendingBadge.style.display = "none";
+            return;
+        }
+
+        const pendingCount = data.filter(l => l.status === "Pending").length;
+        leavesSub.textContent = `${data.length} total · ${pendingCount} pending`;
+
+        if(pendingCount > 0){
+            pendingBadge.textContent = pendingCount;
+            pendingBadge.style.display = "inline-block";
+        } else {
+            pendingBadge.style.display = "none";
+        }
+
+        leavesGrid.innerHTML = data.map(l => `
+            <div class="leave-card">
+                <div class="top-row">
+                    <div>
+                        <div class="name">${escapeHtml(l.name)}</div>
+                        <div class="id">${escapeHtml(l.employeeId)}</div>
+                    </div>
+                    <span class="status-pill ${l.status.toLowerCase()}">${escapeHtml(l.status)}</span>
+                </div>
+                <div class="range">${escapeHtml(l.fromDate)} → ${escapeHtml(l.toDate)}</div>
+                <div class="reason">${escapeHtml(l.reason)}</div>
+                ${l.status === "Pending" ? `
+                    <div class="leave-actions">
+                        <button class="approve-btn" onclick="respondLeave('${l.leaveId}','Approved',this)">✓ Approve</button>
+                        <button class="reject-btn" onclick="respondLeave('${l.leaveId}','Rejected',this)">✕ Reject</button>
+                    </div>
+                ` : ""}
+            </div>
+        `).join("");
+
+    } catch(err){
+        leavesSub.textContent = "Could not load leave requests.";
+    }
+}
+
+async function respondLeave(leaveId, status, btn){
+    btn.disabled = true;
+    btn.textContent = "...";
+
+    try{
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action:"updateLeaveStatus", leaveId, status })
+        });
+        const data = await res.json();
+
+        if(data.success){
+            loadLeaves();
+        } else {
+            btn.disabled = false;
+            alert(data.message || "Could not update leave status.");
+        }
+    } catch(err){
+        btn.disabled = false;
+        alert("Network error while updating leave status.");
+    }
+}
+
 /* ---------------- LIGHTBOX ---------------- */
 
 function openLightbox(index){
@@ -726,7 +933,9 @@ function escapeHtml(str){
 }
 
 loadPunches();
+loadLeaves();
 setInterval(loadPunches, 30000);
+setInterval(loadLeaves, 30000);
 
 </script>
 
