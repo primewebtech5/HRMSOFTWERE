@@ -558,6 +558,158 @@ button, a{
     border-color:var(--danger);
 }
 
+/* ---- employee management ---- */
+
+.add-emp-card{
+    background:var(--panel);
+    border:1px solid var(--hair);
+    border-radius:10px;
+    padding:18px 20px;
+    margin-bottom:22px;
+    max-width:520px;
+}
+
+.add-emp-card .card-title{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:14px;
+}
+
+.emp-form-row{
+    display:flex;
+    gap:12px;
+    margin-bottom:12px;
+    flex-wrap:wrap;
+}
+
+.emp-field{
+    flex:1;
+    min-width:140px;
+    text-align:left;
+}
+
+.emp-field label{
+    display:block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--steel);
+    margin-bottom:5px;
+}
+
+.emp-field input{
+    width:100%;
+    background:var(--panel-2);
+    border:1.5px solid var(--hair);
+    border-radius:7px;
+    padding:9px 11px;
+    color:#e7ecf6;
+    font-size:13.5px;
+    font-family:inherit;
+    transition:border-color 0.2s ease;
+}
+
+.emp-field input:focus{
+    border-color:var(--amber);
+    outline:none;
+}
+
+.add-emp-btn{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    background:linear-gradient(135deg,var(--amber),var(--amber-deep));
+    border:none;
+    color:#1a1200;
+    padding:10px 20px;
+    border-radius:7px;
+    cursor:pointer;
+    transition:transform 0.15s ease;
+}
+
+.add-emp-btn:hover{
+    transform:translateY(-2px);
+}
+
+.add-emp-btn:disabled{
+    opacity:0.55;
+    cursor:not-allowed;
+    transform:none;
+}
+
+.emp-form-status{
+    margin-top:10px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:11.5px;
+}
+
+.emp-form-status.error{ color:var(--danger); }
+.emp-form-status.success{ color:var(--success); }
+
+.emp-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:14px;
+}
+
+.emp-card{
+    background:var(--panel);
+    border:1px solid var(--hair);
+    border-radius:10px;
+    padding:14px 16px;
+}
+
+.emp-card .emp-name{
+    font-family:'Space Grotesk',sans-serif;
+    font-size:14px;
+    font-weight:700;
+    margin-bottom:2px;
+}
+
+.emp-card .emp-id{
+    font-family:'JetBrains Mono',monospace;
+    font-size:10.5px;
+    color:var(--amber);
+    letter-spacing:1px;
+    margin-bottom:12px;
+}
+
+.emp-card-actions{
+    display:flex;
+    gap:8px;
+}
+
+.emp-card-actions button{
+    flex:1;
+    font-family:'JetBrains Mono',monospace;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    padding:7px 8px;
+    border-radius:6px;
+    cursor:pointer;
+    border:1px solid var(--hair);
+    background:transparent;
+    color:var(--steel);
+    transition:background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.emp-card-actions .reset-btn:hover{
+    border-color:var(--amber);
+    color:var(--amber);
+}
+
+.emp-card-actions .delete-btn:hover{
+    border-color:var(--danger);
+    color:var(--danger);
+    background:rgba(226,83,77,0.1);
+}
+
 /* ---- gallery grid ---- */
 
 .gallery-grid{
@@ -689,9 +841,12 @@ button, a{
         <span class="ic">🌴</span> Leave Requests
         <span class="pending-badge" id="pendingBadge" style="display:none;"></span>
     </button>
+    <button class="side-item" data-view="view-employees" onclick="switchView('view-employees', this)">
+        <span class="ic">👥</span> Manage Employees
+    </button>
 
     <div class="sidebar-label">Navigate</div>
-    <a class="side-item" href="dashboard.html">
+    <a class="side-item" href="index.html">
         <span class="ic">🏠</span> Main Dashboard
     </a>
 
@@ -716,6 +871,34 @@ button, a{
         <div class="view-heading">Leave Requests</div>
         <div class="view-sub" id="leavesSub">Loading leave requests...</div>
         <div id="leavesGrid" class="leave-grid"></div>
+    </div>
+
+    <div class="view" id="view-employees">
+        <div class="view-heading">Manage Employees</div>
+        <div class="view-sub">Add login credentials for new employees, reset passwords, or remove access</div>
+
+        <div class="add-emp-card">
+            <div class="card-title">➕ Add New Employee</div>
+            <div class="emp-form-row">
+                <div class="emp-field">
+                    <label for="newEmpId">Employee ID</label>
+                    <input type="text" id="newEmpId" placeholder="e.g. EMP1024">
+                </div>
+                <div class="emp-field">
+                    <label for="newEmpPass">Password</label>
+                    <input type="text" id="newEmpPass" placeholder="Set a password">
+                </div>
+                <div class="emp-field">
+                    <label for="newEmpName">Full Name</label>
+                    <input type="text" id="newEmpName" placeholder="Employee name">
+                </div>
+            </div>
+            <button class="add-emp-btn" id="addEmpBtn" onclick="handleAddEmployee()">Add Employee</button>
+            <div class="emp-form-status" id="empFormStatus"></div>
+        </div>
+
+        <div class="view-sub" id="employeesSub">Loading employees...</div>
+        <div id="employeesGrid" class="emp-grid"></div>
     </div>
 
 </div>
@@ -908,6 +1091,131 @@ async function respondLeave(leaveId, status, btn){
     }
 }
 
+/* ---------------- EMPLOYEE MANAGEMENT ---------------- */
+
+async function loadEmployees(){
+    const employeesSub = document.getElementById("employeesSub");
+    const employeesGrid = document.getElementById("employeesGrid");
+
+    try{
+        const res = await fetch(API_URL + "?action=listEmployees");
+        const data = await res.json();
+
+        if(!Array.isArray(data) || data.length === 0){
+            employeesSub.textContent = "No employees added yet.";
+            employeesGrid.innerHTML = "";
+            return;
+        }
+
+        employeesSub.textContent = `${data.length} employee${data.length === 1 ? "" : "s"} with app access`;
+
+        employeesGrid.innerHTML = data.map(emp => `
+            <div class="emp-card">
+                <div class="emp-name">${escapeHtml(emp.name)}</div>
+                <div class="emp-id">${escapeHtml(emp.employeeId)}</div>
+                <div class="emp-card-actions">
+                    <button class="reset-btn" onclick="handleResetPassword('${emp.employeeId}')">🔑 Reset Password</button>
+                    <button class="delete-btn" onclick="handleDeleteEmployee('${emp.employeeId}', this)">🗑️ Remove</button>
+                </div>
+            </div>
+        `).join("");
+
+    } catch(err){
+        employeesSub.textContent = "Could not load employees.";
+    }
+}
+
+async function handleAddEmployee(){
+    const id = document.getElementById("newEmpId").value.trim();
+    const pass = document.getElementById("newEmpPass").value.trim();
+    const name = document.getElementById("newEmpName").value.trim();
+    const statusEl = document.getElementById("empFormStatus");
+    const btn = document.getElementById("addEmpBtn");
+
+    if(!id || !pass || !name){
+        statusEl.textContent = "Please fill in Employee ID, Password and Name.";
+        statusEl.className = "emp-form-status error";
+        return;
+    }
+
+    btn.disabled = true;
+    statusEl.textContent = "";
+    statusEl.className = "emp-form-status";
+
+    try{
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action:"addEmployee", employeeId:id, password:pass, name:name })
+        });
+        const data = await res.json();
+
+        if(data.success){
+            statusEl.textContent = "Employee added successfully.";
+            statusEl.className = "emp-form-status success";
+            document.getElementById("newEmpId").value = "";
+            document.getElementById("newEmpPass").value = "";
+            document.getElementById("newEmpName").value = "";
+            loadEmployees();
+        } else {
+            statusEl.textContent = data.message || "Could not add employee.";
+            statusEl.className = "emp-form-status error";
+        }
+    } catch(err){
+        statusEl.textContent = "Network error while adding employee.";
+        statusEl.className = "emp-form-status error";
+    }
+
+    btn.disabled = false;
+}
+
+async function handleResetPassword(employeeId){
+    const newPass = prompt(`Enter a new password for ${employeeId}:`);
+    if(!newPass) return;
+
+    try{
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action:"resetPassword", employeeId, newPassword:newPass })
+        });
+        const data = await res.json();
+
+        if(data.success){
+            alert("Password updated for " + employeeId);
+        } else {
+            alert(data.message || "Could not reset password.");
+        }
+    } catch(err){
+        alert("Network error while resetting password.");
+    }
+}
+
+async function handleDeleteEmployee(employeeId, btn){
+    if(!confirm(`Remove ${employeeId}? They will no longer be able to log in.`)) return;
+
+    btn.disabled = true;
+
+    try{
+        const res = await fetch(API_URL, {
+            method: "POST",
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+            body: JSON.stringify({ action:"deleteEmployee", employeeId })
+        });
+        const data = await res.json();
+
+        if(data.success){
+            loadEmployees();
+        } else {
+            btn.disabled = false;
+            alert(data.message || "Could not remove employee.");
+        }
+    } catch(err){
+        btn.disabled = false;
+        alert("Network error while removing employee.");
+    }
+}
+
 /* ---------------- LIGHTBOX ---------------- */
 
 function openLightbox(index){
@@ -934,6 +1242,7 @@ function escapeHtml(str){
 
 loadPunches();
 loadLeaves();
+loadEmployees();
 setInterval(loadPunches, 30000);
 setInterval(loadLeaves, 30000);
 
