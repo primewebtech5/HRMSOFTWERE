@@ -362,7 +362,77 @@ input:focus-visible{
     font-size:12px;
     color:var(--steel);
     letter-spacing:1px;
-    margin-bottom:26px;
+    margin-bottom:18px;
+}
+
+.stat-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.stat-box{
+    flex:1;
+    background:var(--panel-2);
+    border:1px solid var(--hair);
+    border-radius:10px;
+    padding:10px 8px;
+}
+
+.stat-box .stat-val{
+    font-family:'JetBrains Mono',monospace;
+    font-size:18px;
+    font-weight:700;
+    color:var(--amber);
+}
+
+.stat-box .stat-lbl{
+    font-family:'JetBrains Mono',monospace;
+    font-size:8.5px;
+    letter-spacing:1px;
+    text-transform:uppercase;
+    color:var(--steel);
+    margin-top:2px;
+}
+
+.punch-status{
+    background:var(--panel-2);
+    border:1px solid var(--hair);
+    border-radius:10px;
+    padding:12px 14px;
+    margin-bottom:16px;
+}
+
+.punch-status .ps-label{
+    font-family:'JetBrains Mono',monospace;
+    font-size:9.5px;
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    color:var(--steel);
+    margin-bottom:4px;
+}
+
+.punch-status .ps-timer{
+    font-family:'JetBrains Mono',monospace;
+    font-size:22px;
+    font-weight:700;
+    color:var(--success);
+    letter-spacing:1px;
+}
+
+.punch-status.out .ps-timer{
+    color:var(--steel);
+    font-size:14px;
+    font-weight:600;
+}
+
+.punch-cta.out-mode{
+    background:linear-gradient(135deg,var(--danger),var(--danger-deep));
+    color:#fff;
+}
+
+.punch-cta.out-mode:hover{
+    box-shadow:0 12px 26px -10px rgba(226,83,77,0.5);
 }
 
 .punch-cta{
@@ -681,6 +751,9 @@ input:focus-visible{
     <button class="side-item active" data-nav="dashboard" onclick="navTo('dashboard')">
         <span class="ic">🕐</span> Punch Dashboard
     </button>
+    <button class="side-item" data-nav="profile" onclick="navTo('profile')">
+        <span class="ic">👤</span> Profile
+    </button>
     <button class="side-item" data-nav="leave-apply" onclick="navTo('leave-apply')">
         <span class="ic">🌴</span> Apply for Leave
     </button>
@@ -728,12 +801,41 @@ input:focus-visible{
         <div class="dash-clock" id="dashClock">00:00:00</div>
         <div class="dash-date" id="dashDate"></div>
 
-        <button class="punch-cta" onclick="openCamera()">
-            <span class="cam-icon">🤳</span> Take Selfie & Punch In
+        <div class="stat-row">
+            <div class="stat-box">
+                <div class="stat-val" id="presentDaysVal">–</div>
+                <div class="stat-lbl" id="presentDaysLbl">Present Days</div>
+            </div>
+        </div>
+
+        <div class="punch-status out" id="punchStatusBox">
+            <div class="ps-label" id="psLabel">Status</div>
+            <div class="ps-timer" id="psTimer">Not punched in yet</div>
+        </div>
+
+        <button class="punch-cta" id="punchCtaBtn" onclick="openCamera()">
+            <span class="cam-icon">🤳</span> <span id="punchCtaLabel">Take Selfie & Punch In</span>
         </button>
     </div>
 
-    <button class="logout-link" onclick="handleLogout()">Logout</button>
+</div>
+
+<!-- ============ SCREEN 7: PROFILE ============ -->
+
+<div class="screen" id="screen-profile">
+
+    <button class="back-arrow" onclick="navTo('dashboard')">← Back to Dashboard</button>
+
+    <div class="logo-mark" style="font-size:24px;">Profile</div>
+    <div class="logo-sub" style="margin-bottom:24px;">Your account details</div>
+
+    <div class="dash-card" style="text-align:left;">
+        <div class="ps-label">Employee Name</div>
+        <div class="dash-name" style="margin-bottom:18px;" id="profileName"></div>
+
+        <div class="ps-label">Employee ID</div>
+        <div class="dash-id" id="profileId"></div>
+    </div>
 
 </div>
 
@@ -770,7 +872,7 @@ input:focus-visible{
 <div class="screen" id="screen-success">
 
     <div class="check-circle">✓</div>
-    <div class="success-title">Punched In!</div>
+    <div class="success-title" id="successTitle">Punched In!</div>
     <div class="success-time" id="successTime"></div>
     <div class="success-sub">Your entry has been recorded successfully</div>
 
@@ -826,7 +928,7 @@ input:focus-visible{
 <script>
 
 /* ======= SET THIS AFTER DEPLOYING THE GOOGLE APPS SCRIPT WEB APP ======= */
-const API_URL = "https://script.google.com/macros/s/AKfycbyFQFl8Mf68sdWJzMvAh4pNT4jmHAbsy-K8PrTvyAaEzTSXmj-W26W_qZRqWtuTbwRP6A/exec";
+const API_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
 /* ======================================================================= */
 
 let currentEmployee = null;
@@ -834,6 +936,9 @@ let stream = null;
 let capturedDataUrl = null;
 let currentLocation = null;
 let dashClockTimer = null;
+let workingTimer = null;
+let punchInMoment = null;
+let pendingPunchType = "In";
 
 const SESSION_KEY = "primeEmsPunchUser";
 
@@ -870,6 +975,10 @@ function navTo(section){
 
     if(section === "dashboard"){
         showScreen("screen-dashboard");
+    } else if(section === "profile"){
+        document.getElementById("profileName").textContent = currentEmployee.name;
+        document.getElementById("profileId").textContent = currentEmployee.id;
+        showScreen("screen-profile");
     } else if(section === "leave-apply"){
         showScreen("screen-leave-apply");
     } else if(section === "leave-status"){
@@ -963,6 +1072,10 @@ function handleLogout(){
         clearInterval(dashClockTimer);
         dashClockTimer = null;
     }
+    if(workingTimer){
+        clearInterval(workingTimer);
+        workingTimer = null;
+    }
     closeSidebarIfOpen();
     showScreen("screen-login");
 }
@@ -982,6 +1095,9 @@ function enterDashboard(){
     updateDashClock();
     if(dashClockTimer) clearInterval(dashClockTimer);
     dashClockTimer = setInterval(updateDashClock, 1000);
+
+    loadTodayStatus();
+    loadPresentDays();
 }
 
 function updateDashClock(){
@@ -1000,6 +1116,7 @@ function updateDashClock(){
 
 function openCamera(){
     showScreen("screen-camera");
+    setStatus("cameraStatus", pendingPunchType === "Out" ? "Punch Out mode" : "Punch In mode", "info");
     startCamera();
 }
 
@@ -1011,6 +1128,77 @@ function cancelCamera(){
 
 function backToDashboard(){
     navTo('dashboard');
+}
+
+/* ---------------- STATUS & TIMER ---------------- */
+
+async function loadTodayStatus(){
+    try{
+        const res = await fetch(API_URL + "?action=todayStatus&employeeId=" + encodeURIComponent(currentEmployee.id));
+        const data = await res.json();
+        applyStatus(data.status, data.lastTime);
+    } catch(err){
+        applyStatus("Out", null);
+    }
+}
+
+function applyStatus(status, lastTime){
+    const box = document.getElementById("punchStatusBox");
+    const label = document.getElementById("psLabel");
+    const timerEl = document.getElementById("psTimer");
+    const ctaBtn = document.getElementById("punchCtaBtn");
+    const ctaLabel = document.getElementById("punchCtaLabel");
+
+    if(workingTimer){
+        clearInterval(workingTimer);
+        workingTimer = null;
+    }
+
+    if(status === "In" && lastTime){
+        pendingPunchType = "Out";
+        box.classList.remove("out");
+        label.textContent = "Punched in at " + lastTime;
+        ctaBtn.classList.add("out-mode");
+        ctaLabel.textContent = "Take Selfie & Punch Out";
+
+        punchInMoment = todayTimeToDate(lastTime);
+        updateWorkingTimer();
+        workingTimer = setInterval(updateWorkingTimer, 1000);
+    } else {
+        pendingPunchType = "In";
+        box.classList.add("out");
+        label.textContent = "Status";
+        timerEl.textContent = "Not punched in yet";
+        ctaBtn.classList.remove("out-mode");
+        ctaLabel.textContent = "Take Selfie & Punch In";
+    }
+}
+
+function todayTimeToDate(timeStr){
+    const parts = timeStr.split(":").map(Number);
+    const d = new Date();
+    d.setHours(parts[0] || 0, parts[1] || 0, parts[2] || 0, 0);
+    return d;
+}
+
+function updateWorkingTimer(){
+    if(!punchInMoment) return;
+    const diffSec = Math.max(0, Math.floor((new Date() - punchInMoment) / 1000));
+    const h = String(Math.floor(diffSec / 3600)).padStart(2,"0");
+    const m = String(Math.floor((diffSec % 3600) / 60)).padStart(2,"0");
+    const s = String(diffSec % 60).padStart(2,"0");
+    document.getElementById("psTimer").textContent = `Working: ${h}:${m}:${s}`;
+}
+
+async function loadPresentDays(){
+    try{
+        const res = await fetch(API_URL + "?action=presentDays&employeeId=" + encodeURIComponent(currentEmployee.id));
+        const data = await res.json();
+        document.getElementById("presentDaysVal").textContent = data.count;
+        document.getElementById("presentDaysLbl").textContent = "Present · " + data.month;
+    } catch(err){
+        document.getElementById("presentDaysVal").textContent = "–";
+    }
 }
 
 /* ---------------- CAMERA ---------------- */
@@ -1105,13 +1293,18 @@ async function handlePunch(){
             name: currentEmployee.name,
             lat: currentLocation.lat,
             lng: currentLocation.lng,
-            photoBase64: capturedDataUrl
+            photoBase64: capturedDataUrl,
+            type: pendingPunchType
         });
 
         if(data.success){
+            document.getElementById("successTitle").textContent =
+                data.type === "Out" ? "Punched Out!" : "Punched In!";
             document.getElementById("successTime").textContent = data.time + " · " + data.date;
             stopCamera();
             showScreen("screen-success");
+            loadTodayStatus();
+            loadPresentDays();
         } else {
             setStatus("cameraStatus", data.message || "Could not save punch.", "error");
         }
