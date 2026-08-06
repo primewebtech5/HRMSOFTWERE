@@ -55,6 +55,52 @@ body{
     padding:20px;
 }
 
+/* PERMISSION BANNER */
+
+.perm-banner{
+    background:#fef3c7;
+    border:1px solid #f59e0b;
+    color:#78350f;
+    padding:14px 18px;
+    border-radius:12px;
+    margin-bottom:20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+.perm-banner.granted{
+    background:#dcfce7;
+    border-color:#22c55e;
+    color:#14532d;
+}
+
+.perm-banner.denied{
+    background:#fee2e2;
+    border-color:#ef4444;
+    color:#7f1d1d;
+}
+
+.perm-banner button{
+    background:#1e293b;
+    color:white;
+    border:none;
+    padding:9px 16px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.perm-note{
+    font-size:12px;
+    color:#64748b;
+    margin-top:-12px;
+    margin-bottom:20px;
+}
+
 /* FORM */
 
 .form-box{
@@ -68,7 +114,7 @@ body{
 
 .form-grid{
     display:grid;
-    grid-template-columns:repeat(2,1fr);
+    grid-template-columns:repeat(3,1fr);
     gap:15px;
 }
 
@@ -78,6 +124,7 @@ textarea{
     padding:12px;
     border:1px solid #ccc;
     border-radius:8px;
+    font-family:inherit;
 }
 
 textarea{
@@ -87,8 +134,14 @@ textarea{
 
 /* BUTTON */
 
-.send-btn{
+.btn-row{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
     margin-top:15px;
+}
+
+.send-btn{
     background:#1e293b;
     color:white;
     border:none;
@@ -101,6 +154,20 @@ textarea{
 .send-btn:hover{
     background:#38bdf8;
     color:black;
+}
+
+.test-btn{
+    background:white;
+    color:#1e293b;
+    border:2px solid #1e293b;
+    padding:10px 16px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.test-btn:hover{
+    background:#f1f5f9;
 }
 
 /* NOTIFICATION LIST */
@@ -120,6 +187,22 @@ textarea{
     border-left:5px solid #2563eb;
 
     animation:fadeIn 0.4s ease;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.notification-item.delivered{
+    border-left-color:#16a34a;
+    background:#f0fdf4;
+}
+
+.notification-item.missed{
+    border-left-color:#ef4444;
+    background:#fef2f2;
 }
 
 .notification-item h3{
@@ -137,6 +220,36 @@ textarea{
     color:#64748b;
 }
 
+.status-tag{
+    font-size:11px;
+    font-weight:bold;
+    padding:4px 10px;
+    border-radius:20px;
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+    background:#dbeafe;
+    color:#1d4ed8;
+    white-space:nowrap;
+}
+
+.status-tag.delivered{ background:#dcfce7; color:#15803d; }
+.status-tag.missed{ background:#fee2e2; color:#b91c1c; }
+
+.resend-btn{
+    background:none;
+    border:1px solid #cbd5e1;
+    color:#334155;
+    padding:5px 10px;
+    border-radius:6px;
+    font-size:11px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.resend-btn:hover{
+    border-color:#1e293b;
+}
+
 /* POPUP */
 
 .popup{
@@ -148,6 +261,7 @@ textarea{
     padding:15px 20px;
     border-radius:12px;
     box-shadow:0 5px 20px rgba(0,0,0,0.2);
+    max-width:300px;
 
     display:none;
 
@@ -193,8 +307,12 @@ textarea{
         align-items:flex-start;
     }
 
-    .send-btn{
+    .send-btn, .test-btn{
         width:100%;
+    }
+
+    .notification-item{
+        flex-direction:column;
     }
 }
 
@@ -221,6 +339,13 @@ textarea{
 
 <div class="container">
 
+    <!-- PERMISSION BANNER -->
+
+    <div class="perm-banner" id="permBanner"></div>
+    <div class="perm-note">
+        ℹ️ Desktop notifications only fire while this tab is open (it can be minimized or in the background — just don't close it). Closing the tab cancels any pending reminders.
+    </div>
+
     <!-- FORM -->
 
     <div class="form-box">
@@ -237,6 +362,10 @@ textarea{
             placeholder="Notification Title">
 
             <input
+            type="date"
+            id="ndate">
+
+            <input
             type="time"
             id="ntime">
 
@@ -248,13 +377,10 @@ textarea{
         id="message"
         placeholder="Enter Notification Message"></textarea>
 
-        <button
-        class="send-btn"
-        onclick="sendNotification()">
-
-        Send Notification
-
-        </button>
+        <div class="btn-row">
+            <button class="send-btn" onclick="sendNotification()">Schedule Notification</button>
+            <button class="test-btn" onclick="testNotification()">🔔 Send Test Now</button>
+        </div>
 
     </div>
 
@@ -262,7 +388,7 @@ textarea{
 
     <div class="notification-box">
 
-        <h2>Recent Notifications 📢</h2>
+        <h2>Notifications 📢</h2>
 
         <br>
 
@@ -278,145 +404,232 @@ textarea{
 
 <script>
 
-/* REQUEST PERMISSION */
+const STORAGE_KEY = "primeNotifications";
+const armedTimers = {};
 
-if(Notification.permission !== "granted"){
-    Notification.requestPermission();
+/* ---------------- PERMISSION UI ---------------- */
+
+function renderPermBanner(){
+    const banner = document.getElementById("permBanner");
+    const perm = Notification.permission;
+
+    if(perm === "granted"){
+        banner.className = "perm-banner granted";
+        banner.innerHTML = `<span>✅ Desktop notifications are enabled.</span>`;
+    } else if(perm === "denied"){
+        banner.className = "perm-banner denied";
+        banner.innerHTML = `<span>🚫 Notifications are blocked for this site. Enable them from your browser's site settings to receive alerts.</span>`;
+    } else {
+        banner.className = "perm-banner";
+        banner.innerHTML = `
+            <span>🔔 Enable desktop notifications so scheduled alerts show up even when this tab isn't focused.</span>
+            <button onclick="requestPermission()">Enable Notifications</button>
+        `;
+    }
 }
 
-/* SEND */
+function requestPermission(){
+    Notification.requestPermission().then(() => renderPermBanner());
+}
+
+/* ---------------- SCHEDULE ---------------- */
 
 function sendNotification(){
 
-    let title =
-    document.getElementById("title").value;
+    let title = document.getElementById("title").value.trim();
+    let message = document.getElementById("message").value.trim();
+    let date = document.getElementById("ndate").value;
+    let time = document.getElementById("ntime").value;
 
-    let message =
-    document.getElementById("message").value;
-
-    let time =
-    document.getElementById("ntime").value;
-
-    if(title=="" || message=="" || time==""){
-        alert("Fill all fields");
+    if(title === "" || message === "" || time === ""){
+        alert("Please fill in the title, message and time.");
         return;
     }
 
-    let now = new Date();
+    if(date === ""){
+        date = todayDateInputValue();
+    }
 
-    let target = new Date();
+    const target = buildTargetDate(date, time);
+    const now = new Date();
 
-    let t = time.split(":");
-
-    target.setHours(t[0]);
-    target.setMinutes(t[1]);
-    target.setSeconds(0);
-
-    let diff = target - now;
-
-    if(diff < 0){
-        alert("Select Future Time");
+    if(target - now < 0){
+        alert("Please pick a future date and time.");
         return;
     }
 
-    /* SAVE */
-
-    let data = JSON.parse(
-    localStorage.getItem("notifications")
-    ) || [];
-
-    let obj = {
+    const notif = {
+        id: "N" + now.getTime(),
         title,
         message,
-        time
+        date,
+        time,
+        status: "pending"
     };
 
-    data.unshift(obj);
+    saveNotification(notif);
+    armTimer(notif);
+    renderNotifications();
 
-    localStorage.setItem(
-    "notifications",
-    JSON.stringify(data)
-    );
+    document.getElementById("title").value = "";
+    document.getElementById("message").value = "";
+    document.getElementById("ntime").value = "";
+    document.getElementById("ndate").value = "";
 
-    loadNotifications();
-
-    /* TIMER */
-
-    setTimeout(()=>{
-
-        /* BROWSER NOTIFICATION */
-
-        new Notification(title,{
-            body:message
-        });
-
-        /* POPUP */
-
-        let popup =
-        document.getElementById("popup");
-
-        popup.innerHTML = `
-        <b>${title}</b><br>
-        ${message}
-        `;
-
-        popup.style.display="block";
-
-        setTimeout(()=>{
-            popup.style.display="none";
-        },5000);
-
-    },diff);
-
-    alert("Notification Scheduled ✅");
-
-    document.getElementById("title").value="";
-    document.getElementById("message").value="";
-    document.getElementById("ntime").value="";
+    alert("Notification scheduled ✅");
 }
 
-/* LOAD */
+function testNotification(){
+    if(Notification.permission !== "granted"){
+        alert("Please enable notifications first using the banner above.");
+        return;
+    }
+    fireNotification("Test Notification", "This is what your scheduled alerts will look like.");
+}
 
-function loadNotifications(){
+/* ---------------- TIMER HANDLING ---------------- */
 
-    let data = JSON.parse(
-    localStorage.getItem("notifications")
-    ) || [];
+function buildTargetDate(dateStr, timeStr){
+    const [y, m, d] = dateStr.split("-").map(Number);
+    const [hh, mm] = timeStr.split(":").map(Number);
+    return new Date(y, (m - 1), d, hh, mm, 0);
+}
 
-    let box =
-    document.getElementById("notificationList");
+function todayDateInputValue(){
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, "0");
+    const d = String(now.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+}
 
-    box.innerHTML="";
+/* Re-registers a browser timer for one pending notification. */
+function armTimer(notif){
+    const target = buildTargetDate(notif.date, notif.time);
+    const diff = target - new Date();
 
-    if(data.length==0){
+    if(diff <= 0) return;
 
-        box.innerHTML=`
-        <p>No Notification Found</p>
-        `;
+    armedTimers[notif.id] = setTimeout(() => {
+        fireNotification(notif.title, notif.message);
+        markDelivered(notif.id);
+    }, diff);
+}
 
+/* On page load, re-arms timers for every pending notification whose
+   time is still ahead, and flags any that were missed while the tab
+   was closed (so they don't just silently disappear). */
+function armAllPendingTimers(){
+    const data = loadAll();
+    let changed = false;
+
+    data.forEach(n => {
+        if(n.status !== "pending") return;
+
+        const target = buildTargetDate(n.date, n.time);
+        const diff = target - new Date();
+
+        if(diff > 0){
+            armTimer(n);
+        } else {
+            n.status = "missed";
+            changed = true;
+        }
+    });
+
+    if(changed) saveAll(data);
+}
+
+function resendNow(id){
+    const data = loadAll();
+    const notif = data.find(n => n.id === id);
+    if(!notif) return;
+
+    fireNotification(notif.title, notif.message);
+    markDelivered(id);
+}
+
+/* ---------------- FIRE / POPUP ---------------- */
+
+function fireNotification(title, message){
+    if(Notification.permission === "granted"){
+        new Notification(title, { body: message });
+    }
+
+    const popup = document.getElementById("popup");
+    popup.innerHTML = `<b>${escapeHtml(title)}</b><br>${escapeHtml(message)}`;
+    popup.style.display = "block";
+
+    setTimeout(() => {
+        popup.style.display = "none";
+    }, 5000);
+}
+
+/* ---------------- STORAGE ---------------- */
+
+function loadAll(){
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+}
+
+function saveAll(data){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function saveNotification(notif){
+    const data = loadAll();
+    data.unshift(notif);
+    saveAll(data);
+}
+
+function markDelivered(id){
+    const data = loadAll();
+    const notif = data.find(n => n.id === id);
+    if(notif){
+        notif.status = "delivered";
+        saveAll(data);
+    }
+    renderNotifications();
+}
+
+/* ---------------- RENDER LIST ---------------- */
+
+function renderNotifications(){
+    const data = loadAll();
+    const box = document.getElementById("notificationList");
+
+    if(data.length === 0){
+        box.innerHTML = `<p>No notifications yet.</p>`;
         return;
     }
 
-    data.forEach(n=>{
-
-        box.innerHTML += `
-
-        <div class="notification-item">
-
-            <h3>${n.title}</h3>
-
-            <p>${n.message}</p>
-
-            <div class="time">
-            ⏰ ${n.time}
+    box.innerHTML = data.map(n => `
+        <div class="notification-item ${n.status}">
+            <div>
+                <h3>${escapeHtml(n.title)}</h3>
+                <p>${escapeHtml(n.message)}</p>
+                <div class="time">⏰ ${escapeHtml(n.date)} at ${escapeHtml(n.time)}</div>
             </div>
-
+            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+                <span class="status-tag ${n.status}">${n.status}</span>
+                ${n.status !== "pending" ? `<button class="resend-btn" onclick="resendNow('${n.id}')">🔁 Send Again</button>` : ""}
+            </div>
         </div>
-        `;
-    });
+    `).join("");
 }
 
-loadNotifications();
+function escapeHtml(str){
+    const div = document.createElement("div");
+    div.textContent = str == null ? "" : String(str);
+    return div.innerHTML;
+}
+
+/* ---------------- INIT ---------------- */
+
+document.getElementById("ndate").min = todayDateInputValue();
+
+renderPermBanner();
+armAllPendingTimers();
+renderNotifications();
 
 </script>
 
