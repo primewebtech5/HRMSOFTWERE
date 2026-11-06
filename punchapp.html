@@ -2,1417 +2,487 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Prime E.M.S — Punch In</title>
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
-
 <style>
-
-:root{
-    --ink:#0c1220;
-    --panel:#121a2b;
-    --panel-2:#182338;
-    --hair:#25314a;
-    --steel:#8592ab;
-    --amber:#f2a93b;
-    --amber-deep:#c9821f;
-    --danger:#e2534d;
-    --danger-deep:#b73a35;
-    --success:#3ecf7a;
-}
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    -webkit-tap-highlight-color:transparent;
-}
-
-html,body{
-    height:100%;
-}
-
-body{
-    font-family:'Inter',sans-serif;
-    background:var(--ink);
-    color:#e7ecf6;
-    min-height:100vh;
-    display:flex;
-    flex-direction:column;
-}
-
-button, input{
-    font-family:inherit;
-}
-
-button:focus-visible,
-input:focus-visible{
-    outline:2px solid var(--amber);
-    outline-offset:2px;
-}
-
-/* ================= TITLE STRIP ================= */
-
-.title-bar{
-    width:100%;
-    background:var(--panel);
-    color:var(--steel);
-    text-align:center;
-    padding:10px 10px;
-    font-family:'JetBrains Mono',monospace;
-    font-size:11px;
-    font-weight:500;
-    letter-spacing:2px;
-    text-transform:uppercase;
-    border-bottom:1px solid var(--hair);
-}
-
-.title-bar b{
-    color:var(--amber);
-}
-
-/* ================= HAMBURGER ================= */
-
-.hamburger{
-    position:fixed;
-    top:9px;
-    left:12px;
-    width:34px;
-    height:34px;
-    background:var(--panel-2);
-    border:1px solid var(--hair);
-    border-radius:7px;
-    cursor:pointer;
-    display:none;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    gap:4px;
-    z-index:41;
-    transition:border-color 0.2s ease;
-}
-
-.hamburger.show{
-    display:flex;
-}
-
-.hamburger:hover{
-    border-color:var(--amber);
-}
-
-.hamburger span{
-    width:15px;
-    height:2px;
-    background:#e7ecf6;
-    border-radius:1px;
-    transition:transform 0.25s ease, opacity 0.2s ease;
-}
-
-.hamburger.open span:nth-child(1){ transform:translateY(6px) rotate(45deg); }
-.hamburger.open span:nth-child(2){ opacity:0; }
-.hamburger.open span:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
-
-.sidebar-overlay{
-    position:fixed;
-    inset:0;
-    background:rgba(4,7,14,0.6);
-    opacity:0;
-    pointer-events:none;
-    transition:opacity 0.25s ease;
-    z-index:39;
-}
-
-.sidebar-overlay.active{
-    opacity:1;
-    pointer-events:auto;
-}
-
-.sidebar{
-    position:fixed;
-    top:0;
-    left:0;
-    bottom:0;
-    width:230px;
-    background:var(--panel);
-    border-right:1px solid var(--hair);
-    transform:translateX(-100%);
-    transition:transform 0.28s cubic-bezier(.2,.7,.3,1);
-    z-index:40;
-    display:flex;
-    flex-direction:column;
-    padding:20px 0;
-    text-align:left;
-}
-
-.sidebar.active{
-    transform:translateX(0);
-}
-
-.sidebar-brand{
-    font-family:'Space Grotesk',sans-serif;
-    font-size:16px;
-    font-weight:700;
-    letter-spacing:2px;
-    padding:0 20px 18px;
-    border-bottom:1px solid var(--hair);
-    margin-bottom:10px;
-}
-
-.sidebar-brand span{
-    color:var(--amber);
-}
-
-.side-item{
-    display:flex;
-    align-items:center;
-    gap:11px;
-    width:100%;
-    background:none;
-    border:none;
-    color:#c8d0e0;
-    padding:12px 20px;
-    font-size:13px;
-    font-weight:600;
-    cursor:pointer;
-    text-align:left;
-    border-left:3px solid transparent;
-    transition:background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
-}
-
-.side-item .ic{
-    font-size:15px;
-    width:18px;
-    text-align:center;
-}
-
-.side-item:hover{
-    background:var(--panel-2);
-    color:#e7ecf6;
-}
-
-.side-item.active{
-    background:var(--panel-2);
-    color:var(--amber);
-    border-left-color:var(--amber);
-}
-
-.side-item.danger:hover{
-    color:var(--danger);
-}
-
-.sidebar-footer{
-    margin-top:auto;
-    padding:12px 20px;
-    font-family:'JetBrains Mono',monospace;
-    font-size:9px;
-    color:var(--steel);
-    letter-spacing:1px;
-    border-top:1px solid var(--hair);
-}
-
-/* ================= SCREEN WRAP ================= */
-
-.screen{
-    flex:1;
-    display:none;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    padding:28px 20px;
-    text-align:center;
-}
-
-.screen.active{
-    display:flex;
-}
-
-/* ================= LOGIN ================= */
-
-.logo-mark{
-    font-family:'Space Grotesk',sans-serif;
-    font-size:32px;
-    font-weight:700;
-    letter-spacing:6px;
-    color:#e7ecf6;
-    margin-bottom:4px;
-}
-
-.logo-sub{
-    font-family:'JetBrains Mono',monospace;
-    font-size:11px;
-    letter-spacing:3px;
-    color:var(--steel);
-    text-transform:uppercase;
-    margin-bottom:32px;
-}
-
-.field{
-    width:100%;
-    max-width:320px;
-    text-align:left;
-    margin-bottom:16px;
-}
-
-.field label{
-    display:block;
-    font-family:'JetBrains Mono',monospace;
-    font-size:10px;
-    letter-spacing:1.5px;
-    text-transform:uppercase;
-    color:var(--steel);
-    margin-bottom:6px;
-}
-
-.field input{
-    width:100%;
-    background:var(--panel);
-    border:1.5px solid var(--hair);
-    border-radius:8px;
-    padding:13px 14px;
-    color:#e7ecf6;
-    font-size:15px;
-    transition:border-color 0.2s ease;
-}
-
-.field input:focus{
-    border-color:var(--amber);
-}
-
-.primary-btn{
-    width:100%;
-    max-width:320px;
-    background:linear-gradient(135deg,var(--amber),var(--amber-deep));
-    border:none;
-    color:#1a1200;
-    padding:14px 18px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:700;
-    font-size:14px;
-    letter-spacing:1px;
-    text-transform:uppercase;
-    margin-top:8px;
-    transition:transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.primary-btn:hover{
-    transform:translateY(-2px);
-    box-shadow:0 10px 22px -10px rgba(242,169,59,0.5);
-}
-
-.primary-btn:disabled{
-    opacity:0.55;
-    cursor:not-allowed;
-    transform:none;
-    box-shadow:none;
-}
-
-.status-msg{
-    margin-top:16px;
-    font-family:'JetBrains Mono',monospace;
-    font-size:12px;
-    min-height:16px;
-}
-
-.status-msg.error{ color:var(--danger); }
-.status-msg.info{ color:var(--steel); }
-.status-msg.success{ color:var(--success); }
-
-/* ================= DASHBOARD ================= */
-
-.dash-card{
-    width:100%;
-    max-width:340px;
-    background:var(--panel);
-    border:1.5px solid var(--hair);
-    border-radius:16px;
-    padding:28px 24px;
-}
-
-.dash-name{
-    font-family:'Space Grotesk',sans-serif;
-    font-size:22px;
-    font-weight:700;
-    margin-bottom:2px;
-}
-
-.dash-id{
-    font-family:'JetBrains Mono',monospace;
-    font-size:11px;
-    color:var(--amber);
-    letter-spacing:1.5px;
-    margin-bottom:22px;
-}
-
-.dash-clock{
-    font-family:'JetBrains Mono',monospace;
-    font-size:34px;
-    font-weight:600;
-    color:var(--amber);
-    letter-spacing:2px;
-    text-shadow:0 0 14px rgba(242,169,59,0.35);
-    margin-bottom:4px;
-}
-
-.dash-date{
-    font-family:'JetBrains Mono',monospace;
-    font-size:12px;
-    color:var(--steel);
-    letter-spacing:1px;
-    margin-bottom:18px;
-}
-
-.stat-row{
-    display:flex;
-    gap:10px;
-    margin-bottom:20px;
-}
-
-.stat-box{
-    flex:1;
-    background:var(--panel-2);
-    border:1px solid var(--hair);
-    border-radius:10px;
-    padding:10px 8px;
-}
-
-.stat-box .stat-val{
-    font-family:'JetBrains Mono',monospace;
-    font-size:18px;
-    font-weight:700;
-    color:var(--amber);
-}
-
-.stat-box .stat-lbl{
-    font-family:'JetBrains Mono',monospace;
-    font-size:8.5px;
-    letter-spacing:1px;
-    text-transform:uppercase;
-    color:var(--steel);
-    margin-top:2px;
-}
-
-.punch-status{
-    background:var(--panel-2);
-    border:1px solid var(--hair);
-    border-radius:10px;
-    padding:12px 14px;
-    margin-bottom:16px;
-}
-
-.punch-status .ps-label{
-    font-family:'JetBrains Mono',monospace;
-    font-size:9.5px;
-    letter-spacing:1.5px;
-    text-transform:uppercase;
-    color:var(--steel);
-    margin-bottom:4px;
-}
-
-.punch-status .ps-timer{
-    font-family:'JetBrains Mono',monospace;
-    font-size:22px;
-    font-weight:700;
-    color:var(--success);
-    letter-spacing:1px;
-}
-
-.punch-status.out .ps-timer{
-    color:var(--steel);
-    font-size:14px;
-    font-weight:600;
-}
-
-.punch-cta.out-mode{
-    background:linear-gradient(135deg,var(--danger),var(--danger-deep));
-    color:#fff;
-}
-
-.punch-cta.out-mode:hover{
-    box-shadow:0 12px 26px -10px rgba(226,83,77,0.5);
-}
-
-.punch-cta{
-    width:100%;
-    background:linear-gradient(135deg,var(--amber),var(--amber-deep));
-    border:none;
-    color:#1a1200;
-    padding:16px 18px;
-    border-radius:10px;
-    cursor:pointer;
-    font-weight:700;
-    font-size:14.5px;
-    letter-spacing:0.5px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    transition:transform 0.15s ease, box-shadow 0.15s ease;
-}
-
-.punch-cta:hover{
-    transform:translateY(-2px);
-    box-shadow:0 12px 26px -10px rgba(242,169,59,0.5);
-}
-
-.punch-cta .cam-icon{
-    font-size:18px;
-}
-
-.logout-link{
-    margin-top:22px;
-    font-family:'JetBrains Mono',monospace;
-    font-size:11px;
-    letter-spacing:1px;
-    color:var(--steel);
-    background:none;
-    border:none;
-    cursor:pointer;
-    text-decoration:underline;
-    text-underline-offset:3px;
-}
-
-.logout-link:hover{
-    color:var(--danger);
-}
-
-.back-arrow{
-    align-self:flex-start;
-    background:none;
-    border:none;
-    color:var(--steel);
-    font-family:'JetBrains Mono',monospace;
-    font-size:11px;
-    letter-spacing:1px;
-    cursor:pointer;
-    margin-bottom:6px;
-    padding:6px 0;
-}
-
-.back-arrow:hover{
-    color:var(--amber);
-}
-
-/* ================= CAMERA SCREEN ================= */
-
-.welcome-line{
-    font-family:'JetBrains Mono',monospace;
-    font-size:12px;
-    letter-spacing:1px;
-    color:var(--steel);
-    margin-bottom:18px;
-}
-
-.welcome-line b{
-    color:var(--amber);
-}
-
-.camera-frame{
-    position:relative;
-    width:min(320px,80vw);
-    height:min(320px,80vw);
-    border-radius:16px;
-    overflow:hidden;
-    background:var(--panel);
-    border:2px solid var(--hair);
-    margin-bottom:22px;
-}
-
-.camera-frame video,
-.camera-frame img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-    transform:scaleX(-1);
-    display:block;
-}
-
-.camera-frame .corner{
-    position:absolute;
-    width:22px;
-    height:22px;
-    border-color:var(--amber);
-    opacity:0.85;
-}
-
-.corner.tl{ top:8px; left:8px; border-top:3px solid; border-left:3px solid; border-radius:4px 0 0 0; }
-.corner.tr{ top:8px; right:8px; border-top:3px solid; border-right:3px solid; border-radius:0 4px 0 0; }
-.corner.bl{ bottom:8px; left:8px; border-bottom:3px solid; border-left:3px solid; border-radius:0 0 0 4px; }
-.corner.br{ bottom:8px; right:8px; border-bottom:3px solid; border-right:3px solid; border-radius:0 0 4px 0; }
-
-.btn-row{
-    display:flex;
-    gap:12px;
-    width:100%;
-    max-width:320px;
-}
-
-.secondary-btn{
-    flex:1;
-    background:transparent;
-    border:1.5px solid var(--hair);
-    color:var(--steel);
-    padding:13px 12px;
-    border-radius:8px;
-    cursor:pointer;
-    font-weight:600;
-    font-size:13px;
-    letter-spacing:0.5px;
-    transition:border-color 0.2s ease, color 0.2s ease;
-}
-
-.secondary-btn:hover{
-    border-color:var(--amber);
-    color:var(--amber);
-}
-
-.shutter-btn{
-    width:74px;
-    height:74px;
-    border-radius:50%;
-    background:var(--amber);
-    border:4px solid var(--panel-2);
-    box-shadow:0 0 0 3px var(--amber);
-    cursor:pointer;
-    margin-bottom:22px;
-    transition:transform 0.15s ease;
-}
-
-.shutter-btn:active{
-    transform:scale(0.92);
-}
-
-/* ================= SUCCESS SCREEN ================= */
-
-.check-circle{
-    width:84px;
-    height:84px;
-    border-radius:50%;
-    background:rgba(62,207,122,0.12);
-    border:2px solid var(--success);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:38px;
-    color:var(--success);
-    margin-bottom:20px;
-    animation:pop 0.4s ease;
-}
-
-@keyframes pop{
-    from{ transform:scale(0.6); opacity:0; }
-    to{ transform:scale(1); opacity:1; }
-}
-
-.success-title{
-    font-family:'Space Grotesk',sans-serif;
-    font-size:22px;
-    font-weight:700;
-    margin-bottom:6px;
-}
-
-.success-time{
-    font-family:'JetBrains Mono',monospace;
-    font-size:14px;
-    color:var(--amber);
-    letter-spacing:1px;
-    margin-bottom:24px;
-}
-
-.success-sub{
-    font-family:'JetBrains Mono',monospace;
-    font-size:11px;
-    color:var(--steel);
-    letter-spacing:1px;
-    margin-bottom:28px;
-}
-
-/* ================= SPINNER ================= */
-
-.spinner{
-    width:18px;
-    height:18px;
-    border:2.5px solid rgba(231,236,246,0.25);
-    border-top-color:#1a1200;
-    border-radius:50%;
-    display:inline-block;
-    animation:spin 0.7s linear infinite;
-    vertical-align:middle;
-    margin-right:8px;
-}
-
-@keyframes spin{
-    to{ transform:rotate(360deg); }
-}
-
-@media (prefers-reduced-motion: reduce){
-    .check-circle, .spinner{ animation:none; }
-}
-
-/* ================= LEAVE APPLY ================= */
-
-.field textarea{
-    width:100%;
-    background:var(--panel);
-    border:1.5px solid var(--hair);
-    border-radius:8px;
-    padding:12px 14px;
-    color:#e7ecf6;
-    font-size:14px;
-    font-family:inherit;
-    resize:vertical;
-    min-height:80px;
-    transition:border-color 0.2s ease;
-}
-
-.field textarea:focus{
-    border-color:var(--amber);
-    outline:none;
-}
-
-.date-row{
-    display:flex;
-    gap:12px;
-    width:100%;
-    max-width:320px;
-}
-
-.date-row .field{
-    flex:1;
-}
-
-/* ================= LEAVE LIST ================= */
-
-.leave-list{
-    width:100%;
-    max-width:340px;
-    display:flex;
-    flex-direction:column;
-    gap:12px;
-    text-align:left;
-}
-
-.leave-card{
-    background:var(--panel);
-    border:1.5px solid var(--hair);
-    border-radius:12px;
-    padding:14px 16px;
-}
-
-.leave-card .range{
-    font-family:'JetBrains Mono',monospace;
-    font-size:12.5px;
-    font-weight:600;
-    color:#e7ecf6;
-    margin-bottom:6px;
-}
-
-.leave-card .reason{
-    font-size:12.5px;
-    color:#c8d0e0;
-    line-height:1.4;
-    margin-bottom:10px;
-}
-
-.status-pill{
-    display:inline-block;
-    font-family:'JetBrains Mono',monospace;
-    font-size:9.5px;
-    font-weight:700;
-    letter-spacing:1px;
-    text-transform:uppercase;
-    padding:4px 10px;
-    border-radius:20px;
-}
-
-.status-pill.pending{ background:rgba(242,169,59,0.15); color:var(--amber); }
-.status-pill.approved{ background:rgba(62,207,122,0.15); color:var(--success); }
-.status-pill.rejected{ background:rgba(226,83,77,0.15); color:var(--danger); }
-
+:root{--ink:#0c1220;--panel:#121a2b;--panel-2:#182338;--hair:#25314a;--steel:#8592ab;--amber:#f2a93b;--amber-deep:#c9821f;--danger:#e2534d;--danger-deep:#b73a35;--success:#3ecf7a}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:'Inter',sans-serif;background:var(--ink);color:#e7ecf6;min-height:100vh;display:flex;flex-direction:column}
+button,input,textarea{font-family:inherit}
+button:focus-visible,input:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+.title-bar{width:100%;background:var(--panel);color:var(--steel);text-align:center;padding:10px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;border-bottom:1px solid var(--hair)}
+.title-bar b{color:var(--amber)}
+.hamburger{position:fixed;top:9px;left:12px;width:34px;height:34px;background:var(--panel-2);border:1px solid var(--hair);border-radius:7px;cursor:pointer;display:none;flex-direction:column;align-items:center;justify-content:center;gap:4px;z-index:41}
+.hamburger.show{display:flex}
+.hamburger:hover{border-color:var(--amber)}
+.hamburger span{width:15px;height:2px;background:#e7ecf6;border-radius:1px;transition:transform .25s,opacity .2s}
+.hamburger.open span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+.sidebar-overlay{position:fixed;inset:0;background:rgba(4,7,14,.6);opacity:0;pointer-events:none;transition:opacity .25s;z-index:39}
+.sidebar-overlay.active{opacity:1;pointer-events:auto}
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:230px;background:var(--panel);border-right:1px solid var(--hair);transform:translateX(-100%);transition:transform .28s cubic-bezier(.2,.7,.3,1);z-index:40;display:flex;flex-direction:column;padding:20px 0;text-align:left}
+.sidebar.active{transform:translateX(0)}
+.sidebar-brand{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;padding:0 20px 18px;border-bottom:1px solid var(--hair);margin-bottom:10px}
+.sidebar-brand span{color:var(--amber)}
+.side-item{display:flex;align-items:center;gap:11px;width:100%;background:none;border:none;color:#c8d0e0;padding:12px 20px;font-size:13px;font-weight:600;cursor:pointer;text-align:left;border-left:3px solid transparent}
+.side-item .ic{font-size:15px;width:18px;text-align:center}
+.side-item:hover{background:var(--panel-2);color:#e7ecf6}
+.side-item.active{background:var(--panel-2);color:var(--amber);border-left-color:var(--amber)}
+.side-item.danger:hover{color:var(--danger)}
+.sidebar-footer{margin-top:auto;padding:12px 20px;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--steel);letter-spacing:1px;border-top:1px solid var(--hair)}
+.screen{flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;padding:28px 20px;text-align:center}
+.screen.active{display:flex}
+.logo-mark{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;letter-spacing:6px;color:#e7ecf6;margin-bottom:4px}
+.logo-sub{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--steel);text-transform:uppercase;margin-bottom:32px}
+.field{width:100%;max-width:320px;text-align:left;margin-bottom:16px}
+.field label{display:block;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--steel);margin-bottom:6px}
+.field input,.field textarea{width:100%;background:var(--panel);border:1.5px solid var(--hair);border-radius:8px;padding:13px 14px;color:#e7ecf6;font-size:15px}
+.field textarea{font-size:14px;resize:vertical;min-height:80px}
+.field input:focus,.field textarea:focus{border-color:var(--amber);outline:none}
+.primary-btn{width:100%;max-width:320px;background:linear-gradient(135deg,var(--amber),var(--amber-deep));border:none;color:#1a1200;padding:14px 18px;border-radius:8px;cursor:pointer;font-weight:700;font-size:14px;letter-spacing:1px;text-transform:uppercase;margin-top:8px}
+.primary-btn:disabled{opacity:.55;cursor:not-allowed}
+.status-msg{margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:12px;min-height:16px;max-width:320px}
+.status-msg.error{color:var(--danger)}.status-msg.info{color:var(--steel)}.status-msg.success{color:var(--success)}
+.dash-card{width:100%;max-width:340px;background:var(--panel);border:1.5px solid var(--hair);border-radius:16px;padding:28px 24px}
+.dash-name{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:2px}
+.dash-id{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--amber);letter-spacing:1.5px;margin-bottom:22px}
+.dash-clock{font-family:'JetBrains Mono',monospace;font-size:34px;font-weight:600;color:var(--amber);letter-spacing:2px;text-shadow:0 0 14px rgba(242,169,59,.35);margin-bottom:4px}
+.dash-date{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--steel);letter-spacing:1px;margin-bottom:18px}
+.stat-row{display:flex;gap:10px;margin-bottom:20px}
+.stat-box{flex:1;background:var(--panel-2);border:1px solid var(--hair);border-radius:10px;padding:10px 8px}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--amber)}
+.stat-lbl{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:1px;text-transform:uppercase;color:var(--steel);margin-top:2px}
+.punch-status{background:var(--panel-2);border:1px solid var(--hair);border-radius:10px;padding:12px 14px;margin-bottom:16px}
+.ps-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--steel);margin-bottom:4px}
+.ps-timer{font-family:'JetBrains Mono',monospace;font-size:22px;font-weight:700;color:var(--success);letter-spacing:1px}
+.punch-status.out .ps-timer{color:var(--steel);font-size:14px;font-weight:600}
+.punch-cta{width:100%;background:linear-gradient(135deg,var(--amber),var(--amber-deep));border:none;color:#1a1200;padding:16px 18px;border-radius:10px;cursor:pointer;font-weight:700;font-size:14.5px;display:flex;align-items:center;justify-content:center;gap:10px}
+.punch-cta.out-mode{background:linear-gradient(135deg,var(--danger),var(--danger-deep));color:#fff}
+.cam-icon{font-size:18px}
+.back-arrow{align-self:flex-start;background:none;border:none;color:var(--steel);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;cursor:pointer;margin-bottom:6px;padding:6px 0}
+.back-arrow:hover{color:var(--amber)}
+.welcome-line{font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:1px;color:var(--steel);margin-bottom:18px}
+.welcome-line b{color:var(--amber)}
+.camera-frame{position:relative;width:min(320px,80vw);height:min(320px,80vw);border-radius:16px;overflow:hidden;background:var(--panel);border:2px solid var(--hair);margin-bottom:22px}
+.camera-frame video,.camera-frame img{width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block}
+.corner{position:absolute;width:22px;height:22px;border-color:var(--amber);opacity:.85}
+.corner.tl{top:8px;left:8px;border-top:3px solid;border-left:3px solid}
+.corner.tr{top:8px;right:8px;border-top:3px solid;border-right:3px solid}
+.corner.bl{bottom:8px;left:8px;border-bottom:3px solid;border-left:3px solid}
+.corner.br{bottom:8px;right:8px;border-bottom:3px solid;border-right:3px solid}
+.btn-row{display:flex;gap:12px;width:100%;max-width:320px}
+.secondary-btn{flex:1;background:transparent;border:1.5px solid var(--hair);color:var(--steel);padding:13px 12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:13px}
+.secondary-btn:hover{border-color:var(--amber);color:var(--amber)}
+.shutter-btn{width:74px;height:74px;border-radius:50%;background:var(--amber);border:4px solid var(--panel-2);box-shadow:0 0 0 3px var(--amber);cursor:pointer;margin-bottom:22px}
+.shutter-btn:active{transform:scale(.92)}
+.check-circle{width:84px;height:84px;border-radius:50%;background:rgba(62,207,122,.12);border:2px solid var(--success);display:flex;align-items:center;justify-content:center;font-size:38px;color:var(--success);margin-bottom:20px}
+.success-title{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;margin-bottom:6px}
+.success-time{font-family:'JetBrains Mono',monospace;font-size:14px;color:var(--amber);letter-spacing:1px;margin-bottom:24px}
+.success-sub{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--steel);letter-spacing:1px;margin-bottom:28px}
+.spinner{width:18px;height:18px;border:2.5px solid rgba(231,236,246,.25);border-top-color:#1a1200;border-radius:50%;display:inline-block;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.date-row{display:flex;gap:12px;width:100%;max-width:320px}.date-row .field{flex:1}
+.leave-list{width:100%;max-width:340px;display:flex;flex-direction:column;gap:12px;text-align:left}
+.leave-card{background:var(--panel);border:1.5px solid var(--hair);border-radius:12px;padding:14px 16px}
+.leave-card .range{font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:600;margin-bottom:6px}
+.leave-card .reason{font-size:12.5px;color:#c8d0e0;line-height:1.4;margin-bottom:10px}
+.status-pill{display:inline-block;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;border-radius:20px}
+.status-pill.pending{background:rgba(242,169,59,.15);color:var(--amber)}
+.status-pill.approved{background:rgba(62,207,122,.15);color:var(--success)}
+.status-pill.rejected{background:rgba(226,83,77,.15);color:var(--danger)}
 </style>
 </head>
-
 <body>
 
 <div class="title-bar">Prime E.M.S <b>· Selfie Punch</b></div>
 
-<button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Open menu">
-    <span></span><span></span><span></span>
-</button>
-
+<button class="hamburger" id="hamburgerBtn" onclick="toggleSidebar()" aria-label="Open menu"><span></span><span></span><span></span></button>
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
 <div class="sidebar" id="sidebar">
-    <div class="sidebar-brand">PRIME <span>E.M.S</span></div>
-
-    <button class="side-item active" data-nav="dashboard" onclick="navTo('dashboard')">
-        <span class="ic">🕐</span> Punch Dashboard
-    </button>
-    <button class="side-item" data-nav="profile" onclick="navTo('profile')">
-        <span class="ic">👤</span> Profile
-    </button>
-    <button class="side-item" data-nav="leave-apply" onclick="navTo('leave-apply')">
-        <span class="ic">🌴</span> Apply for Leave
-    </button>
-    <button class="side-item" data-nav="leave-status" onclick="navTo('leave-status')">
-        <span class="ic">📋</span> My Leave Requests
-    </button>
-    <button class="side-item danger" onclick="handleLogout()">
-        <span class="ic">🚪</span> Logout
-    </button>
-
-    <div class="sidebar-footer">Prime E.M.S · 1.0.0(a)</div>
+  <div class="sidebar-brand">PRIME <span>E.M.S</span></div>
+  <button class="side-item active" data-nav="dashboard" onclick="navTo('dashboard')"><span class="ic">🕐</span> Punch Dashboard</button>
+  <button class="side-item" data-nav="profile" onclick="navTo('profile')"><span class="ic">👤</span> Profile</button>
+  <button class="side-item" data-nav="leave-apply" onclick="navTo('leave-apply')"><span class="ic">🌴</span> Apply for Leave</button>
+  <button class="side-item" data-nav="leave-status" onclick="navTo('leave-status')"><span class="ic">📋</span> My Leave Requests</button>
+  <button class="side-item danger" onclick="handleLogout()"><span class="ic">🚪</span> Logout</button>
+  <div class="sidebar-footer">Prime E.M.S · 1.0.1</div>
 </div>
-
-<!-- ============ SCREEN 1: LOGIN ============ -->
 
 <div class="screen active" id="screen-login">
-
-    <div class="logo-mark">PRIME</div>
-    <div class="logo-sub">Employee Punch Terminal</div>
-
-    <div class="field">
-        <label for="loginId">Employee ID</label>
-        <input type="text" id="loginId" autocomplete="username" inputmode="text" placeholder="e.g. EMP1023">
-    </div>
-
-    <div class="field">
-        <label for="loginPass">Password</label>
-        <input type="password" id="loginPass" autocomplete="current-password" placeholder="••••••••">
-    </div>
-
-    <button class="primary-btn" id="loginBtn" onclick="handleLogin()">Login</button>
-
-    <div class="status-msg" id="loginStatus"></div>
-
+  <div class="logo-mark">PRIME</div>
+  <div class="logo-sub">Employee Punch Terminal</div>
+  <div class="field"><label for="loginId">Employee ID</label><input type="text" id="loginId" autocomplete="username" placeholder="e.g. EMP1023"></div>
+  <div class="field"><label for="loginPass">Password</label><input type="password" id="loginPass" autocomplete="current-password" placeholder="••••••••"></div>
+  <button class="primary-btn" id="loginBtn" onclick="handleLogin()">Login</button>
+  <div class="status-msg" id="loginStatus"></div>
 </div>
-
-<!-- ============ SCREEN 2: DASHBOARD ============ -->
 
 <div class="screen" id="screen-dashboard">
-
-    <div class="dash-card">
-        <div class="dash-name" id="dashName"></div>
-        <div class="dash-id" id="dashId"></div>
-
-        <div class="dash-clock" id="dashClock">00:00:00</div>
-        <div class="dash-date" id="dashDate"></div>
-
-        <div class="stat-row">
-            <div class="stat-box">
-                <div class="stat-val" id="presentDaysVal">–</div>
-                <div class="stat-lbl" id="presentDaysLbl">Present Days</div>
-            </div>
-        </div>
-
-        <div class="punch-status out" id="punchStatusBox">
-            <div class="ps-label" id="psLabel">Status</div>
-            <div class="ps-timer" id="psTimer">Not punched in yet</div>
-        </div>
-
-        <button class="punch-cta" id="punchCtaBtn" onclick="openCamera()">
-            <span class="cam-icon">🤳</span> <span id="punchCtaLabel">Take Selfie & Punch In</span>
-        </button>
-    </div>
-
+  <div class="dash-card">
+    <div class="dash-name" id="dashName"></div>
+    <div class="dash-id" id="dashId"></div>
+    <div class="dash-clock" id="dashClock">00:00:00</div>
+    <div class="dash-date" id="dashDate"></div>
+    <div class="stat-row"><div class="stat-box"><div class="stat-val" id="presentDaysVal">–</div><div class="stat-lbl" id="presentDaysLbl">Present Days</div></div></div>
+    <div class="punch-status out" id="punchStatusBox"><div class="ps-label" id="psLabel">Status</div><div class="ps-timer" id="psTimer">Not punched in yet</div></div>
+    <button class="punch-cta" id="punchCtaBtn" onclick="openCamera()"><span class="cam-icon">🤳</span> <span id="punchCtaLabel">Take Selfie &amp; Punch In</span></button>
+  </div>
 </div>
-
-<!-- ============ SCREEN 7: PROFILE ============ -->
 
 <div class="screen" id="screen-profile">
-
-    <button class="back-arrow" onclick="navTo('dashboard')">← Back to Dashboard</button>
-
-    <div class="logo-mark" style="font-size:24px;">Profile</div>
-    <div class="logo-sub" style="margin-bottom:24px;">Your account details</div>
-
-    <div class="dash-card" style="text-align:left;">
-        <div class="ps-label">Employee Name</div>
-        <div class="dash-name" style="margin-bottom:18px;" id="profileName"></div>
-
-        <div class="ps-label">Employee ID</div>
-        <div class="dash-id" id="profileId"></div>
-    </div>
-
+  <button class="back-arrow" onclick="navTo('dashboard')">← Back to Dashboard</button>
+  <div class="logo-mark" style="font-size:24px">Profile</div>
+  <div class="logo-sub" style="margin-bottom:24px">Your account details</div>
+  <div class="dash-card" style="text-align:left">
+    <div class="ps-label">Employee Name</div><div class="dash-name" style="margin-bottom:18px" id="profileName"></div>
+    <div class="ps-label">Employee ID</div><div class="dash-id" id="profileId"></div>
+  </div>
 </div>
-
-<!-- ============ SCREEN 3: CAMERA ============ -->
 
 <div class="screen" id="screen-camera">
-
-    <button class="back-arrow" onclick="cancelCamera()">← Back to Dashboard</button>
-
-    <div class="welcome-line">Welcome, <b id="welcomeName"></b></div>
-
-    <div class="camera-frame">
-        <video id="video" autoplay playsinline muted></video>
-        <img id="captured" style="display:none;">
-        <span class="corner tl"></span>
-        <span class="corner tr"></span>
-        <span class="corner bl"></span>
-        <span class="corner br"></span>
-    </div>
-
-    <button class="shutter-btn" id="shutterBtn" onclick="capturePhoto()" aria-label="Capture selfie"></button>
-
-    <div class="btn-row" id="confirmRow" style="display:none;">
-        <button class="secondary-btn" onclick="retakePhoto()">Retake</button>
-        <button class="primary-btn" id="punchBtn" onclick="handlePunch()">Punch In</button>
-    </div>
-
-    <div class="status-msg" id="cameraStatus"></div>
-
+  <button class="back-arrow" onclick="cancelCamera()">← Back to Dashboard</button>
+  <div class="welcome-line">Welcome, <b id="welcomeName"></b></div>
+  <div class="camera-frame">
+    <video id="video" autoplay playsinline muted></video>
+    <img id="captured" alt="Selfie" style="display:none">
+    <span class="corner tl"></span><span class="corner tr"></span><span class="corner bl"></span><span class="corner br"></span>
+  </div>
+  <button class="shutter-btn" id="shutterBtn" onclick="capturePhoto()" aria-label="Capture selfie"></button>
+  <div class="btn-row" id="confirmRow" style="display:none">
+    <button class="secondary-btn" onclick="retakePhoto()">Retake</button>
+    <button class="primary-btn" id="punchBtn" onclick="handlePunch()">Punch In</button>
+  </div>
+  <div class="status-msg" id="cameraStatus"></div>
+  <button class="secondary-btn" id="locRetry" style="display:none;flex:none;width:100%;max-width:320px;margin-top:10px" onclick="fetchLocation()">📍 Retry Location</button>
 </div>
-
-<!-- ============ SCREEN 4: SUCCESS ============ -->
 
 <div class="screen" id="screen-success">
-
-    <div class="check-circle">✓</div>
-    <div class="success-title" id="successTitle">Punched In!</div>
-    <div class="success-time" id="successTime"></div>
-    <div class="success-sub">Your entry has been recorded successfully</div>
-
-    <button class="secondary-btn" style="max-width:220px;" onclick="backToDashboard()">Back to Dashboard</button>
-
+  <div class="check-circle">✓</div>
+  <div class="success-title" id="successTitle">Punched In!</div>
+  <div class="success-time" id="successTime"></div>
+  <div class="success-sub">Your entry has been recorded successfully</div>
+  <button class="secondary-btn" style="max-width:220px;flex:none" onclick="navTo('dashboard')">Back to Dashboard</button>
 </div>
-
-<!-- ============ SCREEN 5: APPLY LEAVE ============ -->
 
 <div class="screen" id="screen-leave-apply">
-
-    <button class="back-arrow" onclick="navTo('dashboard')">← Back to Dashboard</button>
-
-    <div class="logo-mark" style="font-size:24px;">Apply for Leave</div>
-    <div class="logo-sub" style="margin-bottom:24px;">Your manager will be notified</div>
-
-    <div class="date-row">
-        <div class="field">
-            <label for="leaveFrom">From Date</label>
-            <input type="date" id="leaveFrom">
-        </div>
-        <div class="field">
-            <label for="leaveTo">To Date</label>
-            <input type="date" id="leaveTo">
-        </div>
-    </div>
-
-    <div class="field">
-        <label for="leaveReason">Reason</label>
-        <textarea id="leaveReason" placeholder="Briefly describe the reason for leave..."></textarea>
-    </div>
-
-    <button class="primary-btn" id="leaveSubmitBtn" onclick="handleApplyLeave()">Submit Leave Request</button>
-
-    <div class="status-msg" id="leaveApplyStatus"></div>
-
+  <button class="back-arrow" onclick="navTo('dashboard')">← Back to Dashboard</button>
+  <div class="logo-mark" style="font-size:24px">Apply for Leave</div>
+  <div class="logo-sub" style="margin-bottom:24px">Your manager will be notified</div>
+  <div class="date-row">
+    <div class="field"><label for="leaveFrom">From Date</label><input type="date" id="leaveFrom"></div>
+    <div class="field"><label for="leaveTo">To Date</label><input type="date" id="leaveTo"></div>
+  </div>
+  <div class="field"><label for="leaveReason">Reason</label><textarea id="leaveReason" placeholder="Briefly describe the reason for leave..."></textarea></div>
+  <button class="primary-btn" id="leaveSubmitBtn" onclick="handleApplyLeave()">Submit Leave Request</button>
+  <div class="status-msg" id="leaveApplyStatus"></div>
 </div>
 
-<!-- ============ SCREEN 6: MY LEAVE REQUESTS ============ -->
-
 <div class="screen" id="screen-leave-status">
-
-    <button class="back-arrow" onclick="navTo('dashboard')">← Back to Dashboard</button>
-
-    <div class="logo-mark" style="font-size:24px;">My Leave Requests</div>
-    <div class="logo-sub" style="margin-bottom:20px;">Live status from your manager</div>
-
-    <div class="status-msg" id="leaveListStatus">Loading...</div>
-    <div class="leave-list" id="leaveList"></div>
-
+  <button class="back-arrow" onclick="navTo('dashboard')">← Back to Dashboard</button>
+  <div class="logo-mark" style="font-size:24px">My Leave Requests</div>
+  <div class="logo-sub" style="margin-bottom:20px">Live status from your manager</div>
+  <div class="status-msg" id="leaveListStatus">Loading...</div>
+  <div class="leave-list" id="leaveList"></div>
 </div>
 
 <script>
+const API_URL="https://script.google.com/macros/s/AKfycbyFQFl8Mf68sdWJzMvAh4pNT4jmHAbsy-K8PrTvyAaEzTSXmj-W26W_qZRqWtuTbwRP6A/exec";
 
-
-const API_URL = "https://script.google.com/macros/s/AKfycbyFQFl8Mf68sdWJzMvAh4pNT4jmHAbsy-K8PrTvyAaEzTSXmj-W26W_qZRqWtuTbwRP6A/exec";
-/* ======================================================================= */
-
-let currentEmployee = null;
-let stream = null;
-let capturedDataUrl = null;
-let currentLocation = null;
-let dashClockTimer = null;
-let workingTimer = null;
-let punchInMoment = null;
-let pendingPunchType = "In";
-
-const SESSION_KEY = "primeEmsPunchUser";
+let currentEmployee=null,stream=null,capturedDataUrl=null,currentLocation=null;
+let dashClockTimer=null,workingTimer=null,punchInMoment=null,pendingPunchType="In";
+const SESSION_KEY="primeEmsPunchUser";
+const $=id=>document.getElementById(id);
 
 function showScreen(id){
-    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
-
-    const hb = document.getElementById("hamburgerBtn");
-    if(id === "screen-login"){
-        hb.classList.remove("show");
-    } else {
-        hb.classList.add("show");
-    }
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  $(id).classList.add("active");
+  $("hamburgerBtn").classList.toggle("show",id!=="screen-login");
 }
-
 function toggleSidebar(){
-    document.getElementById("sidebar").classList.toggle("active");
-    document.getElementById("sidebarOverlay").classList.toggle("active");
-    document.getElementById("hamburgerBtn").classList.toggle("open");
+  $("sidebar").classList.toggle("active");
+  $("sidebarOverlay").classList.toggle("active");
+  $("hamburgerBtn").classList.toggle("open");
 }
-
 function closeSidebarIfOpen(){
-    document.getElementById("sidebar").classList.remove("active");
-    document.getElementById("sidebarOverlay").classList.remove("active");
-    document.getElementById("hamburgerBtn").classList.remove("open");
+  $("sidebar").classList.remove("active");
+  $("sidebarOverlay").classList.remove("active");
+  $("hamburgerBtn").classList.remove("open");
 }
-
 function navTo(section){
-    document.querySelectorAll(".side-item[data-nav]").forEach(i => i.classList.remove("active"));
-    const btn = document.querySelector(`.side-item[data-nav="${section}"]`);
-    if(btn) btn.classList.add("active");
-
-    closeSidebarIfOpen();
-
-    if(section === "dashboard"){
-        showScreen("screen-dashboard");
-    } else if(section === "profile"){
-        document.getElementById("profileName").textContent = currentEmployee.name;
-        document.getElementById("profileId").textContent = currentEmployee.id;
-        showScreen("screen-profile");
-    } else if(section === "leave-apply"){
-        showScreen("screen-leave-apply");
-    } else if(section === "leave-status"){
-        showScreen("screen-leave-status");
-        loadMyLeaves();
-    }
+  if(section!=="camera")stopCamera();
+  document.querySelectorAll(".side-item[data-nav]").forEach(i=>i.classList.remove("active"));
+  const btn=document.querySelector(`.side-item[data-nav="${section}"]`);
+  if(btn)btn.classList.add("active");
+  closeSidebarIfOpen();
+  if(section==="dashboard")showScreen("screen-dashboard");
+  else if(section==="profile"){
+    $("profileName").textContent=currentEmployee.name;
+    $("profileId").textContent=currentEmployee.id;
+    showScreen("screen-profile");
+  }else if(section==="leave-apply")showScreen("screen-leave-apply");
+  else if(section==="leave-status"){showScreen("screen-leave-status");loadMyLeaves()}
+}
+function setStatus(elId,msg,type){
+  const el=$(elId);el.textContent=msg;el.className="status-msg "+(type||"");
 }
 
-function setStatus(elId, msg, type){
-    const el = document.getElementById(elId);
-    el.textContent = msg;
-    el.className = "status-msg " + (type || "");
+/* Server na asli error dekhay te mate */
+async function parseJson(res){
+  const txt=await res.text();
+  try{return JSON.parse(txt)}
+  catch(e){throw new Error("Server error: Apps Script deploy / permission check karo")}
 }
-
 async function postToApi(payload){
-    const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
-        body: JSON.stringify(payload)
-    });
-    return res.json();
+  const res=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
+  return parseJson(res);
+}
+async function getFromApi(qs){
+  return parseJson(await fetch(API_URL+"?"+qs));
 }
 
-/* ---------------- SESSION ---------------- */
-
-function saveSession(emp){
-    localStorage.setItem(SESSION_KEY, JSON.stringify(emp));
-}
-
-function loadSession(){
-    const raw = localStorage.getItem(SESSION_KEY);
-    return raw ? JSON.parse(raw) : null;
-}
-
-function clearSession(){
-    localStorage.removeItem(SESSION_KEY);
-}
-
+/* SESSION */
 function checkExistingSession(){
-    const saved = loadSession();
-    if(saved){
-        currentEmployee = saved;
-        enterDashboard();
-    }
+  try{
+    const raw=localStorage.getItem(SESSION_KEY);
+    if(raw){currentEmployee=JSON.parse(raw);enterDashboard()}
+  }catch(e){}
 }
 
-/* ---------------- LOGIN ---------------- */
-
+/* LOGIN */
 async function handleLogin(){
-    const id = document.getElementById("loginId").value.trim();
-    const pass = document.getElementById("loginPass").value.trim();
-
-    if(!id || !pass){
-        setStatus("loginStatus", "Please enter both Employee ID and Password.", "error");
-        return;
-    }
-
-    if(API_URL.indexOf("PASTE_YOUR") === 0){
-        setStatus("loginStatus", "Backend URL not set yet — see setup notes.", "error");
-        return;
-    }
-
-    const btn = document.getElementById("loginBtn");
-    btn.disabled = true;
-    setStatus("loginStatus", "Checking credentials...", "info");
-
-    try{
-        const data = await postToApi({ action:"login", employeeId:id, password:pass });
-
-        if(data.success){
-            currentEmployee = { id: data.employeeId, name: data.name };
-            saveSession(currentEmployee);
-            setStatus("loginStatus", "", "");
-            document.getElementById("loginId").value = "";
-            document.getElementById("loginPass").value = "";
-            enterDashboard();
-        } else {
-            setStatus("loginStatus", data.message || "Login failed.", "error");
-        }
-    } catch(err){
-        setStatus("loginStatus", "Network error. Please try again.", "error");
-    }
-
-    btn.disabled = false;
+  const id=$("loginId").value.trim(),pass=$("loginPass").value.trim();
+  if(!id||!pass){setStatus("loginStatus","Please enter both Employee ID and Password.","error");return}
+  const btn=$("loginBtn");btn.disabled=true;
+  setStatus("loginStatus","Checking credentials...","info");
+  try{
+    const data=await postToApi({action:"login",employeeId:id,password:pass});
+    if(data.success){
+      currentEmployee={id:data.employeeId,name:data.name};
+      try{localStorage.setItem(SESSION_KEY,JSON.stringify(currentEmployee))}catch(e){}
+      setStatus("loginStatus","","");
+      $("loginId").value="";$("loginPass").value="";
+      enterDashboard();
+    }else setStatus("loginStatus",data.message||"Login failed.","error");
+  }catch(err){setStatus("loginStatus",err.message||"Network error. Please try again.","error")}
+  btn.disabled=false;
 }
-
 function handleLogout(){
-    clearSession();
-    currentEmployee = null;
-    if(dashClockTimer){
-        clearInterval(dashClockTimer);
-        dashClockTimer = null;
-    }
-    if(workingTimer){
-        clearInterval(workingTimer);
-        workingTimer = null;
-    }
-    closeSidebarIfOpen();
-    showScreen("screen-login");
+  try{localStorage.removeItem(SESSION_KEY)}catch(e){}
+  currentEmployee=null;stopCamera();
+  clearInterval(dashClockTimer);clearInterval(workingTimer);
+  dashClockTimer=workingTimer=null;
+  closeSidebarIfOpen();showScreen("screen-login");
 }
 
-/* ---------------- DASHBOARD ---------------- */
-
+/* DASHBOARD */
 function enterDashboard(){
-    document.getElementById("dashName").textContent = currentEmployee.name;
-    document.getElementById("dashId").textContent = currentEmployee.id;
-    document.getElementById("welcomeName").textContent = currentEmployee.name;
-
-    document.querySelectorAll(".side-item[data-nav]").forEach(i => i.classList.remove("active"));
-    const dashBtn = document.querySelector('.side-item[data-nav="dashboard"]');
-    if(dashBtn) dashBtn.classList.add("active");
-
-    showScreen("screen-dashboard");
-    updateDashClock();
-    if(dashClockTimer) clearInterval(dashClockTimer);
-    dashClockTimer = setInterval(updateDashClock, 1000);
-
-    loadTodayStatus();
-    loadPresentDays();
+  $("dashName").textContent=currentEmployee.name;
+  $("dashId").textContent=currentEmployee.id;
+  $("welcomeName").textContent=currentEmployee.name;
+  document.querySelectorAll(".side-item[data-nav]").forEach(i=>i.classList.remove("active"));
+  document.querySelector('.side-item[data-nav="dashboard"]').classList.add("active");
+  showScreen("screen-dashboard");
+  updateDashClock();
+  clearInterval(dashClockTimer);
+  dashClockTimer=setInterval(updateDashClock,1000);
+  loadTodayStatus();loadPresentDays();
 }
-
 function updateDashClock(){
-    const now = new Date();
-    const h = String(now.getHours()).padStart(2,"0");
-    const m = String(now.getMinutes()).padStart(2,"0");
-    const s = String(now.getSeconds()).padStart(2,"0");
-    document.getElementById("dashClock").textContent = `${h}:${m}:${s}`;
-
-    const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-    const dd = String(now.getDate()).padStart(2,"0");
-    const mm = String(now.getMonth()+1).padStart(2,"0");
-    const yyyy = now.getFullYear();
-    document.getElementById("dashDate").textContent = `${days[now.getDay()]} · ${dd}/${mm}/${yyyy}`;
+  const n=new Date(),p=v=>String(v).padStart(2,"0");
+  $("dashClock").textContent=`${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())}`;
+  const days=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  $("dashDate").textContent=`${days[n.getDay()]} · ${p(n.getDate())}/${p(n.getMonth()+1)}/${n.getFullYear()}`;
 }
-
 function openCamera(){
-    showScreen("screen-camera");
-    setStatus("cameraStatus", pendingPunchType === "Out" ? "Punch Out mode" : "Punch In mode", "info");
-    startCamera();
+  retakePhoto();               /* junu selfie / state reset */
+  showScreen("screen-camera");
+  setStatus("cameraStatus",pendingPunchType==="Out"?"Punch Out mode":"Punch In mode","info");
+  startCamera();
 }
+function cancelCamera(){stopCamera();retakePhoto();navTo("dashboard")}
 
-function cancelCamera(){
-    stopCamera();
-    retakePhoto();
-    navTo('dashboard');
-}
-
-function backToDashboard(){
-    navTo('dashboard');
-}
-
-/* ---------------- STATUS & TIMER ---------------- */
-
+/* STATUS & TIMER */
 async function loadTodayStatus(){
-    try{
-        const res = await fetch(API_URL + "?action=todayStatus&employeeId=" + encodeURIComponent(currentEmployee.id));
-        const data = await res.json();
-        applyStatus(data.status, data.lastTime);
-    } catch(err){
-        applyStatus("Out", null);
-    }
+  try{const d=await getFromApi("action=todayStatus&employeeId="+encodeURIComponent(currentEmployee.id));applyStatus(d.status,d.lastTime)}
+  catch(e){applyStatus("Out",null)}
 }
-
-function applyStatus(status, lastTime){
-    const box = document.getElementById("punchStatusBox");
-    const label = document.getElementById("psLabel");
-    const timerEl = document.getElementById("psTimer");
-    const ctaBtn = document.getElementById("punchCtaBtn");
-    const ctaLabel = document.getElementById("punchCtaLabel");
-
-    if(workingTimer){
-        clearInterval(workingTimer);
-        workingTimer = null;
-    }
-
-    if(status === "In" && lastTime){
-        pendingPunchType = "Out";
-        box.classList.remove("out");
-        label.textContent = "Punched in at " + lastTime;
-        ctaBtn.classList.add("out-mode");
-        ctaLabel.textContent = "Take Selfie & Punch Out";
-
-        punchInMoment = todayTimeToDate(lastTime);
-        updateWorkingTimer();
-        workingTimer = setInterval(updateWorkingTimer, 1000);
-    } else {
-        pendingPunchType = "In";
-        box.classList.add("out");
-        label.textContent = "Status";
-        timerEl.textContent = "Not punched in yet";
-        ctaBtn.classList.remove("out-mode");
-        ctaLabel.textContent = "Take Selfie & Punch In";
-    }
+function applyStatus(status,lastTime){
+  const box=$("punchStatusBox");
+  clearInterval(workingTimer);workingTimer=null;
+  if(status==="In"&&lastTime){
+    pendingPunchType="Out";
+    box.classList.remove("out");
+    $("psLabel").textContent="Punched in at "+lastTime;
+    $("punchCtaBtn").classList.add("out-mode");
+    $("punchCtaLabel").textContent="Take Selfie & Punch Out";
+    const t=String(lastTime).split(":").map(Number);
+    punchInMoment=new Date();punchInMoment.setHours(t[0]||0,t[1]||0,t[2]||0,0);
+    updateWorkingTimer();
+    workingTimer=setInterval(updateWorkingTimer,1000);
+  }else{
+    pendingPunchType="In";
+    box.classList.add("out");
+    $("psLabel").textContent="Status";
+    $("psTimer").textContent="Not punched in yet";
+    $("punchCtaBtn").classList.remove("out-mode");
+    $("punchCtaLabel").textContent="Take Selfie & Punch In";
+  }
 }
-
-function todayTimeToDate(timeStr){
-    const parts = timeStr.split(":").map(Number);
-    const d = new Date();
-    d.setHours(parts[0] || 0, parts[1] || 0, parts[2] || 0, 0);
-    return d;
-}
-
 function updateWorkingTimer(){
-    if(!punchInMoment) return;
-    const diffSec = Math.max(0, Math.floor((new Date() - punchInMoment) / 1000));
-    const h = String(Math.floor(diffSec / 3600)).padStart(2,"0");
-    const m = String(Math.floor((diffSec % 3600) / 60)).padStart(2,"0");
-    const s = String(diffSec % 60).padStart(2,"0");
-    document.getElementById("psTimer").textContent = `Working: ${h}:${m}:${s}`;
+  if(!punchInMoment)return;
+  const s=Math.max(0,Math.floor((new Date()-punchInMoment)/1000)),p=v=>String(v).padStart(2,"0");
+  $("psTimer").textContent=`Working: ${p(Math.floor(s/3600))}:${p(Math.floor(s%3600/60))}:${p(s%60)}`;
 }
-
 async function loadPresentDays(){
-    try{
-        const res = await fetch(API_URL + "?action=presentDays&employeeId=" + encodeURIComponent(currentEmployee.id));
-        const data = await res.json();
-        document.getElementById("presentDaysVal").textContent = data.count;
-        document.getElementById("presentDaysLbl").textContent = "Present · " + data.month;
-    } catch(err){
-        document.getElementById("presentDaysVal").textContent = "–";
-    }
+  try{
+    const d=await getFromApi("action=presentDays&employeeId="+encodeURIComponent(currentEmployee.id));
+    $("presentDaysVal").textContent=d.count;
+    $("presentDaysLbl").textContent="Present · "+d.month;
+  }catch(e){$("presentDaysVal").textContent="–"}
 }
 
-/* ---------------- CAMERA ---------------- */
-
+/* CAMERA */
 async function startCamera(){
-    try{
-        stream = await navigator.mediaDevices.getUserMedia({
-            video:{ facingMode:"user", width:{ideal:640}, height:{ideal:640} },
-            audio:false
-        });
-        document.getElementById("video").srcObject = stream;
-    } catch(err){
-        setStatus("cameraStatus", "Camera permission denied. Please allow camera access.", "error");
-    }
+  stopCamera();
+  if(!window.isSecureContext||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    setStatus("cameraStatus","Camera mate https:// link thi page kholo (file:// ke http:// ma camera nathi chalatu).","error");
+    return;
+  }
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:640},height:{ideal:640}},audio:false});
+    const v=$("video");
+    v.srcObject=stream;
+    await v.play().catch(()=>{});
+  }catch(err){
+    const m={NotAllowedError:"Camera permission denied. Browser ma camera Allow karo.",
+             NotFoundError:"Camera malyo nahi.",
+             NotReadableError:"Camera bija app ma chalu chhe. Te band karo."};
+    setStatus("cameraStatus",m[err.name]||("Camera error: "+err.name),"error");
+  }
 }
-
-function capturePhoto(){
-    const video = document.getElementById("video");
-    const canvas = document.createElement("canvas");
-    canvas.width = video.videoWidth || 640;
-    canvas.height = video.videoHeight || 640;
-    const ctx = canvas.getContext("2d");
-
-    /* mirror the capture so it matches the on-screen preview */
-    ctx.translate(canvas.width, 0);
-    ctx.scale(-1, 1);
-    ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    capturedDataUrl = canvas.toDataURL("image/jpeg", 0.85);
-
-    document.getElementById("captured").src = capturedDataUrl;
-    document.getElementById("captured").style.display = "block";
-    document.getElementById("video").style.display = "none";
-    document.getElementById("shutterBtn").style.display = "none";
-    document.getElementById("confirmRow").style.display = "flex";
-
-    setStatus("cameraStatus", "Fetching your location...", "info");
-    fetchLocation();
-}
-
-function retakePhoto(){
-    capturedDataUrl = null;
-    currentLocation = null;
-    document.getElementById("captured").style.display = "none";
-    document.getElementById("video").style.display = "block";
-    document.getElementById("shutterBtn").style.display = "block";
-    document.getElementById("confirmRow").style.display = "none";
-    setStatus("cameraStatus", "", "");
-}
-
-function fetchLocation(){
-    if(!navigator.geolocation){
-        setStatus("cameraStatus", "Location not supported on this device.", "error");
-        return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-        pos => {
-            currentLocation = {
-                lat: pos.coords.latitude,
-                lng: pos.coords.longitude
-            };
-            setStatus("cameraStatus", "Ready to punch in.", "success");
-        },
-        err => {
-            setStatus("cameraStatus", "Location permission denied — punch needs location access.", "error");
-        },
-        { enableHighAccuracy:true, timeout:10000 }
-    );
-}
-
-/* ---------------- PUNCH ---------------- */
-
-async function handlePunch(){
-    if(!capturedDataUrl){
-        setStatus("cameraStatus", "Please take a selfie first.", "error");
-        return;
-    }
-    if(!currentLocation){
-        setStatus("cameraStatus", "Waiting for location — please allow location access.", "error");
-        return;
-    }
-
-    const btn = document.getElementById("punchBtn");
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Submitting...';
-
-    try{
-        const data = await postToApi({
-            action:"punch",
-            employeeId: currentEmployee.id,
-            name: currentEmployee.name,
-            lat: currentLocation.lat,
-            lng: currentLocation.lng,
-            photoBase64: capturedDataUrl,
-            type: pendingPunchType
-        });
-
-        if(data.success){
-            document.getElementById("successTitle").textContent =
-                data.type === "Out" ? "Punched Out!" : "Punched In!";
-            document.getElementById("successTime").textContent = data.time + " · " + data.date;
-            stopCamera();
-            showScreen("screen-success");
-            loadTodayStatus();
-            loadPresentDays();
-        } else {
-            setStatus("cameraStatus", data.message || "Could not save punch.", "error");
-        }
-    } catch(err){
-        setStatus("cameraStatus", "Network error while submitting.", "error");
-    }
-
-    btn.disabled = false;
-    btn.textContent = "Punch In";
-}
-
 function stopCamera(){
-    if(stream){
-        stream.getTracks().forEach(t => t.stop());
-    }
+  if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}
+  const v=$("video");if(v)v.srcObject=null;
+}
+function capturePhoto(){
+  const video=$("video");
+  if(!stream||!video.videoWidth){setStatus("cameraStatus","Camera haju ready nathi. Thodi vaar ruko.","error");return}
+  const k=Math.min(1,480/Math.max(video.videoWidth,video.videoHeight));
+  const c=document.createElement("canvas");
+  c.width=Math.round(video.videoWidth*k);c.height=Math.round(video.videoHeight*k);
+  const ctx=c.getContext("2d");
+  ctx.translate(c.width,0);ctx.scale(-1,1);          /* preview jevu mirror */
+  ctx.drawImage(video,0,0,c.width,c.height);
+  capturedDataUrl=c.toDataURL("image/jpeg",0.7);
+  $("captured").src=capturedDataUrl;
+  $("captured").style.display="block";
+  video.style.display="none";
+  $("shutterBtn").style.display="none";
+  $("confirmRow").style.display="flex";
+  $("punchBtn").textContent=pendingPunchType==="Out"?"Punch Out":"Punch In";
+  fetchLocation();
+}
+function retakePhoto(){
+  capturedDataUrl=null;currentLocation=null;
+  $("captured").style.display="none";
+  $("video").style.display="block";
+  $("shutterBtn").style.display="block";
+  $("confirmRow").style.display="none";
+  $("locRetry").style.display="none";
+  setStatus("cameraStatus","","");
+  if(!stream&&$("screen-camera").classList.contains("active"))startCamera();
 }
 
-/* ---------------- LEAVE ---------------- */
+/* LOCATION: pehla accurate, na male to normal, error no sacho karan */
+function getPos(opts){
+  return new Promise((ok,no)=>navigator.geolocation.getCurrentPosition(ok,no,opts));
+}
+async function fetchLocation(){
+  $("locRetry").style.display="none";
+  currentLocation=null;
+  if(!navigator.geolocation){setStatus("cameraStatus","Aa device ma location support nathi.","error");$("locRetry").style.display="block";return}
+  setStatus("cameraStatus","Fetching your location...","info");
+  let pos=null,lastErr=null;
+  try{pos=await getPos({enableHighAccuracy:true,timeout:8000,maximumAge:60000})}
+  catch(e){
+    lastErr=e;
+    if(e.code!==1){
+      try{pos=await getPos({enableHighAccuracy:false,timeout:15000,maximumAge:300000});lastErr=null}
+      catch(e2){lastErr=e2}
+    }
+  }
+  if(pos){
+    currentLocation={lat:pos.coords.latitude,lng:pos.coords.longitude};
+    setStatus("cameraStatus","Ready to punch "+(pendingPunchType==="Out"?"out":"in")+".","success");
+  }else{
+    const msg=lastErr&&lastErr.code===1?"Location permission denied. Browser ma Location Allow karo, pachhi Retry dabavo."
+      :lastErr&&lastErr.code===2?"Location malti nathi. GPS / internet chalu karo ane Retry dabavo."
+      :"Location levama vaar lagi. Retry dabavo.";
+    setStatus("cameraStatus",msg,"error");
+    $("locRetry").style.display="block";
+  }
+}
 
+/* PUNCH */
+async function handlePunch(){
+  if(!capturedDataUrl){setStatus("cameraStatus","Please take a selfie first.","error");return}
+  if(!currentLocation){setStatus("cameraStatus","Location haju nathi malyu. Retry Location dabavo.","error");$("locRetry").style.display="block";return}
+  const btn=$("punchBtn"),label=pendingPunchType==="Out"?"Punch Out":"Punch In";
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Submitting...';
+  try{
+    const data=await postToApi({action:"punch",employeeId:currentEmployee.id,name:currentEmployee.name,
+      lat:currentLocation.lat,lng:currentLocation.lng,photoBase64:capturedDataUrl,type:pendingPunchType});
+    if(data.success){
+      $("successTitle").textContent=data.type==="Out"?"Punched Out!":"Punched In!";
+      $("successTime").textContent=data.time+" · "+data.date;
+      stopCamera();retakePhoto();
+      showScreen("screen-success");
+      loadTodayStatus();loadPresentDays();
+    }else setStatus("cameraStatus",data.message||"Could not save punch.","error");
+  }catch(err){setStatus("cameraStatus",err.message||"Network error while submitting.","error")}
+  btn.disabled=false;btn.textContent=label;
+}
+
+/* LEAVE */
 async function handleApplyLeave(){
-    const from = document.getElementById("leaveFrom").value;
-    const to = document.getElementById("leaveTo").value;
-    const reason = document.getElementById("leaveReason").value.trim();
-
-    if(!from || !to){
-        setStatus("leaveApplyStatus", "Please select both From and To dates.", "error");
-        return;
-    }
-    if(new Date(to) < new Date(from)){
-        setStatus("leaveApplyStatus", "'To' date cannot be before 'From' date.", "error");
-        return;
-    }
-    if(!reason){
-        setStatus("leaveApplyStatus", "Please enter a reason for leave.", "error");
-        return;
-    }
-
-    const btn = document.getElementById("leaveSubmitBtn");
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner"></span>Submitting...';
-    setStatus("leaveApplyStatus", "", "");
-
-    try{
-        const data = await postToApi({
-            action:"applyLeave",
-            employeeId: currentEmployee.id,
-            name: currentEmployee.name,
-            fromDate: from,
-            toDate: to,
-            reason: reason
-        });
-
-        if(data.success){
-            setStatus("leaveApplyStatus", "Leave request sent to your manager.", "success");
-            document.getElementById("leaveFrom").value = "";
-            document.getElementById("leaveTo").value = "";
-            document.getElementById("leaveReason").value = "";
-        } else {
-            setStatus("leaveApplyStatus", data.message || "Could not submit leave request.", "error");
-        }
-    } catch(err){
-        setStatus("leaveApplyStatus", "Network error while submitting.", "error");
-    }
-
-    btn.disabled = false;
-    btn.textContent = "Submit Leave Request";
+  const from=$("leaveFrom").value,to=$("leaveTo").value,reason=$("leaveReason").value.trim();
+  if(!from||!to){setStatus("leaveApplyStatus","Please select both From and To dates.","error");return}
+  if(new Date(to)<new Date(from)){setStatus("leaveApplyStatus","'To' date cannot be before 'From' date.","error");return}
+  if(!reason){setStatus("leaveApplyStatus","Please enter a reason for leave.","error");return}
+  const btn=$("leaveSubmitBtn");
+  btn.disabled=true;btn.innerHTML='<span class="spinner"></span>Submitting...';
+  setStatus("leaveApplyStatus","","");
+  try{
+    const data=await postToApi({action:"applyLeave",employeeId:currentEmployee.id,name:currentEmployee.name,fromDate:from,toDate:to,reason});
+    if(data.success){
+      setStatus("leaveApplyStatus","Leave request sent to your manager.","success");
+      $("leaveFrom").value=$("leaveTo").value=$("leaveReason").value="";
+    }else setStatus("leaveApplyStatus",data.message||"Could not submit leave request.","error");
+  }catch(err){setStatus("leaveApplyStatus",err.message||"Network error while submitting.","error")}
+  btn.disabled=false;btn.textContent="Submit Leave Request";
 }
-
 async function loadMyLeaves(){
-    const listStatus = document.getElementById("leaveListStatus");
-    const list = document.getElementById("leaveList");
-
-    listStatus.textContent = "Loading...";
-    listStatus.style.display = "block";
-    list.innerHTML = "";
-
-    try{
-        const res = await fetch(API_URL + "?action=myLeaves&employeeId=" + encodeURIComponent(currentEmployee.id));
-        const data = await res.json();
-
-        if(!Array.isArray(data) || data.length === 0){
-            listStatus.textContent = "You haven't applied for any leave yet.";
-            return;
-        }
-
-        listStatus.style.display = "none";
-        list.innerHTML = data.map(l => `
-            <div class="leave-card">
-                <div class="range">${escapeHtmlPunch(l.fromDate)} → ${escapeHtmlPunch(l.toDate)}</div>
-                <div class="reason">${escapeHtmlPunch(l.reason)}</div>
-                <span class="status-pill ${l.status.toLowerCase()}">${escapeHtmlPunch(l.status)}</span>
-            </div>
-        `).join("");
-
-    } catch(err){
-        listStatus.textContent = "Could not load your leave requests.";
-    }
+  const ls=$("leaveListStatus"),list=$("leaveList");
+  ls.textContent="Loading...";ls.style.display="block";list.innerHTML="";
+  try{
+    const data=await getFromApi("action=myLeaves&employeeId="+encodeURIComponent(currentEmployee.id));
+    if(!Array.isArray(data)||!data.length){ls.textContent="You haven't applied for any leave yet.";return}
+    ls.style.display="none";
+    list.innerHTML=data.map(l=>`<div class="leave-card">
+      <div class="range">${esc(l.fromDate)} → ${esc(l.toDate)}</div>
+      <div class="reason">${esc(l.reason)}</div>
+      <span class="status-pill ${esc(String(l.status).toLowerCase())}">${esc(l.status)}</span></div>`).join("");
+  }catch(err){ls.textContent="Could not load your leave requests."}
 }
-
-function escapeHtmlPunch(str){
-    const div = document.createElement("div");
-    div.textContent = str == null ? "" : String(str);
-    return div.innerHTML;
-}
+function esc(s){const d=document.createElement("div");d.textContent=s==null?"":String(s);return d.innerHTML}
 
 checkExistingSession();
-
 </script>
-
 </body>
 </html>
