@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>HRMS – Employee Directory</title>
+<style>
+:root{--bg:#f3f5f4;--sf:#fff;--tx:#1b2625;--mu:#5d6b69;--bd:#d5dcda;--ac:#0f6b5c;--ac2:#e3f1ee;--sb:#12332e;--sbt:#cfe5e0;--dn:#b3261e;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101716;--sf:#182321;--tx:#e6efed;--mu:#9bb0ac;--bd:#2c3d3a;--ac:#3fb5a0;--ac2:#1d3430;--sb:#0a1412;--sbt:#b5cfca;--dn:#f2736b}}
+:root[data-theme="dark"]{--bg:#101716;--sf:#182321;--tx:#e6efed;--mu:#9bb0ac;--bd:#2c3d3a;--ac:#3fb5a0;--ac2:#1d3430;--sb:#0a1412;--sbt:#b5cfca;--dn:#f2736b}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.45 "Segoe UI",Roboto,system-ui,sans-serif;display:flex}
+aside{width:230px;background:var(--sb);color:var(--sbt);padding:18px 12px;flex-shrink:0;overflow-y:auto}
+aside h1{font-size:17px;margin:0 8px 2px;color:#fff}
+aside small{display:block;margin:0 8px 18px;opacity:.7}
+.grp{margin:14px 8px 6px;font-size:13px;opacity:.7}
+.nav{display:block;width:100%;text-align:left;background:none;border:0;color:inherit;font:inherit;padding:10px 12px;border-radius:6px;cursor:pointer}
+.nav:hover,.nav.on{background:rgba(255,255,255,.12);color:#fff}
+.nav:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+main{flex:1;min-width:0;display:flex;flex-direction:column;height:100%}
+header{padding:14px 22px;border-bottom:1px solid var(--bd);background:var(--sf)}
+header h2{margin:0;font-size:18px}
+.body{flex:1;overflow:auto;padding:20px 22px}
+.view{display:none;flex-direction:column;flex:1;min-height:0}
+.view.on{display:flex}
+.empty{max-width:480px;margin:40px auto;text-align:center;color:var(--mu)}
+.tw{overflow:auto;border:1px solid var(--bd);border-radius:8px;background:var(--sf);flex:1}
+table{border-collapse:collapse;width:100%;min-width:720px}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--bd);white-space:nowrap}
+th{position:sticky;top:0;background:var(--ac2);font-weight:600}
+tbody tr{cursor:pointer}
+tbody tr:hover{background:var(--ac2)}
+tbody tr.sel{background:var(--ac);color:#fff}
+.bar{display:flex;gap:10px;padding:14px 0 0;flex-wrap:wrap}
+.btn{font:inherit;padding:9px 22px;border-radius:6px;border:1px solid var(--ac);background:var(--sf);color:var(--ac);cursor:pointer;font-weight:600}
+.btn.pri{background:var(--ac);color:#fff}
+.btn.dn{border-color:var(--dn);color:var(--dn)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.top{display:flex;gap:10px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.top input{flex:1;min-width:180px}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--bd);margin-bottom:16px;overflow-x:auto}
+.tab{font:inherit;background:none;border:0;border-bottom:3px solid transparent;padding:10px 16px;cursor:pointer;color:var(--mu);white-space:nowrap}
+.tab.on{color:var(--ac);border-color:var(--ac);font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px 18px;margin-bottom:18px}
+.f label{display:block;font-size:13px;color:var(--mu);margin-bottom:3px}
+input,select,textarea{font:inherit;width:100%;padding:8px 10px;border:1px solid var(--bd);border-radius:6px;background:var(--sf);color:var(--tx)}
+input[type=checkbox]{width:auto}
+textarea{resize:vertical;min-height:70px}
+.f.err input,.f.err select,.f.err textarea{border-color:var(--dn)}
+.em{color:var(--dn);font-size:12px;min-height:0}
+fieldset{border:1px solid var(--bd);border-radius:8px;margin:0 0 18px;padding:12px 14px}
+legend{padding:0 6px;font-weight:600}
+.chk{display:flex;align-items:center;gap:8px;font-weight:600;margin-bottom:8px}
+.sub{display:none}.sub.on{display:grid}
+.sub1{padding-left:26px}.grpbtn{display:flex;justify-content:space-between;font-weight:600;margin-top:6px}
+.box{border:1px solid var(--bd);border-radius:8px;padding:12px 14px;background:var(--sf)}.box>b{display:block;margin-bottom:6px}.rw{display:flex;justify-content:space-between;gap:12px;padding:4px 0}.rw small{display:block;color:var(--mu);font-size:12px}.tot{border-top:1px solid var(--bd);margin-top:6px;padding-top:8px;font-weight:700}.net{margin-top:12px;padding:14px 16px;border-radius:8px;background:var(--ac);color:#fff;font-size:18px;font-weight:700;display:flex;justify-content:space-between}.cur{color:var(--ac);font-weight:700}tr.sel .cur{color:#fff}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:9;padding:16px}
+.ov.on{display:flex}
+.dlg{background:var(--sf);padding:22px;border-radius:10px;max-width:360px;width:100%}
+.dlg p{margin:0 0 16px}
+@media(max-width:700px){aside{width:64px;padding:12px 6px}aside h1,aside small,.grp{display:none}.nav{padding:10px 4px;font-size:11px;text-align:center}}
+</style>
+</head>
+<body>
+<aside>
+  <h1>HRMS</h1><small>Employee Directory</small>
+  <button class="nav on" id="navHome">Home</button>
+  <button class="nav grpbtn" id="navG" aria-expanded="true"><span>Employee Directory</span><span id="arr">▾</span></button>
+  <div id="gsub">
+    <button class="nav sub1" id="navM">Employee Master</button>
+    <button class="nav sub1" id="navMs">Masters</button>
+  </div>
+</aside>
+<main>
+  <header><h2 id="ttl">Home</h2></header>
+  <div class="body">
+    <section class="view on" id="vHome"><div class="empty"><h3>Welcome to HRMS</h3><p>Left side ma thi <b>Employee Directory</b> kholo ane <b>Employee Master</b> ke <b>Masters</b> par click karo.</p></div></section>
+
+    <section class="view" id="vList">
+      <div class="top"><input id="q" placeholder="Search by code, name, department…" aria-label="Search employees"></div>
+      <div class="tw"><table><thead><tr><th>Code</th><th>Name</th><th>Branch</th><th>Department</th><th>Designation</th><th>Date of joining</th><th>Mobile</th></tr></thead><tbody id="tb"></tbody></table></div>
+      <div class="bar">
+        <button class="btn pri" id="bAdd">Add</button>
+        <button class="btn" id="bEdit" disabled>Edit</button>
+        <button class="btn dn" id="bDel" disabled>Delete</button>
+        <button class="btn" id="bClose">Close</button>
+      </div>
+    </section>
+
+    <section class="view" id="vMaster">
+      <div class="tabs" id="mtabs"></div>
+      <div class="tw" style="max-width:560px"><table style="min-width:0"><thead><tr><th style="width:70px">No.</th><th>Name</th></tr></thead><tbody id="mtb"></tbody></table></div>
+      <div class="bar"><button class="btn pri" id="mAdd">Add</button><button class="btn" id="mUpd" disabled>Update</button><button class="btn dn" id="mDel" disabled>Delete</button><button class="btn" id="mClose">Close</button></div>
+    </section>
+
+    <section class="view" id="vForm">
+      <div class="tabs" id="tabs"></div>
+      <div id="ph" style="flex:1"></div>
+      <div class="bar"><button class="btn pri" id="bSave">Save</button><button class="btn" id="bCancel">Cancel</button></div>
+    </section>
+  </div>
+</main>
+<div class="ov" id="ov"><div class="dlg"><p id="ovm"></p><input id="ovi" style="display:none;margin-bottom:6px" aria-label="Name"><div class="em" id="ove" style="margin-bottom:10px"></div><div class="bar" style="padding:0" id="ovb"></div></div></div>
+
+<script>
+const KEY="hrms_employees";
+let emps=[],selId=null,cur=null,phase=0,editing=null;
+try{emps=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){emps=[]}
+const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(emps))}catch(e){}};
+const $=id=>document.getElementById(id);
+/* Masters */
+const MK="hrms_masters";
+const MT={branch:"Branch",division:"Division",department:"Department",designation:"Designation",bankName:"Bank"};
+let M={branch:["Head Office"],division:["Admin","Operations"],department:["HR","Accounts","IT"],designation:["Manager","Executive","Clerk"],bankName:["State Bank of India","HDFC Bank","ICICI Bank"]};
+try{const s=JSON.parse(localStorage.getItem(MK));if(s)M={...M,...s}}catch(e){}
+const saveM=()=>{try{localStorage.setItem(MK,JSON.stringify(M))}catch(e){}};
+const optsOf=(k,v)=>{const l=M[k]||[];return v&&!l.includes(v)?[...l,v]:l};
+let mk=null,mSel=null;
+const STATES=["Andhra Pradesh","Arunachal Pradesh","Assam","Bihar","Chhattisgarh","Goa","Gujarat","Haryana","Himachal Pradesh","Jharkhand","Karnataka","Kerala","Madhya Pradesh","Maharashtra","Manipur","Meghalaya","Mizoram","Nagaland","Odisha","Punjab","Rajasthan","Sikkim","Tamil Nadu","Telangana","Tripura","Uttar Pradesh","Uttarakhand","West Bengal","Delhi","Jammu and Kashmir","Ladakh","Chandigarh","Puducherry","Dadra and Nagar Haveli and Daman and Diu","Lakshadweep","Andaman and Nicobar Islands"];
+const COUNTRIES=["India","Other"];
+const ADR=s=>[["addr"+s,"Address","textarea"],["city"+s,"City","text"],["state"+s,"State","select",STATES],["country"+s,"Country","select",COUNTRIES],["pin"+s,"Pincode","text"]].map(fld).join("");
+
+/* Field config: [id,label,type,options/required] */
+const P1=[
+ ["code","Employee code","text",1],["name","Employee name","text",1],["father","Father / spouse name","text"],
+ ["dob","Date of birth","date",1],["doj","Date of joining","date",1],["gender","Gender","select",["Male","Female","Other"]],
+ ["branch","Branch","select","@branch"],["division","Division","select","@division"],["department","Department","select","@department"],["designation","Designation","select","@designation"]];
+const BANK=[["aadhaar","Aadhaar card no.","text"],["pan","PAN card no.","text"],["bankName","Bank name","select","@bankName"],["accNo","Account no.","text"],["ifsc","IFSC code","text"]];
+const P2=[["mobile","Mobile number","text",1],["email","Email ID","email"],["marital","Marital status","select",["Single","Married","Divorced","Widowed"]],
+ ["marDate","Marriage date","date"],["children","Number of children","number"]];
+const LATER=["Phase 3","Phase 4","Phase 5"];
+const TABS=["Phase 1: Personal details","Phase 2: Employee details","Phase 3: Qualification","Phase 4: Family details","Phase 5: Work experience","Phase 6: Salary structure"];
+
+function fld(c){
+  const [id,l,t,x]=c, v=cur[id]??"", req=x===1;
+  let inp;
+  if(t==="select")inp=`<select id="${id}"><option value="">Select</option>${(typeof x==="string"?optsOf(x.slice(1),v):x).map(o=>`<option${o===v?" selected":""}>${o}</option>`).join("")}</select>`;
+  else if(t==="textarea")inp=`<textarea id="${id}">${esc(v)}</textarea>`;
+  else inp=`<input id="${id}" type="${t}" value="${esc(v)}"${t==="number"?' min="0"':""}>`;
+  return `<div class="f" id="f_${id}"><label for="${id}">${l}${req?" *":""}</label>${inp}<div class="em"></div></div>`;
+}
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;")}
+function tick(key,label,extra){
+  return `<fieldset><label class="chk"><input type="checkbox" id="${key}" ${cur[key]?"checked":""}> ${label}</label><div class="grid sub ${cur[key]?"on":""}" id="s_${key}">${extra.map(fld).join("")}</div></fieldset>`;
+}
+
+function renderPhase(){
+  collect();
+  $("tabs").innerHTML=TABS.map((t,i)=>`<button class="tab ${i===phase?"on":""}" data-i="${i}">${t}</button>`).join("");
+  let h="";
+  if(phase===0){
+    h=`<div class="grid">${P1.map(fld).join("")}</div>
+    ${tick("pfOn","PF applicable",[["pfNo","PF number","text"],["pfDate","PF applicable date","date"]])}
+    ${tick("esicOn","ESIC applicable",[["esicNo","ESIC number","text"]])}
+    <fieldset><label class="chk"><input type="checkbox" id="ptOn" ${cur.ptOn?"checked":""}> Professional tax applicable</label></fieldset>
+    <fieldset><legend>Identity and bank details</legend><div class="grid">${BANK.map(fld).join("")}</div></fieldset>`;
+  }else if(phase===1){
+    h=`<fieldset><legend>Permanent address</legend><div class="grid">${ADR("P")}</div></fieldset>
+    <fieldset><legend>Temporary address</legend><label class="chk" style="font-weight:400"><input type="checkbox" id="same"> Same as permanent address</label><div class="grid">${ADR("T")}</div>
+    </fieldset>
+    <div class="grid">${P2.map(fld).join("")}</div>`;
+  }else{
+    h=`<div class="empty"><h3>${TABS[phase]}</h3><p>Aa phase ni detail tame pachhi kehsho, tyare add kari daish.</p></div>`;
+  }
+  if(phase===4)h=expHtml();if(phase===3)h=famHtml();if(phase===2)h=qualHtml();if(phase===5)h=salaryHtml();$("ph").innerHTML=h;if(phase===4)bindExp();if(phase===3)bindFam();if(phase===2)bindQual();if(phase===5)bindSalary();
+  document.querySelectorAll("#ph input[type=checkbox]").forEach(cb=>cb.onchange=()=>{
+    if(cb.id==="same"){if(cb.checked){["addr","city","state","country","pin"].forEach(k=>{$(k+"T").value=$(k+"P").value})}return}
+    cur[cb.id]=cb.checked;const s=$("s_"+cb.id);if(s)s.classList.toggle("on",cb.checked);
+  });
+}
+/* read current inputs into cur */
+function collect(){
+  document.querySelectorAll("#ph input:not([type=checkbox]),#ph select,#ph textarea").forEach(e=>{cur[e.id]=e.value.trim()});
+  document.querySelectorAll("#ph input[type=checkbox]").forEach(e=>{if(e.id!=="same")cur[e.id]=e.checked});
+}
+
+function show(v,t){["vHome","vList","vForm","vMaster"].forEach(x=>$(x).classList.toggle("on",x===v));$("ttl").textContent=t;document.querySelectorAll(".nav").forEach(n=>n.classList.remove("on"));if(v==="vList"||v==="vForm")$("navM").classList.add("on");if(v==="vHome")$("navHome").classList.add("on")}
+
+function dlg(msg,btns){
+  $("ovm").textContent=msg;$("ovi").style.display="none";$("ove").textContent="";$("ovb").innerHTML="";
+  btns.forEach(([l,cls,fn])=>{const b=document.createElement("button");b.className="btn "+cls;b.textContent=l;b.onclick=()=>{$("ov").classList.remove("on");fn&&fn()};$("ovb").appendChild(b)});
+  $("ov").classList.add("on");$("ovb").firstChild.focus();
+}
+
+/* List */
+function renderList(){
+  const q=$("q").value.toLowerCase();
+  const rows=emps.filter(e=>[e.code,e.name,e.department,e.designation,e.branch].join(" ").toLowerCase().includes(q));
+  $("tb").innerHTML=rows.length?rows.map(e=>`<tr data-id="${e.id}" class="${e.id===selId?"sel":""}"><td>${esc(e.code||"")}</td><td>${esc(e.name||"")}</td><td>${esc(e.branch||"")}</td><td>${esc(e.department||"")}</td><td>${esc(e.designation||"")}</td><td>${esc(e.doj||"")}</td><td>${esc(e.mobile||"")}</td></tr>`).join("")
+   :`<tr><td colspan="7" style="text-align:center;color:var(--mu);padding:30px">${emps.length?"Koi employee match nathi thayo.":"Haju koi employee nathi. Add button dabavi pehlo employee umero."}</td></tr>`;
+  $("bEdit").disabled=$("bDel").disabled=!selId;
+}
+function openForm(e){
+  editing=e?e.id:null;$("ph").innerHTML="";cur=e?{...e,salary:[...(e.salary||[])],qual:[...(e.qual||[])],fam:[...(e.fam||[])],exp:[...(e.exp||[])]}:{countryP:"India",countryT:"India",salary:[],qual:[],fam:[],exp:[]};["sFrom","sBasic","sHra","sRem","qSch","qBoard","qQual","qYear","qMarks","fName","fRel","fDate","fAddr","fMob","xCo","xFrom","xTo","xSal","xRsn"].forEach(k=>delete cur[k]);salEdit=null;qEdit=null;famEdit=null;expEdit=null;phase=0;
+  show("vForm",e?"Employee Master – Edit":"Employee Master – New");renderPhase();
+}
+function validate(){
+  collect();let bad=null;
+  document.querySelectorAll(".f.err").forEach(f=>{f.classList.remove("err");f.querySelector(".em").textContent=""});
+  const rules=[
+   ["code",v=>!!v,"Employee code jaruri chhe"],["name",v=>!!v,"Employee name jaruri chhe"],
+   ["dob",v=>!!v,"Date of birth jaruri chhe"],["doj",v=>!!v,"Date of joining jaruri chhe"],
+   ["aadhaar",v=>!v||/^\d{12}$/.test(v),"Aadhaar 12 digit nu hovu joiye"],
+   ["pan",v=>!v||/^[A-Za-z]{5}\d{4}[A-Za-z]$/.test(v),"PAN format: ABCDE1234F"],
+   ["ifsc",v=>!v||/^[A-Za-z]{4}0[A-Za-z0-9]{6}$/.test(v),"IFSC format: SBIN0001234"],
+   ["mobile",v=>!v||/^\d{10}$/.test(v),"Mobile 10 digit no. hovo joiye"],
+   ["email",v=>!v||/^\S+@\S+\.\S+$/.test(v),"Email barabar nathi"],
+   ["pinP",v=>!v||/^\d{6}$/.test(v),"Pincode 6 digit no. hovo joiye"],["pinT",v=>!v||/^\d{6}$/.test(v),"Pincode 6 digit no. hovo joiye"]];
+  const p1=["code","name","dob","doj","aadhaar","pan","ifsc"];
+  for(const [k,fn,m] of rules){
+    if(!fn(cur[k]||"")){bad=bad||{k,m,ph:p1.includes(k)?0:1};}
+  }
+  if(cur.code&&emps.some(e=>e.code===cur.code&&e.id!==editing))bad=bad||{k:"code",m:"Aa employee code pehla thi chhe",ph:0};
+  if(bad){
+    if(phase!==bad.ph){phase=bad.ph;renderPhase()}
+    const f=$("f_"+bad.k);f.classList.add("err");f.querySelector(".em").textContent=bad.m;$(bad.k).focus();return false;
+  }
+  return true;
+}
+
+/* Events */
+$("navM").onclick=()=>{show("vList","Employee Master");renderList()};
+$("q").oninput=renderList;
+$("tb").onclick=e=>{const r=e.target.closest("tr[data-id]");if(!r)return;selId=r.dataset.id;renderList()};
+$("tb").ondblclick=e=>{const r=e.target.closest("tr[data-id]");if(r)openForm(emps.find(x=>x.id===r.dataset.id))};
+$("bAdd").onclick=()=>openForm(null);
+$("bEdit").onclick=()=>{const e=emps.find(x=>x.id===selId);if(e)openForm(e)};
+$("bDel").onclick=()=>{
+  const e=emps.find(x=>x.id===selId);if(!e)return;
+  dlg(`${e.name} (${e.code}) ne delete karvu chhe?`,[["Delete","dn",()=>{emps=emps.filter(x=>x.id!==selId);selId=null;persist();renderList()}],["Cancel","",null]]);
+};
+$("bClose").onclick=()=>{selId=null;show("vHome","Home")};
+$("navHome").onclick=()=>{selId=null;show("vHome","Home")};
+$("tabs").onclick=e=>{const t=e.target.closest(".tab");if(!t)return;phase=+t.dataset.i;renderPhase()};
+$("bSave").onclick=()=>{
+  if(!validate())return;
+  if(editing){emps=emps.map(e=>e.id===editing?{...cur,id:editing}:e);selId=editing}
+  else{cur.id="e"+Date.now();emps.push(cur);selId=cur.id}
+  persist();show("vList","Employee Master");renderList();
+  dlg("Employee save thai gayo.",[["OK","pri",null]]);
+};
+$("bCancel").onclick=()=>{show("vList","Employee Master");renderList()};
+
+/* Master pages */
+function openMaster(k){mk=k;mSel=null;show("vMaster","Masters");$("navMs").classList.add("on");$("mtabs").innerHTML=Object.keys(MT).map(x=>`<button class="tab ${x===k?"on":""}" data-k="${x}">${MT[x]}</button>`).join("");renderM()}
+function renderM(){
+  const l=M[mk];
+  $("mtb").innerHTML=l.length?l.map((n,i)=>`<tr data-i="${i}" class="${i===mSel?"sel":""}"><td>${i+1}</td><td>${esc(n)}</td></tr>`).join(""):`<tr><td colspan="2" style="text-align:center;color:var(--mu);padding:30px">Haju koi ${MT[mk]} nathi. Add button dabavi umero.</td></tr>`;
+  $("mUpd").disabled=$("mDel").disabled=mSel===null;
+}
+function nameDlg(t,val,cb){
+  $("ovm").textContent=t;const i=$("ovi");i.style.display="";i.value=val;$("ove").textContent="";$("ovb").innerHTML="";
+  const go=()=>{const v=i.value.trim();
+    if(!v){$("ove").textContent="Name lakho";return}
+    if(M[mk].some(x=>x.toLowerCase()===v.toLowerCase()&&x!==val)){$("ove").textContent="Aa pehla thi chhe";return}
+    $("ov").classList.remove("on");cb(v)};
+  const b=(l,c,f)=>{const e=document.createElement("button");e.className="btn "+c;e.textContent=l;e.onclick=f;$("ovb").appendChild(e)};
+  b("Save","pri",go);b("Cancel","",()=>$("ov").classList.remove("on"));
+  i.onkeydown=e=>{if(e.key==="Enter")go()};
+  $("ov").classList.add("on");i.focus();
+}
+$("navMs").onclick=()=>openMaster(mk||"branch");
+$("mtabs").onclick=e=>{const t=e.target.closest(".tab");if(t)openMaster(t.dataset.k)};
+$("navG").onclick=()=>{const g=$("gsub"),open=g.style.display==="none";g.style.display=open?"":"none";$("arr").textContent=open?"▾":"▸";$("navG").setAttribute("aria-expanded",open)};
+$("mtb").onclick=e=>{const r=e.target.closest("tr[data-i]");if(!r)return;mSel=+r.dataset.i;renderM()};
+$("mAdd").onclick=()=>nameDlg("New "+MT[mk],"",v=>{M[mk].push(v);saveM();mSel=M[mk].length-1;renderM()});
+$("mUpd").onclick=()=>{const old=M[mk][mSel];nameDlg("Update "+MT[mk],old,v=>{M[mk][mSel]=v;emps.forEach(e=>{if(e[mk]===old)e[mk]=v});saveM();persist();renderM()})};
+$("mDel").onclick=()=>{const n=M[mk][mSel];
+  if(emps.some(e=>e[mk]===n)){dlg(`${n} employee ma vaparayelu chhe, etle delete nathi thai shakatu.`,[["OK","pri",null]]);return}
+  dlg(`${n} delete karvu chhe?`,[["Delete","dn",()=>{M[mk].splice(mSel,1);mSel=null;saveM();renderM()}],["Cancel","",null]]);
+};
+$("mClose").onclick=()=>show("vHome","Home");
+
+/* Phase 5: Work experience */
+let expEdit=null;
+const xClr=()=>{cur.xCo=cur.xFrom=cur.xTo=cur.xSal=cur.xRsn=""};
+function dur(a,b){
+  if(!a||!b)return "";
+  const d1=new Date(a),d2=new Date(b);let m=(d2.getFullYear()-d1.getFullYear())*12+d2.getMonth()-d1.getMonth()+(d2.getDate()>=d1.getDate()?0:-1);
+  if(m<0)return "";return Math.floor(m/12)+"y "+(m%12)+"m";
+}
+function expHtml(){
+  const x=cur.exp||[];
+  const rows=x.length?x.map(r=>`<tr><td>${esc(r.co)}</td><td>${esc(r.from)}</td><td>${esc(r.to)}</td><td>${dur(r.from,r.to)}</td><td>${r.sal?inr(r.sal):""}</td><td style="white-space:normal;min-width:160px">${esc(r.rsn)}</td><td><button class="btn" style="padding:3px 12px" data-a="e" data-id="${r.id}">Edit</button> <button class="btn dn" style="padding:3px 12px" data-a="d" data-id="${r.id}">Delete</button></td></tr>`).join("")
+    :`<tr><td colspan="7" style="text-align:center;color:var(--mu);padding:20px">Haju koi work experience add nathi karyo.</td></tr>`;
+  return `<fieldset><legend>${expEdit?"Update work experience":"New work experience"}</legend>
+  <div class="grid">${fld(["xCo","Company name","text"])}${fld(["xFrom","Date of joining","date"])}${fld(["xTo","Date of exit","date"])}${fld(["xSal","Salary (monthly)","number"])}${fld(["xRsn","Reason to leave","textarea"])}</div>
+  <div class="bar"><button class="btn pri" id="xAdd">${expEdit?"Update":"Add"}</button>${expEdit?'<button class="btn" id="xCancel">Cancel edit</button>':""}</div></fieldset>
+  <fieldset><legend>Work experience list</legend><div class="tw" style="flex:none"><table style="min-width:760px"><thead><tr><th>Company</th><th>Date of joining</th><th>Date of exit</th><th>Duration</th><th>Salary</th><th>Reason to leave</th><th>Action</th></tr></thead><tbody id="xb">${rows}</tbody></table></div>
+  <p style="color:var(--mu);font-size:13px;margin:10px 0 0">Experience add karya pachhi niche <b>Save</b> button dabavo, to j employee sathe save thase.</p></fieldset>`;
+}
+function bindExp(){
+  $("xAdd").onclick=addExp;
+  if($("xCancel"))$("xCancel").onclick=()=>{expEdit=null;xClr();rp()};
+  $("xb").onclick=e=>{
+    const b=e.target.closest("button[data-a]");if(!b)return;
+    const id=b.dataset.id,r=cur.exp.find(x=>x.id===id);
+    if(b.dataset.a==="e"){expEdit=id;cur.xCo=r.co;cur.xFrom=r.from;cur.xTo=r.to;cur.xSal=r.sal;cur.xRsn=r.rsn;rp()}
+    else dlg("Aa work experience delete karvo chhe?",[["Delete","dn",()=>{cur.exp=cur.exp.filter(x=>x.id!==id);if(expEdit===id){expEdit=null;xClr()}rp()}],["Cancel","",null]]);
+  };
+}
+function addExp(){
+  collect();
+  if(!cur.xCo||!cur.xFrom){dlg("Company name ane Date of joining lakho.",[["OK","pri",null]]);return}
+  if(cur.xTo&&cur.xTo<cur.xFrom){dlg("Date of exit, date of joining karta pehla na hovi joiye.",[["OK","pri",null]]);return}
+  const rec={id:expEdit||"x"+Date.now(),co:cur.xCo,from:cur.xFrom,to:cur.xTo||"",sal:+cur.xSal||0,rsn:cur.xRsn||""};
+  cur.exp=cur.exp||[];
+  if(expEdit)cur.exp=cur.exp.map(x=>x.id===expEdit?rec:x);else cur.exp.push(rec);
+  cur.exp.sort((x,y)=>x.from<y.from?1:-1);
+  expEdit=null;xClr();rp();
+}
+
+/* Phase 4: Family details */
+let famEdit=null;
+const RELS=["Father","Mother","Spouse","Son","Daughter","Brother","Sister","Other"];
+const fClr=()=>{cur.fName=cur.fRel=cur.fDate=cur.fAddr=cur.fMob=""};
+function famHtml(){
+  const f=cur.fam||[];
+  const rows=f.length?f.map(r=>`<tr><td>${esc(r.name)}</td><td>${esc(r.rel)}</td><td>${esc(r.date)}</td><td style="white-space:normal;min-width:180px">${esc(r.addr)}</td><td>${esc(r.mob)}</td><td><button class="btn" style="padding:3px 12px" data-a="e" data-id="${r.id}">Edit</button> <button class="btn dn" style="padding:3px 12px" data-a="d" data-id="${r.id}">Delete</button></td></tr>`).join("")
+    :`<tr><td colspan="6" style="text-align:center;color:var(--mu);padding:20px">Haju koi family member add nathi karyo.</td></tr>`;
+  return `<fieldset><legend>${famEdit?"Update family member":"New family member"}</legend>
+  <div class="grid">${fld(["fName","Name","text"])}${fld(["fRel","Relation","select",RELS])}${fld(["fDate","Date of birth","date"])}${fld(["fAddr","Address","textarea"])}${fld(["fMob","Mobile number","text"])}</div>
+  <div class="bar"><button class="btn pri" id="fAdd">${famEdit?"Update":"Add"}</button>${famEdit?'<button class="btn" id="fCancel">Cancel edit</button>':""}</div></fieldset>
+  <fieldset><legend>Family list</legend><div class="tw" style="flex:none"><table style="min-width:700px"><thead><tr><th>Name</th><th>Relation</th><th>Date of birth</th><th>Address</th><th>Mobile</th><th>Action</th></tr></thead><tbody id="fb">${rows}</tbody></table></div>
+  <p style="color:var(--mu);font-size:13px;margin:10px 0 0">Family member add karya pachhi niche <b>Save</b> button dabavo, to j employee sathe save thase.</p></fieldset>`;
+}
+function bindFam(){
+  $("fAdd").onclick=addFam;
+  if($("fCancel"))$("fCancel").onclick=()=>{famEdit=null;fClr();rp()};
+  $("fb").onclick=e=>{
+    const b=e.target.closest("button[data-a]");if(!b)return;
+    const id=b.dataset.id,r=cur.fam.find(x=>x.id===id);
+    if(b.dataset.a==="e"){famEdit=id;cur.fName=r.name;cur.fRel=r.rel;cur.fDate=r.date;cur.fAddr=r.addr;cur.fMob=r.mob;rp()}
+    else dlg("Aa family member delete karvo chhe?",[["Delete","dn",()=>{cur.fam=cur.fam.filter(x=>x.id!==id);if(famEdit===id){famEdit=null;fClr()}rp()}],["Cancel","",null]]);
+  };
+}
+function addFam(){
+  collect();
+  if(!cur.fName||!cur.fRel){dlg("Name ane Relation lakho.",[["OK","pri",null]]);return}
+  if(cur.fMob&&!/^\d{10}$/.test(cur.fMob)){dlg("Mobile number 10 digit no. hovo joiye.",[["OK","pri",null]]);return}
+  const rec={id:famEdit||"f"+Date.now(),name:cur.fName,rel:cur.fRel,date:cur.fDate||"",addr:cur.fAddr||"",mob:cur.fMob||""};
+  cur.fam=cur.fam||[];
+  if(famEdit)cur.fam=cur.fam.map(x=>x.id===famEdit?rec:x);else cur.fam.push(rec);
+  famEdit=null;fClr();rp();
+}
+
+/* Phase 3: Qualification */
+let qEdit=null;
+const qClr=()=>{cur.qSch=cur.qBoard=cur.qQual=cur.qYear=cur.qMarks=""};
+function qualHtml(){
+  const q=cur.qual||[];
+  const rows=q.length?q.map(r=>`<tr><td>${esc(r.sch)}</td><td>${esc(r.board)}</td><td>${esc(r.qual)}</td><td>${esc(r.year)}</td><td>${esc(r.marks)}</td><td><button class="btn" style="padding:3px 12px" data-a="e" data-id="${r.id}">Edit</button> <button class="btn dn" style="padding:3px 12px" data-a="d" data-id="${r.id}">Delete</button></td></tr>`).join("")
+    :`<tr><td colspan="6" style="text-align:center;color:var(--mu);padding:20px">Haju koi qualification add nathi kari.</td></tr>`;
+  return `<fieldset><legend>${qEdit?"Update qualification":"New qualification"}</legend>
+  <div class="grid">${fld(["qSch","School / college name","text"])}${fld(["qBoard","Board name","text"])}${fld(["qQual","Qualification","text"])}${fld(["qYear","Passing year","number"])}${fld(["qMarks","Marks (% / CGPA)","text"])}</div>
+  <div class="bar"><button class="btn pri" id="qAdd">${qEdit?"Update":"Add"}</button>${qEdit?'<button class="btn" id="qCancel">Cancel edit</button>':""}</div></fieldset>
+  <fieldset><legend>Qualification list</legend><div class="tw" style="flex:none"><table style="min-width:640px"><thead><tr><th>School / college</th><th>Board</th><th>Qualification</th><th>Passing year</th><th>Marks</th><th>Action</th></tr></thead><tbody id="qb">${rows}</tbody></table></div>
+  <p style="color:var(--mu);font-size:13px;margin:10px 0 0">Qualification add karya pachhi niche <b>Save</b> button dabavo, to j employee sathe save thase.</p></fieldset>`;
+}
+function bindQual(){
+  $("qAdd").onclick=addQual;
+  if($("qCancel"))$("qCancel").onclick=()=>{qEdit=null;qClr();rp()};
+  $("qb").onclick=e=>{
+    const b=e.target.closest("button[data-a]");if(!b)return;
+    const id=b.dataset.id,r=cur.qual.find(x=>x.id===id);
+    if(b.dataset.a==="e"){qEdit=id;cur.qSch=r.sch;cur.qBoard=r.board;cur.qQual=r.qual;cur.qYear=r.year;cur.qMarks=r.marks;rp()}
+    else dlg("Aa qualification delete karvi chhe?",[["Delete","dn",()=>{cur.qual=cur.qual.filter(x=>x.id!==id);if(qEdit===id){qEdit=null;qClr()}rp()}],["Cancel","",null]]);
+  };
+}
+function addQual(){
+  collect();
+  if(!cur.qSch||!cur.qQual){dlg("School / college name ane Qualification lakho.",[["OK","pri",null]]);return}
+  if(cur.qYear&&!/^(19|20)\d{2}$/.test(cur.qYear)){dlg("Passing year 4 digit no. hovo joiye (jem ke 2018).",[["OK","pri",null]]);return}
+  const rec={id:qEdit||"q"+Date.now(),sch:cur.qSch,board:cur.qBoard||"",qual:cur.qQual,year:cur.qYear||"",marks:cur.qMarks||""};
+  cur.qual=cur.qual||[];
+  if(qEdit)cur.qual=cur.qual.map(x=>x.id===qEdit?rec:x);else cur.qual.push(rec);
+  cur.qual.sort((x,y)=>(y.year||"")>(x.year||"")?1:-1);
+  qEdit=null;qClr();rp();
+}
+
+/* Phase 6: Salary structure */
+const RT={pfRate:0.12,pfLimit:25000,esicRate:0.0075,esicLimit:21000,ptMin:12000,ptAmt:200};
+let salEdit=null;
+const inr=n=>"₹ "+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2});
+const rp=()=>{$("ph").innerHTML="";renderPhase()};
+function calc(b,h){
+  b=+b||0;h=+h||0;const g=b+h;
+  const pf=cur.pfOn&&b>0&&b<RT.pfLimit?Math.round(b*RT.pfRate):0;
+  const esic=cur.esicOn&&b>0&&b<RT.esicLimit?Math.ceil(g*RT.esicRate):0;
+  const pt=cur.ptOn&&g>RT.ptMin?RT.ptAmt:0;
+  const ded=pf+esic+pt;
+  return {b,h,g,pf,esic,pt,ded,net:g-ded};
+}
+function calcHtml(c){
+  const R=(l,v,s)=>`<div class="rw"><span>${l}${s?`<small>${s}</small>`:""}</span><b>${inr(v)}</b></div>`;
+  const pfS=!cur.pfOn?"PF tick nathi":c.b>=RT.pfLimit?"Basic "+inr(RT.pfLimit)+" ke vadhare, nathi kapatu":"12% of Basic";
+  const esS=!cur.esicOn?"ESIC tick nathi":c.b>=RT.esicLimit?"Basic "+inr(RT.esicLimit)+" ke vadhare, nathi kapatu":"0.75% of Gross";
+  const ptS=!cur.ptOn?"PT tick nathi":c.g<=RT.ptMin?"Gross "+inr(RT.ptMin)+" sudhi nil":"Professional tax";
+  return `<div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(270px,1fr));margin:0">
+   <div class="box"><b>Earnings</b>${R("Basic",c.b)}${R("HRA",c.h)}<div class="rw tot"><span>Gross salary</span><b>${inr(c.g)}</b></div></div>
+   <div class="box"><b>Deductions</b>${R("PF",c.pf,pfS)}${R("ESIC",c.esic,esS)}${R("Professional tax",c.pt,ptS)}<div class="rw tot"><span>Total deduction</span><b>${inr(c.ded)}</b></div></div></div>
+   <div class="net"><span>On hand salary</span><span>${inr(c.net)}</span></div>`;
+}
+function salaryHtml(){
+  if(!salEdit&&!cur.sFrom&&cur.doj)cur.sFrom=cur.doj;
+  const s=cur.salary||[];
+  const rows=s.length?s.map((r,i)=>{const c=calc(r.basic,r.hra);return `<tr><td>${esc(r.from)}${i===0?' <span class="cur">(current)</span>':""}</td><td>${inr(r.basic)}</td><td>${inr(r.hra)}</td><td>${inr(c.g)}</td><td>${inr(c.ded)}</td><td>${inr(c.net)}</td><td>${esc(r.remarks||"")}</td><td><button class="btn" style="padding:3px 12px" data-a="e" data-id="${r.id}">Edit</button> <button class="btn dn" style="padding:3px 12px" data-a="d" data-id="${r.id}">Delete</button></td></tr>`}).join("")
+    :`<tr><td colspan="8" style="text-align:center;color:var(--mu);padding:20px">Haju salary structure add nathi karyu.</td></tr>`;
+  return `<fieldset><legend>${salEdit?"Update salary structure":"New salary structure"}</legend>
+  <div class="grid">${fld(["sFrom","Effective from (Date of joining)","date"])}${fld(["sBasic","Basic (monthly)","number"])}${fld(["sHra","HRA (monthly)","number"])}${fld(["sRem","Remarks","text"])}</div>
+  <div id="calc"></div>
+  <div class="bar"><button class="btn pri" id="sAdd">${salEdit?"Update salary":"Add salary"}</button>${salEdit?'<button class="btn" id="sCancel">Cancel edit</button>':""}</div></fieldset>
+  <fieldset><legend>Salary history</legend><div class="tw" style="flex:none"><table style="min-width:640px"><thead><tr><th>Effective from</th><th>Basic</th><th>HRA</th><th>Gross</th><th>Deduction</th><th>On hand</th><th>Remarks</th><th>Action</th></tr></thead><tbody id="shb">${rows}</tbody></table></div>
+  <p style="color:var(--mu);font-size:13px;margin:10px 0 0">Salary add/update karya pachhi niche <b>Save</b> button dabavo, to j employee sathe save thase. PF, ESIC ane PT Phase 1 na tick mark par aadhaar rakhe chhe.</p></fieldset>`;
+}
+function bindSalary(){
+  const upd=()=>{$("calc").innerHTML=calcHtml(calc($("sBasic").value,$("sHra").value))};
+  ["sBasic","sHra"].forEach(i=>$(i).oninput=upd);upd();
+  $("sAdd").onclick=addSal;
+  if($("sCancel"))$("sCancel").onclick=()=>{salEdit=null;cur.sFrom=cur.sBasic=cur.sHra="";cur.sRem="";rp()};
+  $("shb").onclick=e=>{
+    const b=e.target.closest("button[data-a]");if(!b)return;
+    const id=b.dataset.id,r=cur.salary.find(x=>x.id===id);
+    if(b.dataset.a==="e"){salEdit=id;cur.sFrom=r.from;cur.sBasic=r.basic;cur.sHra=r.hra;cur.sRem=r.remarks||"";rp()}
+    else dlg("Aa salary entry delete karvi chhe?",[["Delete","dn",()=>{cur.salary=cur.salary.filter(x=>x.id!==id);if(salEdit===id){salEdit=null;cur.sFrom=cur.sBasic=cur.sHra="";cur.sRem=""}rp()}],["Cancel","",null]]);
+  };
+}
+function addSal(){
+  collect();
+  if(!cur.sFrom||!(+cur.sBasic>0)){dlg("Effective from date ane Basic (0 thi vadhare) lakho.",[["OK","pri",null]]);return}
+  const rec={id:salEdit||"s"+Date.now(),from:cur.sFrom,basic:+cur.sBasic,hra:+cur.sHra||0,remarks:cur.sRem||""};
+  cur.salary=cur.salary||[];
+  if(salEdit)cur.salary=cur.salary.map(x=>x.id===salEdit?rec:x);else cur.salary.push(rec);
+  cur.salary.sort((x,y)=>x.from<y.from?1:-1);
+  salEdit=null;cur.sFrom=cur.sBasic=cur.sHra="";cur.sRem="";rp();
+}
+</script>
+</body>
+</html>
