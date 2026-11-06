@@ -3,883 +3,240 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>Candidate Manager</title>
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-
 <style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-}
-
-body{
-    font-family:Arial, sans-serif;
-    background:#eef4ff;
-    min-height:100vh;
-    color:#1e293b;
-}
-
-/* HEADER */
-
-.header{
-    background:linear-gradient(135deg,#0f172a,#0d6efd);
-    color:white;
-    padding:18px 25px;
-    box-shadow:0 4px 15px rgba(0,0,0,0.15);
-}
-
-.header-box{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:15px;
-    flex-wrap:wrap;
-}
-
-.logo{
-    font-size:24px;
-    font-weight:bold;
-    letter-spacing:0.5px;
-}
-
-.exit-btn{
-    background:white;
-    color:#0d6efd;
-    border:none;
-    padding:10px 18px;
-    border-radius:10px;
-    font-weight:bold;
-    cursor:pointer;
-    transition:0.3s;
-}
-
-.exit-btn:hover{
-    background:#dbeafe;
-    transform:translateY(-2px);
-}
-
-/* NAVIGATION */
-
-.nav{
-    display:flex;
-    justify-content:center;
-    gap:15px;
-    padding:20px;
-    flex-wrap:wrap;
-}
-
-.nav button{
-    background:#0d6efd;
-    color:white;
-    border:none;
-    padding:12px 22px;
-    border-radius:10px;
-    cursor:pointer;
-    font-size:15px;
-    font-weight:bold;
-    transition:0.3s;
-    min-width:180px;
-}
-
-.nav button:hover{
-    background:#1e293b;
-    transform:translateY(-3px);
-}
-
-/* PAGE */
-
-.page{
-    display:none;
-}
-
-.active{
-    display:block;
-}
-
-/* FORM */
-
-.form-box{
-    width:95%;
-    max-width:1000px;
-    margin:20px auto;
-    background:white;
-    padding:30px;
-    border-radius:18px;
-    box-shadow:0 10px 25px rgba(0,0,0,0.08);
-}
-
-.form-title{
-    font-size:24px;
-    margin-bottom:20px;
-    color:#0d6efd;
-    font-weight:bold;
-}
-
-.form-grid{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:18px;
-}
-
-.full-width{
-    grid-column:span 2;
-}
-
-/* INPUTS */
-
-input,
-textarea,
-select{
-    width:100%;
-    padding:12px;
-    border:1px solid #cbd5e1;
-    border-radius:10px;
-    font-size:15px;
-    outline:none;
-    transition:0.3s;
-    background:#f8fafc;
-}
-
-input:focus,
-textarea:focus,
-select:focus{
-    border-color:#0d6efd;
-    box-shadow:0 0 8px rgba(13,110,253,0.2);
-}
-
-textarea{
-    min-height:100px;
-    resize:vertical;
-}
-
-/* BUTTON */
-
-.main-btn{
-    margin-top:20px;
-    background:linear-gradient(135deg,#0d6efd,#2563eb);
-    color:white;
-    border:none;
-    padding:14px 25px;
-    border-radius:10px;
-    font-size:16px;
-    font-weight:bold;
-    cursor:pointer;
-    transition:0.3s;
-}
-
-.main-btn:hover{
-    transform:translateY(-2px);
-    background:linear-gradient(135deg,#1e293b,#0d6efd);
-}
-
-/* SEARCH */
-
-.search-box{
-    text-align:center;
-    padding:20px;
-}
-
-.search-box input{
-    width:100%;
-    max-width:550px;
-}
-
-.action-btns{
-    margin-top:15px;
-    display:flex;
-    justify-content:center;
-    gap:10px;
-    flex-wrap:wrap;
-}
-
-/* CARDS */
-
-.container{
-    display:grid;
-    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-    gap:20px;
-    padding:20px;
-}
-
-.card{
-    background:white;
-    border-radius:18px;
-    overflow:hidden;
-    box-shadow:0 8px 20px rgba(0,0,0,0.08);
-    transition:0.3s;
-}
-
-.card:hover{
-    transform:translateY(-5px);
-}
-
-.card-top{
-    display:flex;
-    gap:10px;
-    padding:10px;
-    background:#f8fafc;
-}
-
-.card img{
-    width:50%;
-    height:140px;
-    object-fit:cover;
-    border-radius:12px;
-    cursor:pointer;
-}
-
-.card-body{
-    padding:18px;
-}
-
-.card-body h3{
-    color:#0d6efd;
-    margin-bottom:10px;
-}
-
-.card-body p{
-    margin:8px 0;
-    font-size:14px;
-    word-break:break-word;
-}
-
-/* STATUS */
-
-.status{
-    display:inline-block;
-    padding:6px 12px;
-    border-radius:30px;
-    font-size:13px;
-    font-weight:bold;
-    margin-top:10px;
-}
-
-.selected{
-    background:#dcfce7;
-    color:#166534;
-}
-
-.rejected{
-    background:#fee2e2;
-    color:#991b1b;
-}
-
-/* MODAL */
-
-.modal{
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,0.85);
-    justify-content:center;
-    align-items:center;
-    z-index:999;
-    padding:20px;
-}
-
-.modal img{
-    max-width:95%;
-    max-height:90%;
-    border-radius:15px;
-}
-
-/* FOOTER */
-
-.footer{
-    background:#0f172a;
-    color:white;
-    text-align:center;
-    padding:14px;
-    margin-top:30px;
-    font-size:14px;
-}
-
-/* RESPONSIVE */
-
-@media(max-width:768px){
-
-    .form-grid{
-        grid-template-columns:1fr;
-    }
-
-    .full-width{
-        grid-column:span 1;
-    }
-
-    .header-box{
-        flex-direction:column;
-        align-items:flex-start;
-    }
-
-    .logo{
-        font-size:22px;
-    }
-
-    .nav button{
-        width:100%;
-    }
-
-    .card-top{
-        flex-direction:column;
-    }
-
-    .card img{
-        width:100%;
-        height:180px;
-    }
-
-    .form-box{
-        padding:20px;
-    }
-
-}
-
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Arial,sans-serif;background:#eef4ff;min-height:100vh;color:#1e293b}
+.header{background:linear-gradient(135deg,#0f172a,#0d6efd);color:#fff;padding:18px 25px;box-shadow:0 4px 15px rgba(0,0,0,.15)}
+.header-box{display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
+.logo{font-size:24px;font-weight:bold}
+.exit-btn{background:#fff;color:#0d6efd;border:none;padding:10px 18px;border-radius:10px;font-weight:bold;cursor:pointer}
+.nav{display:flex;justify-content:center;gap:15px;padding:20px;flex-wrap:wrap}
+.nav button{background:#0d6efd;color:#fff;border:none;padding:12px 22px;border-radius:10px;cursor:pointer;font-size:15px;font-weight:bold;min-width:180px}
+.nav button:hover{background:#1e293b}
+.page{display:none}.active{display:block}
+.form-box{width:95%;max-width:1000px;margin:20px auto;background:#fff;padding:30px;border-radius:18px;box-shadow:0 10px 25px rgba(0,0,0,.08)}
+.form-title{font-size:24px;margin-bottom:20px;color:#0d6efd;font-weight:bold}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+.full-width{grid-column:span 2}
+input,textarea,select{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;font-size:15px;outline:none;background:#f8fafc}
+input:focus,textarea:focus,select:focus{border-color:#0d6efd;box-shadow:0 0 8px rgba(13,110,253,.2)}
+textarea{min-height:100px;resize:vertical}
+.main-btn{margin-top:20px;background:linear-gradient(135deg,#0d6efd,#2563eb);color:#fff;border:none;padding:14px 25px;border-radius:10px;font-size:16px;font-weight:bold;cursor:pointer}
+.main-btn:disabled{opacity:.6;cursor:wait}
+.search-box{text-align:center;padding:20px}
+.search-box input{width:100%;max-width:550px}
+.action-btns{margin-top:15px;display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.action-btns .main-btn{margin-top:0}
+.container{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;padding:20px}
+.card{background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 8px 20px rgba(0,0,0,.08)}
+.card-top{display:flex;gap:10px;padding:10px;background:#f8fafc}
+.card-top img,.noimg{width:50%;height:140px;object-fit:cover;border-radius:12px;cursor:pointer}
+.noimg{display:flex;align-items:center;justify-content:center;background:#e2e8f0;color:#64748b;font-size:13px;cursor:default}
+.card-body{padding:18px}
+.card-body h3{color:#0d6efd;margin-bottom:10px}
+.card-body p{margin:8px 0;font-size:14px;word-break:break-word}
+.status{display:inline-block;padding:6px 12px;border-radius:30px;font-size:13px;font-weight:bold;margin-top:10px}
+.selected{background:#dcfce7;color:#166534}.rejected{background:#fee2e2;color:#991b1b}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);justify-content:center;align-items:center;z-index:999;padding:20px}
+.modal img{max-width:95%;max-height:90%;border-radius:15px}
+.footer{background:#0f172a;color:#fff;text-align:center;padding:14px;margin-top:30px;font-size:14px}
+@media(max-width:768px){.form-grid{grid-template-columns:1fr}.full-width{grid-column:span 1}.header-box{flex-direction:column;align-items:flex-start}.nav button{width:100%}.card-top{flex-direction:column}.card-top img,.noimg{width:100%;height:180px}.form-box{padding:20px}}
 </style>
 </head>
-
 <body>
 
-<!-- HEADER -->
-
-<div class="header">
-
-    <div class="header-box">
-
-        <div class="logo">
-            Prime HRM - Candidate Management
-        </div>
-
-        <a href="dashboard.html">
-            <button class="exit-btn">
-                Exit Dashboard
-            </button>
-        </a>
-
-    </div>
-
-</div>
-
-<!-- NAV -->
+<div class="header"><div class="header-box">
+  <div class="logo">Prime HRM - Candidate Management</div>
+  <a href="dashboard.html"><button class="exit-btn">Exit Dashboard</button></a>
+</div></div>
 
 <div class="nav">
-
-    <button onclick="showPage('add')">
-        ➕ Add Candidate
-    </button>
-
-    <button onclick="showPage('view')">
-        👨‍💼 View Candidates
-    </button>
-
+  <button onclick="showPage('add')">➕ Add Candidate</button>
+  <button onclick="showPage('view')">👨‍💼 View Candidates</button>
 </div>
 
-<!-- ADD PAGE -->
-
-<div id="add" class="page active">
-
-<div class="form-box">
-
-    <div class="form-title">
-        Add New Candidate
-    </div>
-
-    <div class="form-grid">
-
-        <input type="text" id="sr" placeholder="SR Number">
-
-        <input type="text" id="name" placeholder="Candidate Name">
-
-        <input type="email" id="email" placeholder="Email Address">
-
-        <input type="text" id="mobile" placeholder="Mobile Number">
-
-        <input type="date" id="date">
-
-        <select id="selected">
-
-            <option value="">Select Status</option>
-
-            <option value="Yes">Selected</option>
-
-            <option value="No">Rejected</option>
-
-        </select>
-
-        <textarea
-        id="skills"
-        class="full-width"
-        placeholder="Remarks / Skills"></textarea>
-
-        <div>
-            <label><b>Upload Image 1</b></label>
-            <input type="file" id="image1" accept="image/*">
-        </div>
-
-        <div>
-            <label><b>Upload Image 2</b></label>
-            <input type="file" id="image2" accept="image/*">
-        </div>
-
-    </div>
-
-    <button class="main-btn" onclick="saveData()">
-        💾 Save Candidate
-    </button>
-
-</div>
-
-</div>
-
-<!-- VIEW PAGE -->
+<div id="add" class="page active"><div class="form-box">
+  <div class="form-title">Add New Candidate</div>
+  <div class="form-grid">
+    <input type="text" id="sr" placeholder="SR Number">
+    <input type="text" id="name" placeholder="Candidate Name">
+    <input type="email" id="email" placeholder="Email Address">
+    <input type="text" id="mobile" placeholder="Mobile Number (10 digit)" maxlength="10">
+    <input type="date" id="date">
+    <select id="selected">
+      <option value="">Select Status</option>
+      <option value="Yes">Selected</option>
+      <option value="No">Rejected</option>
+    </select>
+    <textarea id="skills" class="full-width" placeholder="Remarks / Skills"></textarea>
+    <div><label><b>Upload Image 1</b></label><input type="file" id="image1" accept="image/*"></div>
+    <div><label><b>Upload Image 2</b></label><input type="file" id="image2" accept="image/*"></div>
+  </div>
+  <button class="main-btn" id="saveBtn" onclick="saveData()">💾 Save Candidate</button>
+</div></div>
 
 <div id="view" class="page">
-
-<div class="search-box">
-
-    <input
-    type="text"
-    id="search"
-    placeholder="Search Candidate by Name..."
-    onkeyup="searchData()">
-
+  <div class="search-box">
+    <input type="text" id="search" placeholder="Search Candidate by Name..." onkeyup="searchData()">
     <div class="action-btns">
-
-        <button class="main-btn" onclick="exportExcel()">
-            📥 Export Excel
-        </button>
-
-        <button class="main-btn" onclick="downloadPDF()">
-            📄 Download PDF
-        </button>
-
+      <button class="main-btn" onclick="exportExcel()">📥 Export Excel</button>
+      <button class="main-btn" onclick="downloadPDF()">📄 Download PDF</button>
     </div>
-
+  </div>
+  <div class="container" id="list"></div>
 </div>
 
-<div class="container" id="list"></div>
-
-</div>
-
-<!-- IMAGE MODAL -->
-
-<div class="modal" id="modal" onclick="closeImage()">
-
-    <img id="modalImg">
-
-</div>
-
-<!-- FOOTER -->
-
-<div class="footer">
-
-    © 2022 - 2026 | Made By PrimeWebTech
-
-</div>
+<div class="modal" id="modal" onclick="closeImage()"><img id="modalImg" alt="Preview"></div>
+<div class="footer">© 2022 - 2026 | Made By PrimeWebTech</div>
 
 <script>
+const API_URL="https://script.google.com/macros/s/AKfycbyLMPk-cP79csAksPRIiMn--ADjacf3gLfLQ02dPU5SyFmtMMruGc9DJtoVR9INNuY8DQ/exec";
+let candidates=[],filtered=[];
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-const API_URL =
-"https://script.google.com/macros/s/AKfycbyVryWmLsn91_JI5DraZGuXU-pTSljPTDVh8pEadULKGF-jfIv_ztGEfuSx6nxNGiA/exec";
-
-let candidates = [];
-let filtered = [];
-
-/* PAGE SWITCH */
-
-function showPage(page){
-
-    document
-    .querySelectorAll(".page")
-    .forEach(p=>p.classList.remove("active"));
-
-    document
-    .getElementById(page)
-    .classList.add("active");
-
-    if(page==="view"){
-        loadCandidates();
-    }
+function showPage(p){
+  document.querySelectorAll(".page").forEach(x=>x.classList.remove("active"));
+  $(p).classList.add("active");
+  if(p==="view")loadCandidates();
 }
 
-/* LOAD DATA */
-
+/* LOAD (data + images badhu sheet mathi) */
 async function loadCandidates(){
-
-try{
-
-    let res = await fetch(API_URL);
-
-    let sheetData = await res.json();
-
-    let localData =
-    JSON.parse(
-    localStorage.getItem("candidates")
-    ) || [];
-
-    candidates = sheetData.map(s=>{
-
-        let local =
-        localData.find(l=>l.sr===s.sr);
-
-        return{
-
-            ...s,
-
-            image1:
-            local ? local.image1 : "",
-
-            image2:
-            local ? local.image2 : ""
-
-        };
-    });
-
-    filtered = [...candidates];
-
-    display(filtered);
-
-}catch(e){
-
-    alert("Data Load Error");
-
+  $("list").innerHTML="<h2>Loading...</h2>";
+  try{
+    const res=await fetch(API_URL);
+    const data=await res.json();
+    if(!Array.isArray(data))throw new Error(data.message||"Invalid data");
+    candidates=data;
+    searchData();
+  }catch(e){
+    $("list").innerHTML="<h2>Data Load Error: "+esc(e.message)+"</h2>";
+  }
 }
 
-}
-
-/* DISPLAY */
+const imgTag=u=>u?`<img src="${esc(u)}" alt="Photo" onclick="showImage(this.src)">`:`<div class="noimg">No Image</div>`;
 
 function display(data){
-
-let list =
-document.getElementById("list");
-
-list.innerHTML = "";
-
-if(data.length===0){
-
-    list.innerHTML =
-    "<h2>No Candidate Found</h2>";
-
-    return;
-}
-
-data.forEach(c=>{
-
-list.innerHTML += `
-
-<div class="card">
-
-    <div class="card-top">
-
-        <img
-        src="${c.image1}"
-        onclick="showImage('${c.image1}')">
-
-        <img
-        src="${c.image2}"
-        onclick="showImage('${c.image2}')">
-
-    </div>
-
+  const list=$("list");
+  if(!data.length){list.innerHTML="<h2>No Candidate Found</h2>";return}
+  list.innerHTML=data.map(c=>`
+  <div class="card">
+    <div class="card-top">${imgTag(c.image1)}${imgTag(c.image2)}</div>
     <div class="card-body">
-
-        <h3>${c.name}</h3>
-
-        <p><b>SR No:</b> ${c.sr}</p>
-
-        <p><b>Email:</b> ${c.email}</p>
-
-        <p><b>Mobile:</b> ${c.mobile}</p>
-
-        <p><b>Remarks:</b> ${c.skills}</p>
-
-        <p><b>Date:</b> ${c.date}</p>
-
-        <div class="
-        status
-        ${c.selected === 'Yes'
-        ? 'selected'
-        : 'rejected'}">
-
-        ${c.selected === 'Yes'
-        ? '✅ Selected'
-        : '❌ Rejected'}
-
-        </div>
-
+      <h3>${esc(c.name)}</h3>
+      <p><b>SR No:</b> ${esc(c.sr)}</p>
+      <p><b>Email:</b> ${esc(c.email)}</p>
+      <p><b>Mobile:</b> ${esc(c.mobile)}</p>
+      <p><b>Remarks:</b> ${esc(c.skills)}</p>
+      <p><b>Date:</b> ${esc(c.date)}</p>
+      <div class="status ${c.selected==="Yes"?"selected":"rejected"}">${c.selected==="Yes"?"✅ Selected":"❌ Rejected"}</div>
     </div>
-
-</div>
-
-`;
-
-});
-
+  </div>`).join("");
 }
-
-/* SEARCH */
 
 function searchData(){
+  const v=$("search").value.toLowerCase();
+  filtered=candidates.filter(c=>String(c.name||"").toLowerCase().includes(v));
+  display(filtered);
+}
 
-let val =
-document
-.getElementById("search")
-.value
-.toLowerCase();
-
-filtered = candidates.filter(c=>
-
-(c.name || "")
-.toLowerCase()
-.includes(val)
-
-);
-
-display(filtered);
-
+/* Image nu size nanu kari ne (localStorage / upload error fix) */
+function compress(file,max=900){
+  return new Promise((ok,no)=>{
+    const r=new FileReader();
+    r.onerror=no;
+    r.onload=()=>{
+      const i=new Image();
+      i.onerror=no;
+      i.onload=()=>{
+        const k=Math.min(1,max/Math.max(i.width,i.height));
+        const c=document.createElement("canvas");
+        c.width=Math.round(i.width*k);c.height=Math.round(i.height*k);
+        c.getContext("2d").drawImage(i,0,0,c.width,c.height);
+        ok(c.toDataURL("image/jpeg",0.75));
+      };
+      i.src=r.result;
+    };
+    r.readAsDataURL(file);
+  });
 }
 
 /* SAVE */
+async function saveData(){
+  const sr=$("sr").value.trim(),name=$("name").value.trim(),email=$("email").value.trim(),
+        mobile=$("mobile").value.trim(),skills=$("skills").value.trim(),
+        date=$("date").value,selected=$("selected").value,
+        f1=$("image1").files[0],f2=$("image2").files[0];
 
-function saveData(){
+  if(!sr||!name||!email||!mobile||!selected){alert("Please Fill SR, Name, Email, Mobile ane Status");return}
+  if(!/^\S+@\S+\.\S+$/.test(email)){alert("Email barabar nathi");return}
+  if(!/^\d{10}$/.test(mobile)){alert("Mobile 10 digit no. hovo joiye");return}
 
-let sr =
-document.getElementById("sr").value;
+  const exists=candidates.some(c=>String(c.sr)===sr);
+  if(!exists&&(!f1||!f2)){alert("Please Upload 2 Images");return}
 
-let name =
-document.getElementById("name").value;
-
-let email =
-document.getElementById("email").value;
-
-let mobile =
-document.getElementById("mobile").value;
-
-let skills =
-document.getElementById("skills").value;
-
-let date =
-document.getElementById("date").value;
-
-let selected =
-document.getElementById("selected").value;
-
-let f1 =
-document.getElementById("image1").files[0];
-
-let f2 =
-document.getElementById("image2").files[0];
-
-if(!sr || !name || !email || !mobile){
-
-    alert("Please Fill All Fields");
-
-    return;
+  const btn=$("saveBtn");
+  btn.disabled=true;btn.textContent="⏳ Saving...";
+  try{
+    const payload={sr,name,email,mobile,skills,date,selected,
+      image1:f1?await compress(f1):"",
+      image2:f2?await compress(f2):""};
+    const res=await fetch(API_URL,{
+      method:"POST",
+      headers:{"Content-Type":"text/plain;charset=utf-8"},
+      body:JSON.stringify(payload)
+    });
+    const out=await res.json();
+    if(out.status!=="success")throw new Error(out.message||"Save failed");
+    alert("Candidate Saved Successfully ✅");
+    clearForm();
+    await loadCandidates();
+  }catch(e){
+    alert("Save Error: "+e.message);
+  }finally{
+    btn.disabled=false;btn.textContent="💾 Save Candidate";
+  }
 }
-
-if(!f1 || !f2){
-
-    alert("Please Upload 2 Images");
-
-    return;
-}
-
-let r1 = new FileReader();
-
-let r2 = new FileReader();
-
-r1.onload = function(){
-
-r2.onload = async function(){
-
-let candidate = {
-
-    sr,name,email,mobile,
-    skills,date,selected,
-
-    image1:r1.result,
-    image2:r2.result
-};
-
-let local =
-JSON.parse(
-localStorage.getItem("candidates")
-) || [];
-
-local =
-local.filter(c=>c.sr!==sr);
-
-local.push(candidate);
-
-localStorage.setItem(
-"candidates",
-JSON.stringify(local)
-);
-
-await fetch(API_URL,{
-
-    method:"POST",
-
-    body:JSON.stringify(candidate)
-
-});
-
-alert("Candidate Saved Successfully ✅");
-
-clearForm();
-
-loadCandidates();
-
-};
-
-r2.readAsDataURL(f2);
-
-};
-
-r1.readAsDataURL(f1);
-
-}
-
-/* CLEAR */
 
 function clearForm(){
-
-document
-.querySelectorAll(
-"input,textarea,select"
-)
-.forEach(e=>e.value="");
-
+  document.querySelectorAll("#add input,#add textarea,#add select").forEach(e=>e.value="");
 }
 
-/* IMAGE */
+function showImage(src){$("modal").style.display="flex";$("modalImg").src=src}
+function closeImage(){$("modal").style.display="none"}
 
-function showImage(src){
-
-document
-.getElementById("modal")
-.style.display = "flex";
-
-document
-.getElementById("modalImg")
-.src = src;
-
-}
-
-function closeImage(){
-
-document
-.getElementById("modal")
-.style.display = "none";
-
-}
-
-/* EXPORT EXCEL */
-
+/* EXPORT EXCEL (comma / quotes safe) */
 function exportExcel(){
-
-let csv =
-"SR,Name,Email,Mobile,Remarks,Date,Selected\n";
-
-candidates.forEach(c=>{
-
-csv +=
-`${c.sr},${c.name},${c.email},${c.mobile},${c.skills},${c.date},${c.selected}\n`;
-
-});
-
-let blob =
-new Blob([csv],{
-type:"text/csv"
-});
-
-let a =
-document.createElement("a");
-
-a.href =
-URL.createObjectURL(blob);
-
-a.download =
-"Candidate_Report.csv";
-
-a.click();
-
+  const q=v=>`"${String(v??"").replace(/"/g,'""')}"`;
+  let csv="SR,Name,Email,Mobile,Remarks,Date,Selected\n";
+  candidates.forEach(c=>{csv+=[c.sr,c.name,c.email,c.mobile,c.skills,c.date,c.selected].map(q).join(",")+"\n"});
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));
+  a.download="Candidate_Report.csv";a.click();
 }
 
 /* PDF */
-
-async function downloadPDF(){
-
-const { jsPDF } = window.jspdf;
-
-let doc = new jsPDF();
-
-let y = 20;
-
-doc.setFontSize(18);
-
-doc.text(
-"Candidate Report",
-65,
-10
-);
-
-candidates.forEach(c=>{
-
-doc.setFontSize(11);
-
-doc.text(
-`SR : ${c.sr}`,
-10,
-y
-);
-
-doc.text(
-`Name : ${c.name}`,
-10,
-y+7
-);
-
-doc.text(
-`Mobile : ${c.mobile}`,
-110,
-y+7
-);
-
-doc.text(
-`Selected : ${c.selected}`,
-10,
-y+14
-);
-
-y += 28;
-
-if(y > 260){
-
-doc.addPage();
-
-y = 20;
-
+function downloadPDF(){
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF();
+  let y=25;
+  doc.setFontSize(18);doc.text("Candidate Report",65,12);
+  candidates.forEach(c=>{
+    doc.setFontSize(11);
+    doc.text(`SR : ${c.sr}`,10,y);
+    doc.text(`Name : ${c.name}`,10,y+7);
+    doc.text(`Mobile : ${c.mobile}`,110,y+7);
+    doc.text(`Selected : ${c.selected}`,10,y+14);
+    y+=28;
+    if(y>260){doc.addPage();y=20}
+  });
+  doc.save("Candidate_Report.pdf");
 }
-
-});
-
-doc.save("Candidate_Report.pdf");
-
-}
-
-/* INIT */
 
 loadCandidates();
-
 </script>
-
 </body>
 </html>
